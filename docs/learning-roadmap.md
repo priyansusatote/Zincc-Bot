@@ -4,6 +4,8 @@ P1.1 implemented startup, dependency management, HTTP health and a package-depen
 
 ## 1. What the earlier summary missed
 
+P1.4 implemented generated API types, runtime boundary validation, and accessible async workspace selection. [Workbench learning note](learning-notes/009-workbench.md)
+
 P1.3 implemented browser authentication, CSRF-protected sign-out and per-request workspace authorization. [Session learning note](learning-notes/008-browser-sessions.md)
 
 P1.2 implemented and tested composite keys, row-level security, pooled transaction context, revocation visibility and DDL rollback. [Workspace learning note](learning-notes/007-workspace-membership.md)

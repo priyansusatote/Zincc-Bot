@@ -1,0 +1,163 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Zincc browser API",
+    "version": "1.0.0"
+  },
+  "security": [
+    {
+      "session": []
+    }
+  ],
+  "paths": {
+    "/api/session": {
+      "get": {
+        "operationId": "readSession",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in required"
+          }
+        }
+      }
+    },
+    "/api/workspaces": {
+      "get": {
+        "operationId": "listWorkspaces",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Membership"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in required"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}": {
+      "get": {
+        "operationId": "readWorkspace",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Membership"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Sign in required"
+          },
+          "404": {
+            "description": "Workspace unavailable"
+          }
+        }
+      }
+    },
+    "/api/logout": {
+      "post": {
+        "operationId": "logout",
+        "description": "Send the CSRF header name and value from the current session.",
+        "responses": {
+          "204": {
+            "description": "Session ended"
+          },
+          "403": {
+            "description": "Invalid CSRF token"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "ZINCCSESSION"
+      }
+    },
+    "schemas": {
+      "Session": {
+        "type": "object",
+        "required": [
+          "accountLabel",
+          "provisioned",
+          "csrfHeader",
+          "csrfToken"
+        ],
+        "properties": {
+          "accountLabel": {
+            "type": "string"
+          },
+          "provisioned": {
+            "type": "boolean"
+          },
+          "csrfHeader": {
+            "type": "string"
+          },
+          "csrfToken": {
+            "type": "string"
+          }
+        }
+      },
+      "Membership": {
+        "type": "object",
+        "required": [
+          "workspaceId",
+          "workspaceName",
+          "role"
+        ],
+        "properties": {
+          "workspaceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "workspaceName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "owner",
+              "member"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

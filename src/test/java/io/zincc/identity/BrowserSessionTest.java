@@ -62,8 +62,9 @@ class BrowserSessionTest {
 		Flyway.configure().dataSource(source).defaultSchema("zincc").load().migrate();
 		this.app = (ServletWebServerApplicationContext) new SpringApplicationBuilder(ZinccApplication.class).run(
 				"--spring.profiles.active=oidc", "--server.port=0", "--server.servlet.session.cookie.secure=false",
-				"--ZINCC_OIDC_ISSUER=" + this.issuer.issuer(), "--ZINCC_OIDC_CLIENT_ID=zincc-test",
-				"--ZINCC_OIDC_CLIENT_SECRET=test-only", "--ZINCC_PUBLIC_BASE_URL={baseUrl}",
+				"--zincc.workbench.enabled=true", "--ZINCC_OIDC_ISSUER=" + this.issuer.issuer(),
+				"--ZINCC_OIDC_CLIENT_ID=zincc-test", "--ZINCC_OIDC_CLIENT_SECRET=test-only",
+				"--ZINCC_PUBLIC_BASE_URL={baseUrl}",
 				"--zincc.db.url=jdbc:postgresql://127.0.0.1:" + this.postgres.getPort() + "/postgres",
 				"--zincc.db.user=app_user", "--zincc.db.password=");
 	}
@@ -110,8 +111,10 @@ class BrowserSessionTest {
 		var cookies = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
 		try (var browser = HttpClient.newBuilder().cookieHandler(cookies).build()) {
 			assertThat(get(browser, "/api/session").statusCode()).isEqualTo(401);
+			assertThat(get(browser, "/api/workspaces").statusCode()).isEqualTo(401);
 			var login = callback(browser, true);
 			assertThat(login.statusCode()).isEqualTo(302);
+			assertThat(login.headers().firstValue("Location").orElseThrow()).endsWith("/workbench/");
 			assertThat(login.headers().firstValue("Set-Cookie").orElseThrow()).contains("ZINCCSESSION=", "HttpOnly",
 					"SameSite=Lax");
 			var json = new JsonMapper();
@@ -121,14 +124,19 @@ class BrowserSessionTest {
 			assertThat(session.path("provisioned").asBoolean()).isFalse();
 			String mine = "/api/workspaces/" + this.workspace;
 			assertThat(get(browser, mine).statusCode()).isEqualTo(404);
+			assertThat(get(browser, "/api/workspaces").body()).isEqualTo("[]");
 			this.owner.update("INSERT INTO zincc.oidc_identity VALUES (?, 'local-user', ?)", this.issuer.issuer(),
 					this.principal);
 			assertThat(json.readTree(get(browser, "/api/session").body()).path("provisioned").asBoolean()).isTrue();
 			assertThat(json.readTree(get(browser, mine).body()).path("role").asString()).isEqualTo("owner");
 			assertThat(get(browser, "/api/workspaces/" + this.otherWorkspace).statusCode()).isEqualTo(404);
+			var directory = json.readTree(get(browser, "/api/workspaces").body());
+			assertThat(directory.size()).isEqualTo(1);
+			assertThat(directory.get(0).path("workspaceId").asString()).isEqualTo(this.workspace.toString());
 			this.owner.update("DELETE FROM zincc.workspace_membership WHERE workspace_id = ?", this.workspace);
 			assertThat(get(browser, mine).statusCode()).isEqualTo(404);
 			var logout = request("/api/logout").POST(HttpRequest.BodyPublishers.noBody());
+			assertThat(get(browser, "/api/workspaces").body()).isEqualTo("[]");
 			assertThat(browser.send(logout.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
 				.isEqualTo(403);
 			assertThat(get(browser, "/api/session").statusCode()).isEqualTo(200);
@@ -136,6 +144,17 @@ class BrowserSessionTest {
 			assertThat(browser.send(logout.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
 				.isEqualTo(204);
 			assertThat(get(browser, "/api/session").statusCode()).isEqualTo(401);
+		}
+	}
+
+	@Test
+	void accountSwitchRequestsProviderAccountSelection() throws Exception {
+		try (var browser = HttpClient.newHttpClient()) {
+			var response = get(browser, "/oauth2/authorization/zincc?account=switch");
+			assertThat(response.statusCode()).isEqualTo(302);
+			var target = URI.create(response.headers().firstValue("Location").orElseThrow());
+			assertThat(UriComponentsBuilder.fromUri(target).build().getQueryParams().getFirst("prompt"))
+				.isEqualTo("select_account");
 		}
 	}
 

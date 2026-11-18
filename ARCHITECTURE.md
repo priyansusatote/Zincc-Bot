@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P1.4 adds a same-origin React client. The optional Maven workbench profile packages built assets into the Spring JAR. A restricted directory function lists only the signed-in identity's memberships. Opening a selected workspace uses the independent P1.2 authorization check. [Workbench contract and deployment](docs/modules/workbench.md)
+
 P1.3 adds an OIDC browser session boundary. The `identity` package resolves a validated issuer and subject to an internal principal, then calls the `workspace` package to check membership for each workspace read. [Identity decision](docs/architecture-decisions/0011-browser-identity.md)
 
 P1.2 implements the first feature package, `io.zincc.workspace`. Its membership lookup uses transaction-local identity and workspace context, separate schema-owner and runtime roles, and PostgreSQL row-level policies. The `postgres` profile enables it. [Workspace access decision](docs/architecture-decisions/0010-workspace-access.md)

@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**P1.1–P1.3 complete. P1.4 awaits authorization.** The user authorizes one scoped task at a time.
+**P1.1–P1.4 complete. P2.1 awaits authorization.** The user authorizes one scoped task at a time.
 
 ## Task completion contract
 

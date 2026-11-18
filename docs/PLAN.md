@@ -199,4 +199,4 @@ This deliverable completes the initial **research-backed planning task**. Its sc
 
 The deeper 16 November review corrects phase dependencies and reference assumptions, adds operational/delegation/protocol contracts, and retains the full requested scope. All implementation and adoption gates remain pending. Consult [the review](PLAN-REVIEW.md) for the final decision/concern register.
 
-The approved roadmap contains individually scoped tasks, each with verification and a focused teaching report. [P1.3 is complete](learning-notes/008-browser-sessions.md). P1.4 requires separate authorization.
+The approved roadmap contains individually scoped tasks, each with verification and a focused teaching report. [P1.4 is complete](learning-notes/009-workbench.md). P2.1 requires separate authorization.

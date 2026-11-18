@@ -1,6 +1,6 @@
 # ADR 0006 — A web workbench with staged delivery
 
-Status: **Proposed**. Related: [roadmap](../phases/roadmap.md).
+The web shell and generated REST client were adopted in P1.4. Native packaging and final visual polish await their respective phases. [Workbench and qualification](../modules/workbench.md).
 
 ## Problem
 

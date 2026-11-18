@@ -12,6 +12,8 @@ P1.3 qualified the Spring Boot 4.1.2 OAuth2 client starter with its managed Spri
 
 ## Core stack
 
+P1.4 qualified Node 26.13.1 LTS, pnpm 12.21.0, React 19.3.1, Vite 8.3.8 and TypeScript 7.0.2 for the browser bundle. OpenAPI generation uses openapi-typescript 7.13.0 with its supported TypeScript 5.9.3 peer in a separate tooling workspace. The application compiler remains on 7.0.2. Native CSS handles layout, light/dark tokens and focus styles in this shell. [Lockfile](../frontend/pnpm-lock.yaml) · [Run and verify](modules/workbench.md).
+
 | Component | Proposed baseline | Evidence and reason |
 | --- | --- | --- |
 | Java | Eclipse Temurin 25.0.5+8, Java 25 LTS line | [Adoptium release news](https://adoptium.net/news?tag=release-notes) and [support policy](https://adoptium.net/support); choose LTS over Java 27 feature line |

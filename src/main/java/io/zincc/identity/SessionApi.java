@@ -1,5 +1,6 @@
 package io.zincc.identity;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,7 +33,18 @@ class SessionApi {
 
 	@GetMapping("/api/session")
 	SessionView session(@AuthenticationPrincipal OidcUser user, CsrfToken csrf) {
-		return new SessionView(principal(user).isPresent(), csrf.getHeaderName(), csrf.getToken());
+		String label = user.getPreferredUsername();
+		return new SessionView(principal(user).isPresent(), csrf.getHeaderName(), csrf.getToken(),
+				(label == null || label.isBlank()) ? user.getSubject() : label);
+	}
+
+	@GetMapping("/api/workspaces")
+	List<WorkspaceMemberships.Membership> workspaces(@AuthenticationPrincipal OidcUser user) {
+		var token = user.getIdToken();
+		return this.jdbc.query("SELECT * FROM zincc.list_oidc_workspaces(?, ?)",
+				(rs, row) -> new WorkspaceMemberships.Membership(rs.getObject("workspace_id", UUID.class),
+						rs.getString("workspace_name"), rs.getString("role")),
+				token.getClaimAsString("iss"), token.getSubject());
 	}
 
 	@GetMapping("/api/workspaces/{workspaceId}")
@@ -47,7 +59,7 @@ class SessionApi {
 				token.getClaimAsString("iss"), token.getSubject()));
 	}
 
-	record SessionView(boolean provisioned, String csrfHeader, String csrfToken) {
+	record SessionView(boolean provisioned, String csrfHeader, String csrfToken, String accountLabel) {
 	}
 
 }

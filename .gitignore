@@ -1,5 +1,9 @@
 # Build output, logs and local databases
 target/
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
 *.log
 hs_err_pid*
 *.hprof
