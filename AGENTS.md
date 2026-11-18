@@ -30,6 +30,8 @@ Keep one short component note in `docs/learning-notes/` and link it in the compl
 
 ## Documentation and completion
 
+- After each verified implementation task, commit the scoped changes and push to the configured Zincc GitHub remote. Keep local configuration, secrets and generated artifacts out of Git. Preserve remote history if the branch has advanced.
+
 - Keep README.md, ARCHITECTURE.md, docs/status.md, relevant module/phase documents, and learning notes synchronized with reality.
 - Significant decisions require an ADR recording problem, solution, alternatives, trade-offs, and consequences. Proposed ADRs are not accepted decisions.
 - Mark tasks pending, in progress, completed, or blocked; give a concrete reason for blocked status.

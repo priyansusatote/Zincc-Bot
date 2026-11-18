@@ -2,6 +2,8 @@
 
 **P1.1 qualification on 18 November 2026.** Tested on Windows x64 with Eclipse Temurin HotSpot build `25.0.5+8-LTS`, Maven 3.10.1 (wrapper 3.3.4) and Spring Boot 4.1.2 directly on the host. The wrapper pins the Maven archive SHA-256. The build also pins Enforcer 3.6.2, Spring Java Format 0.0.47 and ArchUnit 1.4.2. [Resolved dependency tree](phases/p1.1-dependencies.txt) · [tests and limitations](learning-notes/006-spring-foundation.md). Regenerate the tree with the wrapper goal `dependency:tree -DoutputFile=target/dependency-tree.txt`.
 
+P1.2 qualified PostgreSQL 18.7 on Windows x64, pgJDBC 42.7.14, Flyway 12.4.0 and HikariCP 7.0.2. Tests launch the native server with Zonky 2.2.2 and its 18.7.0 binaries BOM. [Dependency snapshot](phases/p1.2-dependencies.txt) · [PostgreSQL release policy](https://www.postgresql.org/support/versioning/) · [Flyway PostgreSQL module](https://documentation.red-gate.com/flyway/reference/database-driver-reference/postgresql-database).
+
 Other components retain their proposed baselines from 14 and 16 November. Recheck security patches and compatibility when each component is introduced.
 
 16 November refresh: official sources reconfirm Boot 4.1.2, Spring AI 2.0.2/Boot 4.0–4.1 compatibility, PostgreSQL 18.7, TypeScript 7.0.2, Tailwind 4.3.5, ADK 2.14.1, LangGraph 1.2.22 and Docling 2.150.1. Update Maven to 3.10.1, React to 19.3.1, Vite to 8.3.8 and pnpm to 12.21.0 below. Other entries retain their original observation date; they are not claimed freshly verified latest patches. Node's official schedule reconfirmed the 26 LTS line, but the exact latest patch endpoint was unavailable; retain 26.13.0 only as the previously observed candidate and recheck before adoption.

@@ -1,0 +1,9 @@
+# P1.2 · Why one database connection can serve two workspaces
+
+**The question.** Alice owns a personal workspace. Bob belongs to a team workspace. Both requests may run on the same physical PostgreSQL connection. How does Zincc ensure Bob’s request cannot inherit Alice’s workspace?
+
+**The lookup.** `WorkspaceMemberships.find(principalId, workspaceId)` opens a read transaction, binds both UUIDs using PostgreSQL’s transaction-local `set_config`, then joins the workspace and membership tables. The pair of IDs is the membership’s primary key. It permits many members per workspace and many workspaces per person while preventing duplicate membership rows. Commit or rollback clears the context before the pool lends the connection again. [Java implementation](../../src/main/java/io/zincc/workspace/WorkspaceMemberships.java)
+
+**Where the boundary lives.** The query filters on both IDs. Independently, PostgreSQL row-level security applies those restrictions even to an unfiltered query. An existing workspace with no membership and an unknown workspace both return an empty result. The migration account owns the tables. The service login can read its scoped rows and cannot grant itself membership. Identity is still a prerequisite: the trusted caller must obtain the principal from authentication. [Migration and policies](../../src/main/resources/db/migration/V1__workspace_membership.sql)
+
+**What proved it.** The tests reuse a one-connection pool, switch principals, try a guessed workspace, and check that commit and rollback clear the scope. They also revoke a membership and query again, attempt a forbidden insert, and retry a failed migration on real PostgreSQL. Pooling saves connection setup. Transaction-local context makes that reuse safe for this lookup. [Tests](../../src/test/java/io/zincc/workspace/WorkspaceMembershipsTest.java)

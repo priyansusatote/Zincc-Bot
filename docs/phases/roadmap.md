@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**Plan approved. P1.1 complete. P1.2 awaits authorization.** The user authorizes one scoped task at a time. Each row may be split further if actual scope exceeds one reviewable component.
+**P1.1 and P1.2 complete. P1.3 awaits authorization.** The user authorizes one scoped task at a time.
 
 ## Task completion contract
 
@@ -39,7 +39,7 @@ The order below builds a usable vertical slice early, then adds stronger capabil
 | P1.3 | OIDC session and authorization boundary | Login/logout, session/CSRF controls as applicable, cross-workspace denied; teach authentication versus authorization |
 | P1.4 | Accessible React workbench shell and typed API client | Build/type checks, keyboard navigation, error/loading states, account/workspace switch; teach contracts and UI state |
 
-Phase gate: reproducible local build and isolated workspaces. P1.1 verified the local build. P1.2 begins workspace persistence.
+P1.1 verified the local build. P1.2 verified database isolation. P1.3 extends that boundary to authenticated requests.
 
 ## P2 — Useful model-neutral assistant and research
 

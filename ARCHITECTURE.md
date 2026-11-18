@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P1.2 implements the first feature package, `io.zincc.workspace`. Its membership lookup uses transaction-local identity and workspace context, separate schema-owner and runtime roles, and PostgreSQL row-level policies. The `postgres` profile enables it. [Workspace access decision](docs/architecture-decisions/0010-workspace-access.md)
+
 **Additive proposal, 16 November:** [connected AI engines](docs/modules/connected-ai-engines.md) distinguishes model connections (including eligible direct plan use) from external agent runtimes (Codex app-server, Claude Code, Grok Build/ACP). A qualified local/isolated worker hosts the external engine; Spring/Temporal still own identity, outer execution and governed actions. This does not replace the native harness or framework adapters. See proposed ADR 0009.
 
 Start with a **Spring Boot modular monolith for the trusted control plane**, separate durable workers, and disposable execution sandboxes. A module boundary is a code ownership and data access rule; it need not be a network hop. Split a module into a service only when isolation, resource use, deployment cadence, or measured scale requires it.

@@ -2,7 +2,7 @@
 
 Zincc is building a model-independent platform for persistent AI agents, daily automation, research, document analytics, live voice actions, and code-generated scenes.
 
-**P1.1 is complete.** The control plane starts as a local HTTP service. Its first endpoint is `GET /actuator/health`. See the [implementation and learning report](docs/learning-notes/006-spring-foundation.md) and the [approved product plan](docs/PLAN.md).
+**P1.2 is complete.** The Spring control plane serves local HTTP health and supports tenant-scoped workspace membership reads with PostgreSQL. The default profile runs the health service on its own. See the [PostgreSQL setup](docs/modules/workspace-membership.md) and the [membership learning note](docs/learning-notes/007-workspace-membership.md).
 
 ## Run the foundation
 
@@ -43,4 +43,4 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 
 The two Maven launcher scripts come from the Apache Maven Wrapper 3.3.4 only-script distribution. Their [license](.mvn/wrapper/LICENSE) and [notice](.mvn/wrapper/NOTICE) accompany them. The product license decision remains open.
 
-The next implementation task awaiting authorization is **P1.2**, PostgreSQL migrations and workspace membership.
+The next implementation task awaiting authorization is **P1.3**, OIDC login, sessions and authorization.

@@ -4,7 +4,7 @@ Updated: **18 November 2026**.
 
 ## Current authorized task
 
-**P1.1 completed on 18 November 2026.** The user approved the plan and authorized starting the build. The pinned Maven build produces an executable Spring Boot control plane. Verification covered HTTP responses, formatting, a clean offline rebuild with cached dependencies and a deliberate boundary violation. [Read the component report](learning-notes/006-spring-foundation.md). P1.2 awaits authorization.
+**P1.2 completed on 18 November 2026.** PostgreSQL migrations and internal workspace membership lookup passed the eight-test build, including isolation, revocation and transactional migration recovery. [Membership learning note](learning-notes/007-workspace-membership.md) · [P1.1 foundation](learning-notes/006-spring-foundation.md). P1.3 awaits authorization.
 
 ## Prior planning and reference work
 
@@ -68,7 +68,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P1.2–P12.5 and expansion epics P13–P16: pending; roadmap rows are proposals, not implicit authorization. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P1.3–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.
@@ -89,6 +89,6 @@ Hosting budget and region; identity provider; initial production accounts/API ac
 
 ## Stop point
 
-P1.1 is complete. The next task is P1.2, PostgreSQL schema, migrations and workspace membership.
+The next task is P1.3, OIDC session and authorization boundary.
 
 Hardware, hosting budget/region, identity provider, license and API access remain task-specific decisions documented in the final review.
