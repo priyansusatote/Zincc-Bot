@@ -6,6 +6,8 @@ P1.2 qualified PostgreSQL 18.7 on Windows x64, pgJDBC 42.7.14, Flyway 12.4.0 and
 
 Other components retain their proposed baselines from 14 and 16 November. Recheck security patches and compatibility when each component is introduced.
 
+P1.3 qualified the Spring Boot 4.1.2 OAuth2 client starter with its managed Spring Security 7.1.2 and Nimbus JOSE JWT 10.9.1 on the existing Windows/JDK/PostgreSQL baseline. [Resolved dependencies](phases/p1.3-dependencies.txt) · [Spring Security OIDC login](https://docs.spring.io/spring-security/reference/servlet/oauth2/login/core.html). The local protocol fixture covers the relying-party flow. Live-provider qualification belongs to deployment.
+
 16 November refresh: official sources reconfirm Boot 4.1.2, Spring AI 2.0.2/Boot 4.0–4.1 compatibility, PostgreSQL 18.7, TypeScript 7.0.2, Tailwind 4.3.5, ADK 2.14.1, LangGraph 1.2.22 and Docling 2.150.1. Update Maven to 3.10.1, React to 19.3.1, Vite to 8.3.8 and pnpm to 12.21.0 below. Other entries retain their original observation date; they are not claimed freshly verified latest patches. Node's official schedule reconfirmed the 26 LTS line, but the exact latest patch endpoint was unavailable; retain 26.13.0 only as the previously observed candidate and recheck before adoption.
 
 ## Core stack

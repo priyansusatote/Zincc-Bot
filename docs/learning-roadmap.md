@@ -4,6 +4,8 @@ P1.1 implemented startup, dependency management, HTTP health and a package-depen
 
 ## 1. What the earlier summary missed
 
+P1.3 implemented browser authentication, CSRF-protected sign-out and per-request workspace authorization. [Session learning note](learning-notes/008-browser-sessions.md)
+
 P1.2 implemented and tested composite keys, row-level security, pooled transaction context, revocation visibility and DDL rollback. [Workspace learning note](learning-notes/007-workspace-membership.md)
 
 System design, agent loops, tool calling, orchestration, parallel agents, human approval, retrieval, and evaluation already appeared in the architecture/module documents. The short completion message did not enumerate them. Inference internals, transformer KV caching, and a hands-on fine-tuning path were insufficiently explicit. GraphRAG had only a deferred adoption note. This document gives those topics concrete learning outcomes and experiments.

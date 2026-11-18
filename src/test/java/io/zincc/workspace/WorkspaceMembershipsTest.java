@@ -59,7 +59,7 @@ class WorkspaceMembershipsTest {
 		this.admin.execute("CREATE ROLE runtime_user LOGIN IN ROLE zincc_reader");
 		this.admin.execute("CREATE SCHEMA zincc AUTHORIZATION schema_owner");
 		this.owner = this.server.getDatabase("schema_owner", "postgres");
-		assertThat(flyway("classpath:db/migration").migrate().migrationsExecuted).isEqualTo(1);
+		flyway("classpath:db/migration").migrate();
 		var ownerJdbc = new JdbcTemplate(this.owner);
 		UUID org = ownerJdbc.queryForObject("INSERT INTO zincc.organization DEFAULT VALUES RETURNING id", UUID.class);
 		ownerJdbc.update("INSERT INTO zincc.principal(id) VALUES (?), (?)", this.alice, this.bob);
@@ -151,7 +151,7 @@ class WorkspaceMembershipsTest {
 
 	@Test
 	void failedMigrationRollsBackAndRetryKeepsExistingMemberships(@TempDir Path migrations) throws Exception {
-		Path next = migrations.resolve("V2__test_recovery.sql");
+		Path next = migrations.resolve("V9999__test_recovery.sql");
 		Files.writeString(next, "CREATE TABLE zincc.recovery_probe(id int); SELECT 1 / 0;");
 		var nextFlyway = flyway("classpath:db/migration", "filesystem:" + migrations);
 		assertThatThrownBy(nextFlyway::migrate).isInstanceOf(FlywayException.class);

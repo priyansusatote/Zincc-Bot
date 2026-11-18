@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P1.3 adds an OIDC browser session boundary. The `identity` package resolves a validated issuer and subject to an internal principal, then calls the `workspace` package to check membership for each workspace read. [Identity decision](docs/architecture-decisions/0011-browser-identity.md)
+
 P1.2 implements the first feature package, `io.zincc.workspace`. Its membership lookup uses transaction-local identity and workspace context, separate schema-owner and runtime roles, and PostgreSQL row-level policies. The `postgres` profile enables it. [Workspace access decision](docs/architecture-decisions/0010-workspace-access.md)
 
 **Additive proposal, 16 November:** [connected AI engines](docs/modules/connected-ai-engines.md) distinguishes model connections (including eligible direct plan use) from external agent runtimes (Codex app-server, Claude Code, Grok Build/ACP). A qualified local/isolated worker hosts the external engine; Spring/Temporal still own identity, outer execution and governed actions. This does not replace the native harness or framework adapters. See proposed ADR 0009.

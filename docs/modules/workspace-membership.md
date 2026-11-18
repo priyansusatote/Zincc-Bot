@@ -1,6 +1,6 @@
 # Workspace membership
 
-P1.2 adds the internal membership lookup used by the future identity boundary. The default profile still runs the local health service. Use the `postgres` profile for workspace persistence.
+P1.2 provides the membership lookup used by the [P1.3 browser identity boundary](browser-sessions.md). The default profile runs the local health service. Use the `postgres` profile for workspace persistence.
 
 ## Prepare a database
 

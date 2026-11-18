@@ -1,0 +1,7 @@
+# P1.3 · A signed-in user can still lose workspace access
+
+When Alice signs in, Spring Security exchanges her authorization code, validates the ID token and rotates the session cookie. On the next workspace request, Zincc uses the verified **issuer and subject** to find her internal principal. Two providers can both issue the subject `123` to different people. Matching both fields keeps those accounts separate. [OIDC identity claims](https://openid.net/specs/openid-connect-core-1_0.html#ClaimStability)
+
+The session answers **who signed in**. PostgreSQL answers **what they can access now**. Storing Alice’s role in the session would save a lookup but could preserve access after an administrator removed her. Zincc resolves her binding and checks the current membership on each workspace read. The integration test removes a membership between two requests from the same signed-in browser and sees the second request return 404. [Session API](../../src/main/java/io/zincc/identity/SessionApi.java) · [HTTP integration test](../../src/test/java/io/zincc/identity/BrowserSessionTest.java)
+
+Logout teaches a separate point. A browser sends eligible cookies automatically, so Zincc also requires the session’s CSRF token for the logout POST. The test shows that omitting the token leaves the session active, then verifies that a valid logout ends it. [Spring Security CSRF](https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html)
