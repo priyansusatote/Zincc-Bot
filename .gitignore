@@ -1,0 +1,32 @@
+# Build output, logs and local databases
+target/
+*.log
+hs_err_pid*
+*.hprof
+.pgdata/
+pgdata/
+
+# Local settings and credentials
+.env
+.env.*
+!.env.example
+application-local.properties
+application-local.yml
+application-local.yaml
+*.p12
+*.pfx
+*.jks
+*.key
+.pgpass
+pgpass.conf
+
+# Editor and operating-system files
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+.DS_Store
+Thumbs.db
+desktop.ini
