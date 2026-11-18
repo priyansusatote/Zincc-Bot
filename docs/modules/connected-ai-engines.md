@@ -1,6 +1,6 @@
 # Existing AI plans and connected agent engines
 
-Date: **16 November 2026**. User-requested **additive proposed feature**. Build approval pending. Complements the [native harness/framework design](agent-runtime.md); it does not replace API-key, local-model, ADK, LangGraph or PydanticAI support. [Research and provider evidence](../research/2026-11-16-duskbot-review.md); [proposed ADR](../architecture-decisions/0009-connected-ai-engines.md).
+Updated **18 November 2026**. Connected engines and the model picker are planned Phase 9 features. They complement the [native harness and framework adapters](agent-runtime.md). [Original research](../research/2026-11-16-duskbot-review.md) · [Architecture decision proposal](../architecture-decisions/0009-connected-ai-engines.md)
 
 ## Product promise
 
@@ -27,6 +27,14 @@ Model ID, engine type, authentication mode, execution location and billing sourc
 6. On expiry, revoked access, exhausted allowance or unsupported model, pause with a precise recovery action. A user may explicitly choose another qualified route; do not silently incur API charges.
 
 Separate optional identity sign-in from linking an AI connection to an already authenticated Zincc user. Provider identity cannot bypass workspace membership, enterprise SSO or connector permissions.
+
+## Model picker requested on 18 November
+
+An agent can use automatic routing or an explicit connection and model. A conversation can inherit the agent default, pin another selection, or return to the default. Show engine, account label, model, execution device and billing source together. For example, a Kimi model through OpenCode Go and the same model through a Kimi account appear as distinct choices. Shared agents can use only connections granted to the executing user or service identity. Private subscriptions stay private unless a supported grant and provider terms permit team use.
+
+Show setup, stale discovery, expired sign-in, offline runner and exhausted allowance as actionable states. Display usage or reset times only when the provider reports them. Freeze the effective route at run start. Confirm an explicitly selected engine model before sending task content, and record the effective connection and model in the run receipt. On a mismatch or unapproved billing change, pause. A manual selection takes precedence over automatic routing within workspace policy.
+
+P9.5 adds the picker contract and fixtures, including a mismatched model acknowledgement and a pinned conversation surviving an agent-default change. P9.10–P9.12 qualify the OpenCode, Antigravity and Kimi Code paths individually. See the [source review and provider evidence](../research/2026-11-18-openmaus-model-picker.md).
 
 ## Provider qualification targets
 

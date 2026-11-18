@@ -141,6 +141,10 @@ Gate: the user's “check email/Slack while talking” journey works with honest
 | P9.7 | Codex engine adapter | Official app-server lifecycle, supported authentication, isolated account/session and native tool enforcement; fixtures then live qualification |
 | P9.8 | Claude Code engine adapter | Unmodified CLI and provider-owned sign-in, streaming/MCP, scope checks and provider conditions; separate authorization from P9.7 |
 | P9.9 | Grok Build engine adapter | Official ACP/CLI and supported account, MCP/native-tool checks, allowance handling and OS qualification; API route remains separate |
+| P9.5a | Connection and model picker | After P9.5, exercise agent defaults, conversation overrides, per-account discovery, explicit model acknowledgement, billing labels and next-run changes with fixtures; surface qualified routes as adapters pass |
+| P9.10 | OpenCode engine and Go qualification | Discover provider-qualified models, distinguish Go from separately billed connections, and verify effective model and allowance behavior |
+| P9.11 | Antigravity engine qualification | Use official CLI/ACP sign-in and verify account-specific discovery, supported controls, deployment eligibility and execution on the selected runner |
+| P9.12 | Kimi Code engine qualification | Verify official login/ACP and distinguish membership from API billing; a rejected or unapplied explicit model change must stop dispatch |
 
 P9.5–P9.9 are the user's additive proposed scope from 16 November, not implementation approval. See [connected AI engines](../modules/connected-ai-engines.md). Desktop distribution depends on P13; each provider/OS/edition is qualified separately. Other engines may be added through the same contract. LoopForge-inspired reusable-workflow and rework UX refinements remain [recommendations for review](../research/2026-11-16-loopforge-review.md).
 
