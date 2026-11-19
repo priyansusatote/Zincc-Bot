@@ -6,7 +6,7 @@ The table tracks adoption by component. Initial research was completed on 14 Nov
 | --- | --- | --- |
 | [0001](0001-control-plane.md) | Spring modular monolith and isolated specialists | Control-plane foundation adopted in P1.1, workers pending |
 | [0002](0002-durable-execution.md) | Temporal progression plus action ledger and outbox | Proposed |
-| [0003](0003-model-and-framework-portability.md) | Model/framework contracts and measured routing | Proposed |
+| [0003](0003-model-and-framework-portability.md) | Model/framework contracts and measured routing | Gateway adopted in P2.1, routing and frameworks proposed |
 | [0004](0004-data-retrieval-and-memory.md) | PostgreSQL-first data and evidence-based analytics | Proposed |
 | [0005](0005-execution-isolation.md) | Brokered sandboxes and outbound customer runners | Proposed |
 | [0006](0006-client-and-delivery.md) | React workbench, staged capability delivery, later polish | Web shell adopted in P1.4 |

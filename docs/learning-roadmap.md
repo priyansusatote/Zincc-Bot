@@ -4,6 +4,8 @@ P1.1 implemented startup, dependency management, HTTP health and a package-depen
 
 ## 1. What the earlier summary missed
 
+P2.1 implemented the provider boundary, declared capabilities, output validation, streamed completion and usage capture. Fixture outcomes establish protocol behavior. Live task quality remains to be measured. [Model gateway learning note](learning-notes/010-model-gateway.md)
+
 P1.4 implemented generated API types, runtime boundary validation, and accessible async workspace selection. [Workbench learning note](learning-notes/009-workbench.md)
 
 P1.3 implemented browser authentication, CSRF-protected sign-out and per-request workspace authorization. [Session learning note](learning-notes/008-browser-sessions.md)
@@ -141,7 +143,7 @@ All labs are **pending, not authorized to execute yet**. Each receives its own f
 | --- | --- | --- |
 | L-RAG-01 | P2.5 and P4.2 | Fixed corpus/queries, hybrid baseline and selected retrieval variants; recall/ranking/support/cost report; change one variable at a time |
 | L-GRAPH-01 | L-RAG-01 | Source-linked entity/relationship graph and graph/text comparison; entity merge errors, ACL/deletion propagation and index/update costs |
-| L-INFER-01 | P2.3 and evaluation/metrics foundation | Local model serving benchmark for KV/prefix caching, concurrency and supported quantization; hardware/runtime manifest; CPU baseline if appropriate |
+| L-INFER-01 | P2.3 and evaluation/metrics foundation | Local serving benchmark for KV/prefix caching, concurrency and supported quantization. Record hardware and runtime. Compare baseline and compressed KV memory, latency and answer quality on identical workloads when supported. [TurboQuant experiment design](research/2026-11-19-firecrawl-turboquant.md) |
 | L-TUNE-01 | P2.5 and a verified small-model baseline | One SFT/LoRA or compatible QLoRA adapter, held-out evaluation and served comparison; data rights, training cost and rollback recorded |
 | L-PREF-01 | L-TUNE-01 and suitable preference examples | Small DPO comparison with behavior/regression checks; study reward hacking and alternative RL approaches |
 | L-MAS-01 | P7.1 | Single-agent versus sequential versus bounded parallel specialists on equal task sets/budgets; outcome, communication cost, conflicts and cancellation |

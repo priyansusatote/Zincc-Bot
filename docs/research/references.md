@@ -1,5 +1,7 @@
 # Supplied reference review and reuse ledger
 
+**19 November.** Selected Firecrawl controllers inform P2.4 evidence and source refresh. The TurboQuant article and original research inform the L-INFER-01 benchmark. Both are design inputs. [Pinned sources, reuse decisions and experimental controls](2026-11-19-firecrawl-turboquant.md)
+
 **Snapshot: 14 November 2026. Actual copied code/skills: none. Installed reference packages: none.** “Adopt” below means proposed design use; “candidate” requires a pinned revision, compatibility test, license/notice check, and security review before implementation.
 
 **Architecture follow-up, 16 November:** [additional pinned source findings and AG-UI review](2026-11-16-architecture-follow-up.md) update the evidence below. The original entries retain their review depth; this does not claim a whole-repository audit. Repeated OpenBot/OpenMausBot links are consolidated.

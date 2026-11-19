@@ -12,6 +12,8 @@ P1.3 qualified the Spring Boot 4.1.2 OAuth2 client starter with its managed Spri
 
 ## Core stack
 
+P2.1 uses the Spring AI 2.0.2 BOM with its OpenAI, Anthropic and Ollama model libraries on Spring Boot 4.1.2. Native request/response and stream formats were exercised with local HTTP fixtures. Account and live-model compatibility require a configured smoke run. [Resolved dependencies](phases/p2.1-dependencies.txt) · [Gateway qualification](modules/model-gateway.md)
+
 P1.4 qualified Node 26.13.1 LTS, pnpm 12.21.0, React 19.3.1, Vite 8.3.8 and TypeScript 7.0.2 for the browser bundle. OpenAPI generation uses openapi-typescript 7.13.0 with its supported TypeScript 5.9.3 peer in a separate tooling workspace. The application compiler remains on 7.0.2. Native CSS handles layout, light/dark tokens and focus styles in this shell. [Lockfile](../frontend/pnpm-lock.yaml) · [Run and verify](modules/workbench.md).
 
 | Component | Proposed baseline | Evidence and reason |

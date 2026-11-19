@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**P1.1–P1.4 complete. P2.1 awaits authorization.** The user authorizes one scoped task at a time.
+**P1.1–P1.4 complete. P2.1 gateway implemented and fixture-tested. P2.2 awaits authorization.** The user authorizes one scoped task at a time. [P2.1 live qualification](../modules/model-gateway.md)
 
 ## Task completion contract
 
@@ -48,7 +48,7 @@ P1.1 verified the local build. P1.2 verified database isolation. P1.3 extends th
 | P2.1 | Model gateway with capability registry | Start evaluation fixtures and usage capture; configured provider smoke tests, malformed output/unsupported capability handled; teach ports/adapters |
 | P2.2 | Conversation persistence and resumable event stream | Reconnect/dedup, expired cursor/snapshot and concurrent message tests; specify AG-UI mapping without requiring its SDK; teach event sequencing and optimistic revisions |
 | P2.3 | Local-only route and rule-based router | No external fallback in local-only test; model quality differences visible; teach routing constraints and evaluation |
-| P2.4 | Web search, evidence records, cited answer | Source freshness/support checks, partial provider failure, bounded crawling; teach retrieval versus generation |
+| P2.4 | Web search, evidence records, cited answer | Requested/final URL, observation time, cache status and partial crawl coverage. Compare source support and freshness under bounded crawling. [Firecrawl review](../research/2026-11-19-firecrawl-turboquant.md) |
 | P2.5 | Evaluation baseline and cost accounting | Initial 60-case suite and usage reconciliation; teach task success, confidence calibration, and cost per successful task |
 
 Gate: useful cited research with explicit cloud/local limits. No unsupported claim that every local model can perform tool use.

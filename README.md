@@ -2,7 +2,9 @@
 
 Zincc is building a model-independent platform for persistent AI agents, daily automation, research, document analytics, live voice actions, and code-generated scenes.
 
-**P1.4 is complete.** The browser workbench supports sign-in, workspace selection, membership details, account switching and sign-out. [Build and open the workbench](docs/modules/workbench.md) · [Configure OIDC](docs/modules/browser-sessions.md) · [PostgreSQL setup](docs/modules/workspace-membership.md).
+**P2.1 adds the internal model gateway.** Java callers can generate text, validate structured answers and stream text through configured OpenAI, Anthropic or Ollama routes. [Configure a model and run the smoke test](docs/modules/model-gateway.md).
+
+The browser workbench supports sign-in, workspace selection, membership details, account switching and sign-out. [Build and open the workbench](docs/modules/workbench.md) · [Configure OIDC](docs/modules/browser-sessions.md) · [PostgreSQL setup](docs/modules/workspace-membership.md).
 
 ## Run the foundation
 
@@ -43,4 +45,4 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 
 The two Maven launcher scripts come from the Apache Maven Wrapper 3.3.4 only-script distribution. Their [license](.mvn/wrapper/LICENSE) and [notice](.mvn/wrapper/NOTICE) accompany them. The product license decision remains open.
 
-The next task awaiting authorization is **P2.1**, the model gateway and capability registry.
+The next task awaiting authorization is **P2.2**, conversation persistence and a resumable event stream.

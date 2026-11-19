@@ -1,6 +1,6 @@
 # Agent runtime, model routing, memory, and caches
 
-**Proposed design.** The runtime is a platform component, not a dependency on one agent framework.
+**P2.1 implements the model gateway and capability registry.** See the [implemented contract](model-gateway.md) for configuration, token usage and streaming semantics. The following sections describe the target agent runtime.
 
 ## Harness versus model
 

@@ -1,6 +1,6 @@
 # ADR 0003 — Model and framework portability
 
-Status: **Proposed**. Related: [runtime](../modules/agent-runtime.md), [versions](../technology-baseline.md).
+Status: **Model gateway and explicit capability registry adopted in P2.1.** Policy routing and framework adapters are proposed for subsequent tasks. [Implemented boundary and verification](../modules/model-gateway.md) · [Versions](../technology-baseline.md)
 
 ## Problem
 

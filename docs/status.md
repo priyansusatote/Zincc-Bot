@@ -1,8 +1,10 @@
 # Zincc status
 
-Updated: **18 November 2026**.
+Updated: **19 November 2026**.
 
 ## Current authorized task
+
+**P2.1 gateway implemented.** The provider protocol fixtures exercise OpenAI, Anthropic and Ollama. Real-model verification is pending an available configured endpoint. [Configuration and smoke test](modules/model-gateway.md) · [Learning note](learning-notes/010-model-gateway.md). The [Firecrawl and TurboQuant review](research/2026-11-19-firecrawl-turboquant.md) adds evidence freshness and coverage to P2.4 and a controlled KV-cache experiment to L-INFER-01.
 
 **P1.4 completed on 18 November 2026.** The React workbench is available in the optional same-origin JAR. A frozen install, generated-contract check, type check, lint, production bundle, five Edge browser tests and eleven Java tests passed. The packaged service loaded in Edge. Browser interaction tests used fixtures; backend authorization tests used PostgreSQL and a local OIDC issuer. [Workbench and preview](modules/workbench.md) · [Learning note](learning-notes/009-workbench.md).
 
@@ -52,6 +54,8 @@ Latest feature addition: research the supplied procedural ocean example and add 
 
 ## Verification
 
+**P2.1, 19 November.** Maven verified the workbench-profile JAR and formatting. Of 29 Java tests, 28 passed and the opt-in live-model smoke test was skipped. Seventeen passing tests cover route configuration, gateways and HTTP protocol fixtures. Eleven cover the previous foundation, identity and workspace components. The default local Ollama port refused connections. All 268 local Markdown links resolved.
+
 **18 November Agent-Reach/design-reference check:** 43 Markdown files and 200 local links checked; no broken targets, unbalanced fences, trailing whitespace or missing A–L learning sections. The existing concept PNG remains the only non-Markdown project file. No application/upstream tests or live source integrations ran.
 
 **LoopForge/DuskBot and connected-engine proposal check, 16 November:** 42 Markdown files and 197 local links checked; zero broken local targets, unbalanced fences, trailing-whitespace issues or missing A–L learning sections. The only non-Markdown project file remains the existing concept PNG. No application, upstream, provider-account or operating-system integration tests ran.
@@ -68,7 +72,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P2.1–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P2.2–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.
@@ -89,6 +93,6 @@ Hosting budget and region; identity provider; initial production accounts/API ac
 
 ## Stop point
 
-The next task awaiting authorization is P2.1, the model gateway and capability registry.
+The next task awaiting authorization is P2.2, conversation persistence and a resumable event stream.
 
 Hardware, hosting budget/region, identity provider, license and API access remain task-specific decisions documented in the final review.

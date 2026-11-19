@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P2.1 introduces the internal `io.zincc.model` boundary. Callers choose an explicit route. The gateway validates request capabilities, translates provider responses into text or stream events, and records reported usage. Configuration keeps provider clients behind this boundary. Conversation persistence and automatic route selection have separate tasks. [Gateway contract](docs/modules/model-gateway.md)
+
 P1.4 adds a same-origin React client. The optional Maven workbench profile packages built assets into the Spring JAR. A restricted directory function lists only the signed-in identity's memberships. Opening a selected workspace uses the independent P1.2 authorization check. [Workbench contract and deployment](docs/modules/workbench.md)
 
 P1.3 adds an OIDC browser session boundary. The `identity` package resolves a validated issuer and subject to an internal principal, then calls the `workspace` package to check membership for each workspace read. [Identity decision](docs/architecture-decisions/0011-browser-identity.md)
