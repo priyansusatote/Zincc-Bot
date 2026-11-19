@@ -2,7 +2,7 @@
 
 Zincc is building a model-independent platform for persistent AI agents, daily automation, research, document analytics, live voice actions, and code-generated scenes.
 
-**P2.1 adds the internal model gateway.** Java callers can generate text, validate structured answers and stream text through configured OpenAI, Anthropic or Ollama routes. [Configure a model and run the smoke test](docs/modules/model-gateway.md).
+**P2.1 adds the internal model gateway.** Java callers can request text, validated JSON or streamed text according to each route’s capabilities. The gateway supports OpenAI, Anthropic, Ollama and OpenRouter. An opt-in profile configures two free OpenRouter text routes. [Configure a model and run the smoke test](docs/modules/model-gateway.md).
 
 The browser workbench supports sign-in, workspace selection, membership details, account switching and sign-out. [Build and open the workbench](docs/modules/workbench.md) · [Configure OIDC](docs/modules/browser-sessions.md) · [PostgreSQL setup](docs/modules/workspace-membership.md).
 

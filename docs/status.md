@@ -4,7 +4,7 @@ Updated: **19 November 2026**.
 
 ## Current authorized task
 
-**P2.1 gateway implemented.** The provider protocol fixtures exercise OpenAI, Anthropic and Ollama. Real-model verification is pending an available configured endpoint. [Configuration and smoke test](modules/model-gateway.md) · [Learning note](learning-notes/010-model-gateway.md). The [Firecrawl and TurboQuant review](research/2026-11-19-firecrawl-turboquant.md) adds evidence freshness and coverage to P2.4 and a controlled KV-cache experiment to L-INFER-01.
+**P2.1 gateway implemented.** Protocol fixtures cover OpenAI, Anthropic, Ollama and OpenRouter. The live one-word greeting passed through Zincc using the free NVIDIA Nemotron 3.5 Lightning route on OpenRouter. [Configuration and smoke test](modules/model-gateway.md) · [Gateway learning note](learning-notes/010-model-gateway.md) · [OpenRouter learning note](learning-notes/011-openrouter.md). The [Firecrawl and TurboQuant review](research/2026-11-19-firecrawl-turboquant.md) adds evidence freshness and coverage to P2.4 and a controlled KV-cache experiment to L-INFER-01.
 
 **P1.4 completed on 18 November 2026.** The React workbench is available in the optional same-origin JAR. A frozen install, generated-contract check, type check, lint, production bundle, five Edge browser tests and eleven Java tests passed. The packaged service loaded in Edge. Browser interaction tests used fixtures; backend authorization tests used PostgreSQL and a local OIDC issuer. [Workbench and preview](modules/workbench.md) · [Learning note](learning-notes/009-workbench.md).
 
@@ -53,6 +53,8 @@ Latest feature addition: research the supplied procedural ocean example and add 
 - Scene Studio clarification: resolved the original ocean project, reviewed selected source and licenses, added [the feature specification](modules/scene-studio.md), proposed ADR 0007, P10.3a–P10.3h and learning coverage. See [planning learning note](learning-notes/003-scene-studio-planning.md). No upstream code or skill copied or run.
 
 ## Verification
+
+**P2.1 OpenRouter follow-up, 19 November.** The opt-in Lightning greeting passed. The Gemma greeting failed twice, with HTTP 429 observed in a separate request to that route. The workbench-profile regression suite passed 30 tests and skipped the opt-in smoke test.
 
 **P2.1, 19 November.** Maven verified the workbench-profile JAR and formatting. Of 29 Java tests, 28 passed and the opt-in live-model smoke test was skipped. Seventeen passing tests cover route configuration, gateways and HTTP protocol fixtures. Eleven cover the previous foundation, identity and workspace components. The default local Ollama port refused connections. All 268 local Markdown links resolved.
 

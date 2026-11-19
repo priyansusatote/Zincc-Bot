@@ -19,7 +19,7 @@ class ConfiguredModelSmokeTest {
 		String route = System.getenv("ZINCC_MODEL_SMOKE_ROUTE");
 		var result = this.gateway.text(route, "Reply with the single word hello.").block();
 		assertThat(result.route().id()).isEqualTo(route);
-		assertThat(result.text()).isNotBlank();
+		assertThat(result.text().strip()).matches("(?i)hello[.!]?");
 	}
 
 }

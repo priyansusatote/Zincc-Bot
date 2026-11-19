@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+OpenRouter uses the OpenAI chat-completions wire protocol with a distinct provider ID, fixed HTTPS origin and separate credential. The opt-in free profile registers two explicitly selectable text routes. [Model gateway](docs/modules/model-gateway.md)
+
 P2.1 introduces the internal `io.zincc.model` boundary. Callers choose an explicit route. The gateway validates request capabilities, translates provider responses into text or stream events, and records reported usage. Configuration keeps provider clients behind this boundary. Conversation persistence and automatic route selection have separate tasks. [Gateway contract](docs/modules/model-gateway.md)
 
 P1.4 adds a same-origin React client. The optional Maven workbench profile packages built assets into the Spring JAR. A restricted directory function lists only the signed-in identity's memberships. Opening a selected workspace uses the independent P1.2 authorization check. [Workbench contract and deployment](docs/modules/workbench.md)

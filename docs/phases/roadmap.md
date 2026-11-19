@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**P1.1–P1.4 complete. P2.1 gateway implemented and fixture-tested. P2.2 awaits authorization.** The user authorizes one scoped task at a time. [P2.1 live qualification](../modules/model-gateway.md)
+**P1.1–P1.4 complete. P2.1 gateway implemented, fixture-tested and live-tested for text on OpenRouter. P2.2 awaits authorization.** The user authorizes one scoped task at a time. [P2.1 live qualification](../learning-notes/011-openrouter.md)
 
 ## Task completion contract
 

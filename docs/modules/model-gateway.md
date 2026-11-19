@@ -4,6 +4,20 @@ P2.1 adds an internal Spring bean for explicitly selected model routes. It can p
 
 ## Configure and exercise a route
 
+### OpenRouter free text routes
+
+From the repository root, use the `openrouter-free` profile with `OPENROUTER_API_KEY` in the environment or the gitignored local `.env` file. This profile reads that file as Java properties, so enter the key as an unquoted value. Select one route for each test. Both routes use a maximum of 512 output tokens and send only the synthetic greeting during this test.
+
+```powershell
+$env:SPRING_PROFILES_ACTIVE = 'openrouter-free'
+$env:ZINCC_MODEL_SMOKE_ROUTE = 'lightning-free'
+.\mvnw.cmd '-Dtest=ConfiguredModelSmokeTest' test
+```
+
+`lightning-free` selects `nvidia/nemotron-3.5-lightning:free`. To exercise Gemma separately, set the smoke route to `gemma-free`, which selects `google/gemma-4-26b-a4b-it:free`. A rate limit ends that request. Each route keeps its selected model. Use a fresh shell for the ordinary offline suite so the live test stays opt-in. [Route configuration](../../src/main/resources/application-openrouter-free.properties)
+
+### Operator-defined routes
+
 For an existing Ollama installation, save this as the gitignored `application-local.yaml` in the project root. Replace the placeholder with an installed model name.
 
 ```yaml
