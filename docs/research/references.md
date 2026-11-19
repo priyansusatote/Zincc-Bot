@@ -1,5 +1,19 @@
 # Supplied reference review and reuse ledger
 
+## Linger — 19 November 2026
+
+Selected source, tests, design documents and license reviewed at `27adbd6`. Three candidates for the existing roadmap:
+
+| Candidate | Proposed Zincc behavior | How to decide |
+| --- | --- | --- |
+| Local model fit check (P2.3 and L-INFER-01) | Before recommending a model for a device, try a short chat and a representative long-document extraction. Show time to first token, validated output and usable context for that machine. | Compare two models on the same hardware. Linger ties a saved installation plan to a verification step. Its performance tables include simulated memory tiers, so Zincc needs measurements on actual target devices. [Local setup source](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/packages/local-installation/src/local-models.ts) · [Benchmark conditions](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/docs/local-inference.md) |
+| Foreground priority on a shared model (P7 and live voice) | Let a live question take the next available model slot while a background report waits at a resumable step. Keep the report's completed work. | Measure interactive wait time and eventual report completion on a single-slot endpoint under sustained load. Verify that resumption cannot duplicate an external action. [Scheduling design](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/docs/model-scheduling.md) |
+| Editable reminder preferences (P5 routines and P7.3 memory) | After repeated snoozes, offer a personal rule such as “Include these updates in my morning briefing.” Show the reason and offer undo. | Test explicit correction, conflicting feedback, and isolation across users. Linger versions per-user guidelines and expires weak evidence. Zincc should keep notification preferences separate from permission to act. [Preference implementation](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/apps/node-services/src/memory/proactive-dreaming.ts) · [Tests inspected](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/apps/node-services/tests/memory/proactive-dreaming.test.ts) |
+
+Reuse decision: independent design candidates only. The modified Apache-based license includes conditions on hosted services and frontend branding. Third-party components and assets have their own notices. No upstream code, prompts or assets copied, and no upstream runtime or benchmark executed. [License](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/LICENSE) · [Notices](https://github.com/simplexai-labs/linger/blob/27adbd6db0a95fe176f4fa1e22e0af41d983f4e9/NOTICE)
+
+## Reference history
+
 **19 November.** Selected Firecrawl controllers inform P2.4 evidence and source refresh. The TurboQuant article and original research inform the L-INFER-01 benchmark. Both are design inputs. [Pinned sources, reuse decisions and experimental controls](2026-11-19-firecrawl-turboquant.md)
 
 **Snapshot: 14 November 2026. Actual copied code/skills: none. Installed reference packages: none.** “Adopt” below means proposed design use; “candidate” requires a pinned revision, compatibility test, license/notice check, and security review before implementation.
