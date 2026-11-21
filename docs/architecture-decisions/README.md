@@ -15,5 +15,6 @@ The table tracks adoption by component. Initial research was completed on 14 Nov
 | [0009](0009-connected-ai-engines.md) | Separate model connections from official connected agent engines and their account lifecycles | Proposed |
 | [0010](0010-workspace-access.md) | Transaction-local workspace membership reads under a restricted PostgreSQL role | Adopted in P1.2 |
 | [0011](0011-browser-identity.md) | OIDC browser sessions with live workspace authorization | Adopted in P1.3 |
+| [0012](0012-conversation-replay.md) | Atomic turn projection and replay within a private conversation | Adopted in P2.2 |
 
 Future ADRs must state context/problem, decision, alternatives, trade-offs, consequences, and verification. A library name alone is not a design decision.

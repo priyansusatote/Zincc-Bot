@@ -43,6 +43,15 @@ public final class ModelGateway {
 		}
 	}
 
+	public record Exchange(String question, String answer) {
+	}
+
+	public record Input(List<Exchange> history, String question) {
+		public Input {
+			history = List.copyOf(history);
+		}
+	}
+
 	public record Usage(Integer inputTokens, Integer outputTokens) {
 	}
 
@@ -78,9 +87,9 @@ public final class ModelGateway {
 
 		Route route();
 
-		Part call(String prompt, String instructions);
+		Part call(Input prompt, String instructions);
 
-		Flux<Part> stream(String prompt);
+		Flux<Part> stream(Input prompt);
 
 	}
 
@@ -110,6 +119,10 @@ public final class ModelGateway {
 	}
 
 	public Mono<Result> text(String routeId, String prompt) {
+		return answer(routeId, new Input(List.of(), prompt));
+	}
+
+	public Mono<Result> answer(String routeId, Input prompt) {
 		return complete(routeId, prompt, Capability.TEXT, Map.of());
 	}
 
@@ -120,10 +133,10 @@ public final class ModelGateway {
 				|| fields.values().stream().anyMatch(java.util.Objects::isNull)) {
 			return Mono.error(new GatewayException(Failure.INVALID_REQUEST));
 		}
-		return complete(routeId, prompt, Capability.JSON_OBJECT, Map.copyOf(fields));
+		return complete(routeId, new Input(List.of(), prompt), Capability.JSON_OBJECT, Map.copyOf(fields));
 	}
 
-	private Mono<Result> complete(String id, String prompt, Capability capability, Map<String, FieldType> fields) {
+	private Mono<Result> complete(String id, Input prompt, Capability capability, Map<String, FieldType> fields) {
 		return Mono.defer(() -> {
 			Port port = require(id, prompt, capability);
 			String instructions = capability == Capability.JSON_OBJECT
@@ -144,6 +157,10 @@ public final class ModelGateway {
 	}
 
 	public Flux<Event> streamText(String id, String prompt) {
+		return streamAnswer(id, new Input(List.of(), prompt));
+	}
+
+	public Flux<Event> streamAnswer(String id, Input prompt) {
 		return Flux.defer(() -> {
 			Port port = require(id, prompt, Capability.TEXT_STREAM);
 			var state = new StreamState();
@@ -164,8 +181,12 @@ public final class ModelGateway {
 		}).onErrorMap(ModelGateway::normalize);
 	}
 
-	private Port require(String id, String prompt, Capability capability) {
-		if (id == null || prompt == null || prompt.isBlank() || prompt.length() > MAX_CHARACTERS)
+	private Port require(String id, Input prompt, Capability capability) {
+		if (id == null || prompt == null || prompt.question() == null || prompt.question().isBlank()
+				|| prompt.question().length() + prompt.history()
+					.stream()
+					.mapToLong(e -> (long) e.question().length() + e.answer().length())
+					.sum() > MAX_CHARACTERS)
 			throw new GatewayException(Failure.INVALID_REQUEST);
 		Port port = this.ports.get(id);
 		if (port == null)

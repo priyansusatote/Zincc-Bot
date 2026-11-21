@@ -28,12 +28,12 @@ class ModelGatewayTest {
 				return new ModelGateway.Route("test", "fixture", "v1", capabilities, 64);
 			}
 
-			public ModelGateway.Part call(String prompt, String instructions) {
+			public ModelGateway.Part call(ModelGateway.Input prompt, String instructions) {
 				calls.incrementAndGet();
 				return new ModelGateway.Part(output, null, "stop");
 			}
 
-			public Flux<ModelGateway.Part> stream(String prompt) {
+			public Flux<ModelGateway.Part> stream(ModelGateway.Input prompt) {
 				calls.incrementAndGet();
 				return Flux.<ModelGateway.Part>never().doOnCancel(() -> cancelled.set(true));
 			}

@@ -4,6 +4,8 @@ P1.1 implemented startup, dependency management, HTTP health and a package-depen
 
 ## 1. What the earlier summary missed
 
+P2.2 implemented and tested idempotent sends, optimistic revisions, row-level isolation, interrupted generation and cursor recovery. [Conversation replay learning note](learning-notes/012-conversation-replay.md)
+
 The P2.1 OpenRouter follow-up implemented provider-specific credential binding and verified a live text greeting through the free Lightning route. [OpenRouter learning note](learning-notes/011-openrouter.md)
 
 P2.1 implemented the provider boundary, declared capabilities, output validation, streamed completion and usage capture. Fixture outcomes establish protocol behavior. Live task quality remains to be measured. [Model gateway learning note](learning-notes/010-model-gateway.md)

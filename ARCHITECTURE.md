@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P2.2 stores each personal conversation in the member’s workspace. PostgreSQL allocates replay sequence numbers under a per-conversation lock. The browser can reconnect independently of generation. [Conversation decision](docs/architecture-decisions/0012-conversation-replay.md)
+
 OpenRouter uses the OpenAI chat-completions wire protocol with a distinct provider ID, fixed HTTPS origin and separate credential. The opt-in free profile registers two explicitly selectable text routes. [Model gateway](docs/modules/model-gateway.md)
 
 P2.1 introduces the internal `io.zincc.model` boundary. Callers choose an explicit route. The gateway validates request capabilities, translates provider responses into text or stream events, and records reported usage. Configuration keeps provider clients behind this boundary. Conversation persistence and automatic route selection have separate tasks. [Gateway contract](docs/modules/model-gateway.md)

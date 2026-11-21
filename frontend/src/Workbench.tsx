@@ -19,6 +19,7 @@ import {
 	readWorkspace,
 } from "./client";
 import type { Membership, Session } from "./client";
+import { Conversations } from "./Conversations";
 
 const loginUrl = "/oauth2/authorization/zincc";
 type Home =
@@ -71,7 +72,15 @@ function Retry({ onClick }: { onClick: () => void }) {
 	);
 }
 
-function Workspace({ id, refresh }: { id: string; refresh: () => void }) {
+function Workspace({
+	id,
+	refresh,
+	session,
+}: {
+	id: string;
+	refresh: () => void;
+	session: Session;
+}) {
 	const [result, setResult] = useState<
 		Membership | "loading" | "unavailable" | "error"
 	>("loading");
@@ -123,10 +132,7 @@ function Workspace({ id, refresh }: { id: string; refresh: () => void }) {
 					<MessageSquare size={17} /> Conversations
 				</h2>
 			</div>
-			<Panel
-				title="No conversations yet"
-				text="Agent conversations will appear here when messaging is available."
-			/>
+			<Conversations workspace={id} session={session} refresh={refresh} />
 			<dl className="details">
 				<div>
 					<dt>Workspace</dt>
@@ -383,6 +389,7 @@ export function Workbench() {
 								key={current.workspaceId}
 								id={current.workspaceId}
 								refresh={refresh}
+								session={home.session}
 							/>
 						) : (
 							<Panel

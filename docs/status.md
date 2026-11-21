@@ -1,8 +1,10 @@
 # Zincc status
 
-Updated: **19 November 2026**.
+Updated: **21 November 2026**.
 
 ## Current authorized task
+
+**P2.2 implemented.** Private conversations persist in PostgreSQL and resume in the workbench from a cursor or snapshot. [API and limits](modules/conversations.md) · [Learning report](learning-notes/012-conversation-replay.md).
 
 **P2.1 gateway implemented.** Protocol fixtures cover OpenAI, Anthropic, Ollama and OpenRouter. The live one-word greeting passed through Zincc using the free NVIDIA Nemotron 3.5 Lightning route on OpenRouter. [Configuration and smoke test](modules/model-gateway.md) · [Gateway learning note](learning-notes/010-model-gateway.md) · [OpenRouter learning note](learning-notes/011-openrouter.md). The [Firecrawl and TurboQuant review](research/2026-11-19-firecrawl-turboquant.md) adds evidence freshness and coverage to P2.4 and a controlled KV-cache experiment to L-INFER-01.
 
@@ -54,6 +56,8 @@ Latest feature addition: research the supplied procedural ocean example and add 
 
 ## Verification
 
+**P2.2, 21 November.** The workbench-profile JAR passed Maven verification. Of 33 Java tests, 32 passed and the opt-in live-provider test was skipped. All seven Edge tests passed against the production frontend bundle with fixture HTTP responses. The backend HTTP tests used PostgreSQL, a local OIDC issuer and a loopback model server for streaming and text-only routes. The frontend contract check, type check, lint and build passed.
+
 **P2.1 OpenRouter follow-up, 19 November.** The opt-in Lightning greeting passed. The Gemma greeting failed twice, with HTTP 429 observed in a separate request to that route. The workbench-profile regression suite passed 30 tests and skipped the opt-in smoke test.
 
 **P2.1, 19 November.** Maven verified the workbench-profile JAR and formatting. Of 29 Java tests, 28 passed and the opt-in live-model smoke test was skipped. Seventeen passing tests cover route configuration, gateways and HTTP protocol fixtures. Eleven cover the previous foundation, identity and workspace components. The default local Ollama port refused connections. All 268 local Markdown links resolved.
@@ -74,7 +78,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P2.2–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P2.3–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.
@@ -95,6 +99,6 @@ Hosting budget and region; identity provider; initial production accounts/API ac
 
 ## Stop point
 
-The next task awaiting authorization is P2.2, conversation persistence and a resumable event stream.
+The next task awaiting authorization is P2.3, local-only routing and rule-based model selection.
 
 Hardware, hosting budget/region, identity provider, license and API access remain task-specific decisions documented in the final review.

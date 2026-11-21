@@ -3,7 +3,7 @@ import type { components, paths } from "./generated/api";
 
 export type Session = components["schemas"]["Session"];
 export type Membership = components["schemas"]["Membership"];
-const client = createClient<paths>({
+export const client = createClient<paths>({
 	credentials: "same-origin",
 	cache: "no-store",
 });
@@ -14,7 +14,7 @@ export class ApiError extends Error {
 	}
 }
 
-function check(response: Response) {
+export function check(response: Response) {
 	if (!response.ok) throw new ApiError(response.status);
 }
 

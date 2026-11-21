@@ -10,6 +10,8 @@ Use Zincc's authenticated REST commands and durable sequenced event envelope as 
 
 ## Boundary mapping
 
+P2.2 uses the conversation UUID as the thread and the turn UUID as the model run. The `turn.v1` event kind `started` represents run start and the accepted user text. An adapter can open the assistant text message at that boundary. Each `delta` maps to text content. Apply any text on `completed` before emitting text end and run finish. An `interrupted` event retains the partial answer and maps to an unsuccessful run with interruption status. The URL identifies the authorized conversation and the SSE ID orders events within it. A fresh snapshot replaces the projection after cursor expiry. P9.1 owns the interoperable adapter. [Implemented wire contract](conversations.md)
+
 | AG-UI concept | Zincc interpretation |
 | --- | --- |
 | Thread/run identifiers | Map to authorized conversation/run records; never accept ownership from a client-supplied ID |

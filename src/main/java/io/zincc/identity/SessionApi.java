@@ -1,7 +1,7 @@
 package io.zincc.identity;
 
 import java.util.List;
-import java.util.Optional;
+
 import java.util.UUID;
 
 import javax.sql.DataSource;
@@ -26,7 +26,10 @@ class SessionApi {
 
 	private final WorkspaceMemberships memberships;
 
-	SessionApi(DataSource source, WorkspaceMemberships memberships) {
+	private final SessionPrincipal principal;
+
+	SessionApi(DataSource source, WorkspaceMemberships memberships, SessionPrincipal principal) {
+		this.principal = principal;
 		this.jdbc = new JdbcTemplate(source);
 		this.memberships = memberships;
 	}
@@ -34,7 +37,7 @@ class SessionApi {
 	@GetMapping("/api/session")
 	SessionView session(@AuthenticationPrincipal OidcUser user, CsrfToken csrf) {
 		String label = user.getPreferredUsername();
-		return new SessionView(principal(user).isPresent(), csrf.getHeaderName(), csrf.getToken(),
+		return new SessionView(principal.resolve(user).isPresent(), csrf.getHeaderName(), csrf.getToken(),
 				(label == null || label.isBlank()) ? user.getSubject() : label);
 	}
 
@@ -49,14 +52,9 @@ class SessionApi {
 
 	@GetMapping("/api/workspaces/{workspaceId}")
 	WorkspaceMemberships.Membership workspace(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspaceId) {
-		return principal(user).flatMap(id -> this.memberships.find(id, workspaceId))
+		return principal.resolve(user)
+			.flatMap(id -> this.memberships.find(id, workspaceId))
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-	}
-
-	private Optional<UUID> principal(OidcUser user) {
-		var token = user.getIdToken();
-		return Optional.ofNullable(this.jdbc.queryForObject("SELECT zincc.resolve_oidc_principal(?, ?)", UUID.class,
-				token.getClaimAsString("iss"), token.getSubject()));
 	}
 
 	record SessionView(boolean provisioned, String csrfHeader, String csrfToken, String accountLabel) {

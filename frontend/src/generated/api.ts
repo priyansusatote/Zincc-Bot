@@ -4,6 +4,70 @@
  */
 
 export interface paths {
+    "/api/workspaces/{workspaceId}/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["conversations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/conversations/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["snapshot"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/conversations/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["replay"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/conversations/{id}/turns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["sendTurn"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/session": {
         parameters: {
             query?: never;
@@ -73,6 +137,49 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        ThreadInfo: {
+            /** Format: uuid */
+            id: string;
+            title: string;
+        };
+        ConversationDirectory: {
+            threads: components["schemas"]["ThreadInfo"][];
+            routes: string[];
+        };
+        Turn: {
+            /** Format: uuid */
+            id: string;
+            route: string;
+            question: string;
+            answer: string;
+            /** @enum {string} */
+            state: "running" | "completed" | "interrupted";
+        };
+        ConversationSnapshot: {
+            /** Format: int64 */
+            revision: number;
+            turns: components["schemas"]["Turn"][];
+        };
+        TurnCommand: {
+            /** Format: uuid */
+            turnId: string;
+            /** Format: int64 */
+            revision: number;
+            route: string;
+            question: string;
+        };
+        ConversationEvent: {
+            /** Format: int64 */
+            seq: number;
+            /** Format: uuid */
+            turnId: string;
+            /** @enum {string} */
+            kind: "started" | "delta" | "completed" | "interrupted";
+            body: string;
+            /** Format: date-time */
+            at: string;
+            route: string;
+        };
         Session: {
             accountLabel: string;
             provisioned: boolean;
@@ -95,6 +202,173 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    conversations: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationDirectory"];
+                };
+            };
+            /** @description Resource unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    snapshot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationSnapshot"];
+                };
+            };
+            /** @description Resource unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    replay: {
+        parameters: {
+            query?: {
+                after?: number;
+            };
+            header?: {
+                "Last-Event-ID"?: string;
+            };
+            path: {
+                workspaceId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bounded SSE replay; turn.v1 data contains a ConversationEvent */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+            /** @description Resource unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid cursor */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Cursor expired; fetch snapshot */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    sendTurn: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TurnCommand"];
+            };
+        };
+        responses: {
+            /** @description Command processed or exact duplicate */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid command or route */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid CSRF token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Resource unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflicting revision, ID or running turn */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conversation full */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     readSession: {
         parameters: {
             query?: never;

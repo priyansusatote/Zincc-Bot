@@ -2,7 +2,7 @@
 
 ## Run with your OIDC provider
 
-1. Follow the [database setup](workspace-membership.md) and run Flyway through V2. Existing V1 principals and memberships retain their UUIDs.
+1. Follow the [database setup](workspace-membership.md) and run Flyway through V4. Existing V1 principals and memberships retain their UUIDs.
 2. Register a **confidential web client** supporting issuer discovery, authorization code flow, S256 PKCE and the `openid` scope. Register the exact callback `https://<your-zincc-origin>/login/oauth2/code/zincc`. Set `ZINCC_PUBLIC_BASE_URL` to that origin without a trailing slash.
 3. Set `SPRING_PROFILES_ACTIVE=oidc` (includes `postgres`), the three runtime `ZINCC_DB_*` settings from the database setup, `ZINCC_OIDC_ISSUER`, `ZINCC_OIDC_CLIENT_ID`, and `ZINCC_OIDC_CLIENT_SECRET`. Use the issuer's exact URL. Keep the secret in the service environment. Serve the browser origin over HTTPS. With TLS termination, preserve a trusted public origin and restrict direct backend access. For HTTP **loopback development only**, set `SERVER_SERVLET_SESSION_COOKIE_SECURE=false` and register that exact local callback with the provider.
 4. As the schema owner, bind the provider’s verified issuer and subject to an existing internal principal using a parameterized insert into `zincc.oidc_identity(issuer, subject, principal_id)`. Use the subject issued for this client. Workspace membership is granted separately. One identity can sign in before provisioning and will see `provisioned: false`.

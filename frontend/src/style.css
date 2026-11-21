@@ -356,6 +356,60 @@ dd {
 .role {
 	text-transform: capitalize;
 }
+.conversation {
+	padding: 18px;
+	background: var(--surface);
+	border: 1px solid var(--line);
+	border-radius: 12px;
+}
+.thread-tools {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	align-items: end;
+}
+.conversation label,
+.conversation form {
+	display: grid;
+	gap: 8px;
+}
+.conversation form {
+	margin-top: 20px;
+	gap: 12px;
+	justify-items: start;
+}
+.thread-tools label {
+	min-width: 0;
+	max-width: 100%;
+}
+.conversation form label {
+	width: 100%;
+}
+.conversation select,
+.conversation textarea {
+	background: var(--field);
+	color: var(--ink);
+	border: 1px solid var(--line);
+	border-radius: 6px;
+	padding: 8px;
+	font: inherit;
+	max-width: 100%;
+}
+.conversation textarea {
+	resize: vertical;
+}
+.exchange {
+	border-bottom: 1px solid var(--line);
+	padding: 12px 0;
+}
+.exchange h3 {
+	color: var(--muted);
+	font-size: 0.85rem;
+}
+.exchange p {
+	white-space: pre-wrap;
+	overflow-wrap: anywhere;
+}
 .account-panel > .avatar {
 	margin-bottom: 15px;
 	width: 44px;

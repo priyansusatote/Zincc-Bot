@@ -7,6 +7,10 @@ import java.util.UUID;
 import javax.sql.DataSource;
 
 import com.zaxxer.hikari.HikariDataSource;
+import io.zincc.conversation.ConversationStore;
+import io.zincc.conversation.ConversationStore.Command;
+import io.zincc.conversation.ConversationStore.Scope;
+import org.springframework.web.server.ResponseStatusException;
 import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
@@ -79,6 +83,75 @@ class WorkspaceMembershipsTest {
 		this.memberships = this.context.getBean(WorkspaceMemberships.class);
 		this.pool = this.context.getBean(HikariDataSource.class);
 		this.reader = new JdbcTemplate(this.pool);
+	}
+
+	@Test
+	void concurrentRetriesAllocateOneTurnAndCompetingWritersConflict() throws Exception {
+		var store = new ConversationStore(server.getDatabase("runtime_user", "postgres"));
+		var scope = new Scope(alice, first);
+		UUID id = UUID.randomUUID();
+		var initial = new Command(UUID.randomUUID(), 0L, "route", "Hello");
+		try (var workers = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+			var gate = new java.util.concurrent.CountDownLatch(1);
+			var jobs = java.util.stream.IntStream.range(0, 4).mapToObj(n -> workers.submit(() -> {
+				gate.await();
+				return store.reserve(scope, id, initial).isPresent();
+			})).toList();
+			gate.countDown();
+			int inserted = 0;
+			for (var job : jobs)
+				if (job.get(10, java.util.concurrent.TimeUnit.SECONDS))
+					inserted++;
+			assertThat(inserted).isOne();
+			store.append(scope, id, initial.turnId(), "completed", "hello");
+			var start = new java.util.concurrent.CountDownLatch(1);
+			var competing = java.util.stream.IntStream.range(0, 2).mapToObj(n -> workers.submit(() -> {
+				start.await();
+				try {
+					store.reserve(scope, id, new Command(UUID.randomUUID(), 2L, "route", "Writer " + n));
+					return 200;
+				}
+				catch (ResponseStatusException error) {
+					return error.getStatusCode().value();
+				}
+			})).toList();
+			start.countDown();
+			assertThat(java.util.List.of(competing.get(0).get(), competing.get(1).get())).containsExactlyInAnyOrder(200,
+					409);
+		}
+		assertThat(store.snapshot(scope, id).turns()).hasSize(2);
+		assertThatThrownBy(() -> store.reserve(scope, id, new Command(initial.turnId(), 0L, "route", "different")))
+			.isInstanceOfSatisfying(ResponseStatusException.class,
+					e -> assertThat(e.getStatusCode().value()).isEqualTo(409));
+	}
+
+	@Test
+	void privateReplayExpiresToSnapshotAndLostGenerationRemainsInterrupted() {
+		var store = new ConversationStore(pool);
+		var scope = new Scope(alice, first);
+		UUID id = UUID.randomUUID();
+		var cmd = new Command(UUID.randomUUID(), 0L, "route", "private");
+		store.reserve(scope, id, cmd);
+		for (int i = 0; i < 129; i++)
+			store.append(scope, id, cmd.turnId(), "delta", "x");
+		assertThatThrownBy(() -> store.replay(scope, id, 1)).isInstanceOfSatisfying(ResponseStatusException.class,
+				e -> assertThat(e.getStatusCode().value()).isEqualTo(410));
+		assertThat(store.replay(scope, id, 2)).hasSize(128);
+		assertThat(store.snapshot(scope, id).turns().getFirst().answer()).hasSize(129);
+		var admin = new JdbcTemplate(owner);
+		admin.update("UPDATE zincc.conversation_turn SET expires_at=now()-interval '1 second' WHERE conversation_id=?",
+				id);
+		var recovered = store.snapshot(scope, id);
+		assertThat(recovered.turns().getFirst().state()).isEqualTo("interrupted");
+		store.append(scope, id, cmd.turnId(), "completed", "late");
+		assertThat(store.snapshot(scope, id)).isEqualTo(recovered);
+		var guest = admin.queryForObject("INSERT INTO zincc.principal DEFAULT VALUES RETURNING id", UUID.class);
+		admin.update("INSERT INTO zincc.workspace_membership VALUES(?,?,'member')", first, guest);
+		assertThat(store.directory(new Scope(guest, first))).isEmpty();
+		assertThatThrownBy(() -> store.replay(new Scope(guest, first), id, 0)).isInstanceOfSatisfying(
+				ResponseStatusException.class, e -> assertThat(e.getStatusCode().value()).isEqualTo(404));
+		assertThatThrownBy(() -> store.snapshot(new Scope(bob, second), id)).isInstanceOfSatisfying(
+				ResponseStatusException.class, e -> assertThat(e.getStatusCode().value()).isEqualTo(404));
 	}
 
 	private Flyway flyway(String... locations) {

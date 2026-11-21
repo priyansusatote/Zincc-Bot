@@ -1,6 +1,8 @@
 package io.zincc.model;
 
-import java.util.List;
+import java.util.ArrayList;
+import org.springframework.ai.chat.messages.Message;
+import org.springframework.ai.chat.messages.AssistantMessage;
 
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -13,15 +15,25 @@ import reactor.core.publisher.Flux;
 record SpringChatPort(ModelGateway.Route route, ChatModel client) implements ModelGateway.Port {
 
 	@Override
-	public ModelGateway.Part call(String prompt, String instructions) {
-		var request = instructions == null ? new Prompt(prompt)
-				: new Prompt(List.of(new SystemMessage(instructions), new UserMessage(prompt)));
-		return part(this.client.call(request));
+	public ModelGateway.Part call(ModelGateway.Input prompt, String instructions) {
+		return part(this.client.call(request(prompt, instructions)));
 	}
 
 	@Override
-	public Flux<ModelGateway.Part> stream(String prompt) {
-		return this.client.stream(new Prompt(prompt)).map(SpringChatPort::part);
+	public Flux<ModelGateway.Part> stream(ModelGateway.Input prompt) {
+		return this.client.stream(request(prompt, null)).map(SpringChatPort::part);
+	}
+
+	private static Prompt request(ModelGateway.Input input, String instructions) {
+		var messages = new ArrayList<Message>();
+		if (instructions != null)
+			messages.add(new SystemMessage(instructions));
+		for (var exchange : input.history()) {
+			messages.add(new UserMessage(exchange.question()));
+			messages.add(new AssistantMessage(exchange.answer()));
+		}
+		messages.add(new UserMessage(input.question()));
+		return new Prompt(messages);
 	}
 
 	private static ModelGateway.Part part(ChatResponse response) {

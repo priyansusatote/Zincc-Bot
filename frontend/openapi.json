@@ -10,6 +10,193 @@
     }
   ],
   "paths": {
+    "/api/workspaces/{workspaceId}/conversations": {
+      "get": {
+        "operationId": "conversations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDirectory"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/conversations/{id}": {
+      "get": {
+        "operationId": "snapshot",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationSnapshot"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/conversations/{id}/events": {
+      "get": {
+        "operationId": "replay",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Last-Event-ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded SSE replay; turn.v1 data contains a ConversationEvent",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable"
+          },
+          "409": {
+            "description": "Invalid cursor"
+          },
+          "410": {
+            "description": "Cursor expired; fetch snapshot"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/conversations/{id}/turns": {
+      "post": {
+        "operationId": "sendTurn",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TurnCommand"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Command processed or exact duplicate"
+          },
+          "400": {
+            "description": "Invalid command or route"
+          },
+          "403": {
+            "description": "Invalid CSRF token"
+          },
+          "404": {
+            "description": "Resource unavailable"
+          },
+          "409": {
+            "description": "Conflicting revision, ID or running turn"
+          },
+          "422": {
+            "description": "Conversation full"
+          }
+        }
+      }
+    },
     "/api/session": {
       "get": {
         "operationId": "readSession",
@@ -111,6 +298,160 @@
       }
     },
     "schemas": {
+      "ThreadInfo": {
+        "type": "object",
+        "required": [
+          "id",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "ConversationDirectory": {
+        "type": "object",
+        "required": [
+          "threads",
+          "routes"
+        ],
+        "properties": {
+          "threads": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ThreadInfo"
+            }
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Turn": {
+        "type": "object",
+        "required": [
+          "id",
+          "route",
+          "question",
+          "answer",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "route": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "running",
+              "completed",
+              "interrupted"
+            ]
+          }
+        }
+      },
+      "ConversationSnapshot": {
+        "type": "object",
+        "required": [
+          "revision",
+          "turns"
+        ],
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "turns": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Turn"
+            }
+          }
+        }
+      },
+      "TurnCommand": {
+        "type": "object",
+        "required": [
+          "turnId",
+          "revision",
+          "route",
+          "question"
+        ],
+        "properties": {
+          "turnId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "route": {
+            "type": "string"
+          },
+          "question": {
+            "type": "string"
+          }
+        }
+      },
+      "ConversationEvent": {
+        "type": "object",
+        "required": [
+          "seq",
+          "turnId",
+          "kind",
+          "body",
+          "at",
+          "route"
+        ],
+        "properties": {
+          "seq": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "turnId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "started",
+              "delta",
+              "completed",
+              "interrupted"
+            ]
+          },
+          "body": {
+            "type": "string"
+          },
+          "at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "route": {
+            "type": "string"
+          }
+        }
+      },
       "Session": {
         "type": "object",
         "required": [
