@@ -50,7 +50,8 @@ class SessionSecurity {
 				.permitAll()
 				.requestMatchers(HttpMethod.GET, "/actuator/health", "/workbench", "/workbench/**")
 				.permitAll()
-				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/conversations/{id}/turns")
+				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/conversations/{id}/turns",
+						"/api/workspaces/{workspaceId}/research")
 				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/conversations",
 						"/api/workspaces/{workspaceId}/conversations/{id}",

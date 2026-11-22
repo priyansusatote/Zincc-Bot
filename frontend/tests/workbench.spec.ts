@@ -36,6 +36,25 @@ async function ready(page: Page, workspaces: Membership[] = [first, second]) {
 	}
 }
 
+test("workbench resolves presets and shows public source coverage", async ({page}) => {
+	await ready(page,[first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	await page.route(`${base}/conversations`, r=>r.fulfill({json:{threads:[], routes:["desk"], presets:{local:"desk"}, publicResearch:true}}));
+	await page.route(`${base}/research`, async r=>{
+		expect(r.request().postDataJSON()).toEqual({query:"Earth",fresh:true});
+		expect(await r.request().headerValue(session.csrfHeader)).toBe(session.csrfToken);
+		await r.fulfill({json:{discovered:4,attempted:3,fetched:1,citations:[{title:"Earth",quote:"Earth is a planet.",requestedUrl:"https://en.wikipedia.org/wiki/Earth",finalUrl:"https://en.wikipedia.org/wiki/Earth",observedAt:"2026-11-22T00:00:00Z",cached:false}]}});
+	});
+	await page.goto("/workbench/");
+	await page.getByLabel("Model route").selectOption("@local");
+	await page.getByText("Public web research",{exact:true}).click();
+	await page.getByLabel("Search English Wikipedia").fill("Earth");
+	await page.getByLabel("Fetch fresh pages").check();
+	await page.getByRole("button",{name:"Search sources"}).click();
+	await expect(page.getByText("Read 1 of 4 discovered pages. Attempted 3.")).toBeVisible();
+	await expect(page.getByRole("link",{name:"Earth"})).toHaveAttribute("href","https://en.wikipedia.org/wiki/Earth");
+});
+
 test("replay resumes from the snapshot, ignores duplicate deltas and recovers an expired cursor", async ({
 	page,
 }) => {

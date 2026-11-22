@@ -133,6 +133,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workspaces/{workspaceId}/research": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["research"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -143,8 +159,12 @@ export interface components {
             title: string;
         };
         ConversationDirectory: {
+            presets?: {
+                [key: string]: string;
+            };
             threads: components["schemas"]["ThreadInfo"][];
             routes: string[];
+            publicResearch?: boolean;
         };
         Turn: {
             /** Format: uuid */
@@ -192,6 +212,27 @@ export interface components {
             workspaceName: string;
             /** @enum {string} */
             role: "owner" | "member";
+        };
+        ResearchQuery: {
+            query: string;
+            fresh: boolean;
+        };
+        ResearchAnswer: {
+            discovered: number;
+            attempted: number;
+            fetched: number;
+            citations: components["schemas"]["ResearchEvidence"][];
+        };
+        ResearchEvidence: {
+            title: string;
+            /** Format: uri */
+            requestedUrl: string;
+            /** Format: uri */
+            finalUrl: string;
+            quote: string;
+            /** Format: date-time */
+            observedAt: string;
+            cached: boolean;
         };
     };
     responses: never;
@@ -477,6 +518,60 @@ export interface operations {
             };
             /** @description Invalid CSRF token */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    research: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResearchQuery"];
+            };
+        };
+        responses: {
+            /** @description Bounded cited passages and coverage */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchAnswer"];
+                };
+            };
+            /** @description Research disabled or invalid CSRF token */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Workspace unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Busy */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Search unavailable */
+            502: {
                 headers: {
                     [name: string]: unknown;
                 };

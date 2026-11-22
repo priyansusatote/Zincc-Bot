@@ -159,12 +159,21 @@ class BrowserSessionTest {
 			var session = json.readTree(get(browser, "/api/session").body());
 			assertThat(session.path("provisioned").asBoolean()).isFalse();
 			String mine = "/api/workspaces/" + this.workspace;
+			var researchRequest = request(mine + "/research").header("Content-Type", "application/json")
+				.POST(HttpRequest.BodyPublishers.ofString("{\"query\":\"\",\"fresh\":false}"));
+			assertThat(browser.send(researchRequest.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
+				.isEqualTo(403);
+			researchRequest.header(session.path("csrfHeader").asString(), session.path("csrfToken").asString());
+			assertThat(browser.send(researchRequest.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
+				.isEqualTo(404);
 			assertThat(get(browser, mine).statusCode()).isEqualTo(404);
 			assertThat(get(browser, "/api/workspaces").body()).isEqualTo("[]");
 			this.owner.update("INSERT INTO zincc.oidc_identity VALUES (?, 'local-user', ?)", this.issuer.issuer(),
 					this.principal);
 			assertThat(json.readTree(get(browser, "/api/session").body()).path("provisioned").asBoolean()).isTrue();
 			assertThat(json.readTree(get(browser, mine).body()).path("role").asString()).isEqualTo("owner");
+			assertThat(browser.send(researchRequest.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
+				.isEqualTo(400);
 			assertThat(get(browser, "/api/workspaces/" + this.otherWorkspace).statusCode()).isEqualTo(404);
 			var directory = json.readTree(get(browser, "/api/workspaces").body());
 			assertThat(directory.size()).isEqualTo(1);

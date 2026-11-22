@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, type Session } from "./client";
+import { Research } from "./Research";
 import {
 	directory,
 	replay,
@@ -53,6 +54,7 @@ export function Conversations(props: Props) {
 	if (!index || !id) return <p role="status">Loading conversations…</p>;
 	return (
 		<section className="conversation">
+			{index.publicResearch && <Research {...props} />}
 			<div className="thread-tools">
 				<label>
 					Conversation{" "}
@@ -80,6 +82,7 @@ export function Conversations(props: Props) {
 				{...props}
 				id={id}
 				routes={index.routes}
+				presets={index.presets ?? {}}
 				saved={saved}
 				existing={index.threads.some((t) => t.id === id)}
 			/>
@@ -94,11 +97,13 @@ function Thread({
 	refresh,
 	id,
 	routes,
+	presets,
 	saved,
 	existing,
 }: Props & {
 	id: string;
 	routes: string[];
+	presets: Record<string, string>;
 	saved: (id: string, title: string) => void;
 	existing: boolean;
 }) {
@@ -169,7 +174,7 @@ function Thread({
 		const cmd = retry ?? {
 			turnId: crypto.randomUUID(),
 			revision: view.revision,
-			route,
+			route: route.startsWith("@") ? presets[route.slice(1)] : route,
 			question,
 		};
 		setSending(true);
@@ -240,6 +245,9 @@ function Thread({
 							onChange={(e) => setRoute(e.target.value)}
 						>
 							<option value="">Choose a route</option>
+							{Object.entries(presets).map(([name, model]) => (
+								<option key={name} value={`@${name}`}>{name} · {model}</option>
+							))}
 							{routes.map((r) => (
 								<option key={r}>{r}</option>
 							))}

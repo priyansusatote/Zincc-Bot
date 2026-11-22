@@ -44,7 +44,11 @@ class ConversationApi {
 
 	private final JsonMapper json;
 
-	ConversationApi(ConversationStore store, SessionPrincipal principals, ModelGateway gateway, JsonMapper json) {
+	private final boolean publicResearch;
+
+	ConversationApi(ConversationStore store, SessionPrincipal principals, ModelGateway gateway, JsonMapper json,
+			io.zincc.research.WebResearch research) {
+		this.publicResearch = research.enabled();
 		this.store = store;
 		this.principals = principals;
 		this.gateway = gateway;
@@ -56,13 +60,15 @@ class ConversationApi {
 				workspace);
 	}
 
-	record Directory(List<ThreadInfo> threads, List<String> routes) {
+	record Directory(List<ThreadInfo> threads, List<String> routes, java.util.Map<String, String> presets,
+			boolean publicResearch) {
 	}
 
 	@GetMapping
 	Directory list(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace) {
 		return new Directory(store.directory(scope(user, workspace)),
-				gateway.routes().stream().map(ModelGateway.Route::id).toList());
+				gateway.routes().stream().map(ModelGateway.Route::id).toList(),
+				gateway.selections(ModelGateway.Capability.TEXT), publicResearch);
 	}
 
 	@GetMapping("/{id}")

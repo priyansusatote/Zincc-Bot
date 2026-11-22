@@ -287,6 +287,56 @@
           }
         }
       }
+    },
+    "/api/workspaces/{workspaceId}/research": {
+      "post": {
+        "operationId": "research",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResearchQuery"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bounded cited passages and coverage",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchAnswer"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Research disabled or invalid CSRF token"
+          },
+          "404": {
+            "description": "Workspace unavailable"
+          },
+          "429": {
+            "description": "Busy"
+          },
+          "502": {
+            "description": "Search unavailable"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -321,6 +371,12 @@
           "routes"
         ],
         "properties": {
+          "presets": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
           "threads": {
             "type": "array",
             "items": {
@@ -332,6 +388,9 @@
             "items": {
               "type": "string"
             }
+          },
+          "publicResearch": {
+            "type": "boolean"
           }
         }
       },
@@ -496,6 +555,85 @@
               "owner",
               "member"
             ]
+          }
+        }
+      },
+      "ResearchQuery": {
+        "type": "object",
+        "required": [
+          "query",
+          "fresh"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "maxLength": 300
+          },
+          "fresh": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResearchAnswer": {
+        "type": "object",
+        "required": [
+          "discovered",
+          "attempted",
+          "fetched",
+          "citations"
+        ],
+        "properties": {
+          "discovered": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "attempted": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fetched": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "citations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResearchEvidence"
+            }
+          }
+        }
+      },
+      "ResearchEvidence": {
+        "type": "object",
+        "required": [
+          "title",
+          "requestedUrl",
+          "finalUrl",
+          "quote",
+          "observedAt",
+          "cached"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "requestedUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "finalUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "quote": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "cached": {
+            "type": "boolean"
           }
         }
       }
