@@ -1,5 +1,7 @@
 # Zincc
 
+**Phase 2 is implemented.** The workbench offers model-route presets, private conversations and public search with cited passages. Local-only deployments exclude cloud inference and public search. The evaluation suite and usage report cover the first working components. [Model settings](docs/modules/model-gateway.md) · [Search sources](docs/modules/public-research.md) · [Evaluation and costs](docs/modules/phase-two-evaluation.md)
+
 **P2.2 adds private workspace conversations.** Choose a model route, send follow-ups, and reopen the saved transcript. The workbench catches up from the last event it received. [Run conversations](docs/modules/conversations.md).
 
 Zincc is building a model-independent platform for persistent AI agents, daily automation, research, document analytics, live voice actions, and code-generated scenes.
@@ -47,4 +49,4 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 
 The two Maven launcher scripts come from the Apache Maven Wrapper 3.3.4 only-script distribution. Their [license](.mvn/wrapper/LICENSE) and [notice](.mvn/wrapper/NOTICE) accompany them. The product license decision remains open.
 
-The next task awaiting authorization is **P2.3**, local-only routing and rule-based model selection.
+The next task awaiting authorization is **P3.0**, the versioned agent definition.

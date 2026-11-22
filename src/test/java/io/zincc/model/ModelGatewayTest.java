@@ -18,6 +18,21 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ModelGatewayTest {
 
+	@org.junit.jupiter.api.TestFactory
+	java.util.stream.Stream<org.junit.jupiter.api.DynamicTest> frozenStructuredOutputCases() throws Exception {
+		return io.zincc.eval.FrozenCases.group("structured")
+			.map(row -> org.junit.jupiter.api.DynamicTest.dynamicTest(row.path("id").asString(), () -> {
+				String output = row.path("output").asString();
+				var gateway = gateway(Set.of(ModelGateway.Capability.JSON_OBJECT), output, Duration.ofSeconds(2));
+				var request = gateway.jsonObject("test", "Extract field",
+						Map.of("field", ModelGateway.FieldType.valueOf(row.path("type").asString())));
+				if (row.path("valid").asBoolean())
+					assertThat(request.block().text()).isEqualTo(output);
+				else
+					assertFailure(request::block, ModelGateway.Failure.INVALID_OUTPUT);
+			}));
+	}
+
 	private final AtomicInteger calls = new AtomicInteger();
 
 	private final AtomicBoolean cancelled = new AtomicBoolean();

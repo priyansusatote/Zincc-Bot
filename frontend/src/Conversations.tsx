@@ -54,7 +54,12 @@ export function Conversations(props: Props) {
 	if (!index || !id) return <p role="status">Loading conversations…</p>;
 	return (
 		<section className="conversation">
-			{index.publicResearch && <Research {...props} />}
+			{index.publicResearch && (
+				<Research
+					{...props}
+					source={index.researchSource ?? "English Wikipedia"}
+				/>
+			)}
 			<div className="thread-tools">
 				<label>
 					Conversation{" "}
@@ -246,7 +251,9 @@ function Thread({
 						>
 							<option value="">Choose a route</option>
 							{Object.entries(presets).map(([name, model]) => (
-								<option key={name} value={`@${name}`}>{name} · {model}</option>
+								<option key={name} value={`@${name}`}>
+									{name} · {model}
+								</option>
 							))}
 							{routes.map((r) => (
 								<option key={r}>{r}</option>

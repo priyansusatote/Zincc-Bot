@@ -1,5 +1,7 @@
 # Technology baseline and adoption gates
 
+P2.3–P2.5 retained the existing Java and frontend dependency locks. The search adapters use the JDK HTTP client and existing Jackson dependency. The offline cost tool uses the Python standard library and passed its tests with Python 3.12.2 on Windows. [Qualification](modules/phase-two-evaluation.md)
+
 **P1.1 qualification on 18 November 2026.** Tested on Windows x64 with Eclipse Temurin HotSpot build `25.0.5+8-LTS`, Maven 3.10.1 (wrapper 3.3.4) and Spring Boot 4.1.2 directly on the host. The wrapper pins the Maven archive SHA-256. The build also pins Enforcer 3.6.2, Spring Java Format 0.0.47 and ArchUnit 1.4.2. [Resolved dependency tree](phases/p1.1-dependencies.txt) · [tests and limitations](learning-notes/006-spring-foundation.md). Regenerate the tree with the wrapper goal `dependency:tree -DoutputFile=target/dependency-tree.txt`.
 
 P1.2 qualified PostgreSQL 18.7 on Windows x64, pgJDBC 42.7.14, Flyway 12.4.0 and HikariCP 7.0.2. Tests launch the native server with Zonky 2.2.2 and its 18.7.0 binaries BOM. [Dependency snapshot](phases/p1.2-dependencies.txt) · [PostgreSQL release policy](https://www.postgresql.org/support/versioning/) · [Flyway PostgreSQL module](https://documentation.red-gate.com/flyway/reference/database-driver-reference/postgresql-database).

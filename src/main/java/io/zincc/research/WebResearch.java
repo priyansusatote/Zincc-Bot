@@ -51,8 +51,26 @@ public class WebResearch {
 
 	@org.springframework.beans.factory.annotation.Autowired
 	WebResearch(@Value("${zincc.local-only:false}") boolean localOnly,
-			@Value("${zincc.research.enabled:true}") boolean enabled) {
-		this(new WikipediaSource(WikipediaSource.API), Clock.systemUTC(), !localOnly && enabled);
+			@Value("${zincc.research.enabled:true}") boolean enabled, org.springframework.core.env.Environment env) {
+		this(source(!localOnly && enabled, env), Clock.systemUTC(), !localOnly && enabled);
+	}
+
+	private static Source source(boolean enabled, org.springframework.core.env.Environment env) {
+		if (!enabled)
+			return null;
+		return switch (env.getProperty("zincc.research.provider", "wikipedia")) {
+			case "wikipedia" -> new WikipediaSource(WikipediaSource.API);
+			case "firecrawl" -> new FirecrawlSource(java.net.URI.create("https://api.firecrawl.dev/v2/"),
+					env.getRequiredProperty("FIRECRAWL_API_KEY"),
+					java.util.Arrays.stream(env.getRequiredProperty("zincc.research.domains").split(","))
+						.map(String::strip)
+						.collect(java.util.stream.Collectors.toSet()));
+			default -> throw new IllegalArgumentException("Unknown public search provider");
+		};
+	}
+
+	public String sourceName() {
+		return source instanceof FirecrawlSource ? "Firecrawl" : "English Wikipedia";
 	}
 
 	WebResearch(Source source, Clock clock, boolean enabled) {

@@ -32,7 +32,7 @@ zincc:
         json-object: true
 ```
 
-Ollama connects to loopback port 11434 by default. Set `zincc.models.ollama-port` if the local service uses another port. A loopback connection alone cannot attest how that service handles data downstream. P2.3 owns end-to-end local-only qualification.
+Ollama connects to loopback port 11434 by default. Set `zincc.models.ollama-port` if the local service uses another port. A loopback connection alone cannot attest how that service handles data downstream. The local-only deployment setting and operator qualification are described below.
 
 With the project JDK configured, run the one-request smoke test in PowerShell. This sends a synthetic greeting to the selected model. A cloud route may incur provider charges.
 
@@ -53,6 +53,6 @@ For an inference-local deployment, set `zincc.local-only=true`. Disable cloud fe
 - `routes()` returns configured identities and capabilities. Callers supply a route ID on every request. Each Reactor subscription starts one generation. Subscribing twice can incur two charges.
 - `text()` returns complete text. `jsonObject()` requests one object and validates required top-level string, number or boolean fields. Extra fields are allowed. Invalid types, duplicate keys, trailing content and incomplete generation fail the request. Correct syntax alone does not establish factual accuracy.
 - `streamText()` emits provisional deltas followed by one completion receipt on success. An error can follow visible text. Save a response as completed only after receiving the receipt. The caller receives a timeout after the 60-second deadline. A disconnected caller cannot establish that the provider stopped billing.
-- Micrometer records available input and output counts under `zincc.model.tokens`, tagged by route ID and direction. Absent usage stays unknown. Interrupted generations may lack final counts. Billing reconciliation belongs to P2.5.
+- Micrometer records available input and output counts under `zincc.model.tokens`, tagged by route ID and direction. Absent usage stays unknown. Interrupted generations may lack final counts. [P2.5](phase-two-evaluation.md) records conversation receipts and reconciles provider totals.
 
 [Gateway](../../src/main/java/io/zincc/model/ModelGateway.java) · [Provider configuration](../../src/main/java/io/zincc/model/ModelConfiguration.java) · [Protocol tests](../../src/test/java/io/zincc/model/ModelProtocolTest.java)

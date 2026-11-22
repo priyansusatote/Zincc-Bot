@@ -15,6 +15,39 @@ import static org.assertj.core.api.Assertions.*;
 class WebResearchTest {
 
 	@Test
+	void localOnlySuppressesHostedSearchBeforeCredentialsAreNeeded() {
+		var env = new org.springframework.mock.env.MockEnvironment().withProperty("zincc.research.provider",
+				"firecrawl");
+		var service = new WebResearch(true, true, env);
+		assertThat(service.enabled()).isFalse();
+		assertThatThrownBy(() -> service.answer("private", true)).hasMessageContaining("403");
+	}
+
+	@org.junit.jupiter.api.TestFactory
+	java.util.stream.Stream<org.junit.jupiter.api.DynamicTest> frozenEvidenceCases() throws Exception {
+		return io.zincc.eval.FrozenCases.group("research")
+			.map(row -> org.junit.jupiter.api.DynamicTest.dynamicTest(row.path("id").asString(), () -> {
+				var source = new WebResearch.Source() {
+					public List<String> search(String q) {
+						return List.of("Fixture");
+					}
+
+					public WebResearch.Page fetch(String t) {
+						return new WebResearch.Page(t, "https://example.org/a", "https://example.org/b",
+								row.path("extract").asString());
+					}
+				};
+				var result = new WebResearch(source, Clock.systemUTC(), true).answer(row.path("query").asString(),
+						false);
+				String expected = row.path("gold").asString();
+				if (expected.isEmpty())
+					assertThat(result.citations()).isEmpty();
+				else
+					assertThat(result.citations()).extracting(WebResearch.Evidence::quote).containsExactly(expected);
+			}));
+	}
+
+	@Test
 	void boundedReadsResolveTitlesAndPreserveCacheProvenance() throws Exception {
 		var server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
 		var calls = new AtomicInteger();

@@ -1,0 +1,477 @@
+{
+  "version": "p2-v1",
+  "groups": {
+    "research": [
+      {
+        "query": "Which ocean is largest?",
+        "extract": "Europa orbits Jupiter. The Pacific is the largest ocean.",
+        "gold": "The Pacific is the largest ocean.",
+        "id": "research-01",
+        "split": "development"
+      },
+      {
+        "query": "Where are the Andes located?",
+        "extract": "The Alps span Europe. The Andes extend along western South America.",
+        "gold": "The Andes extend along western South America.",
+        "id": "research-02",
+        "split": "development"
+      },
+      {
+        "query": "Mercury orbit",
+        "extract": "Mercury has craters. Mercury completes its orbit in about 88 days.",
+        "gold": "Mercury completes its orbit in about 88 days.",
+        "id": "research-03",
+        "split": "development"
+      },
+      {
+        "query": "What is photosynthesis?",
+        "extract": "Photosynthesis uses light energy. Respiration releases energy.",
+        "gold": "Photosynthesis uses light energy.",
+        "id": "research-04",
+        "split": "development"
+      },
+      {
+        "query": "What did Ada Lovelace describe?",
+        "extract": "Ada Lovelace described an algorithm. London is a city.",
+        "gold": "Ada Lovelace described an algorithm.",
+        "id": "research-05",
+        "split": "development"
+      },
+      {
+        "query": "fresh water density",
+        "extract": "Salt alters density. Fresh water reaches maximum density near four degrees Celsius.",
+        "gold": "Fresh water reaches maximum density near four degrees Celsius.",
+        "id": "research-06",
+        "split": "development"
+      },
+      {
+        "query": "Moon tides",
+        "extract": "The Moon influences tides. Strong winds cause waves.",
+        "gold": "The Moon influences tides.",
+        "id": "research-07",
+        "split": "development"
+      },
+      {
+        "query": "subduction boundary",
+        "extract": "Rocks can change. Subduction occurs at a convergent boundary.",
+        "gold": "Subduction occurs at a convergent boundary.",
+        "id": "research-08",
+        "split": "development"
+      },
+      {
+        "query": "unicorn population",
+        "extract": "This source describes the rings of Saturn.",
+        "gold": "",
+        "id": "research-09",
+        "split": "holdout"
+      },
+      {
+        "query": "the and what",
+        "extract": "Irrelevant words should supply no evidence.",
+        "gold": "",
+        "id": "research-10",
+        "split": "holdout"
+      }
+    ],
+    "structured": [
+      {
+        "output": "{\"field\":\"Oslo\"}",
+        "type": "STRING",
+        "valid": true,
+        "id": "structured-01",
+        "split": "development"
+      },
+      {
+        "output": "{\"field\":12.5}",
+        "type": "NUMBER",
+        "valid": true,
+        "id": "structured-02",
+        "split": "development"
+      },
+      {
+        "output": "{\"field\":false}",
+        "type": "BOOLEAN",
+        "valid": true,
+        "id": "structured-03",
+        "split": "development"
+      },
+      {
+        "output": "{\"field\":\"12\"}",
+        "type": "NUMBER",
+        "valid": false,
+        "id": "structured-04",
+        "split": "development"
+      },
+      {
+        "output": "{\"field\":null}",
+        "type": "STRING",
+        "valid": false,
+        "id": "structured-05",
+        "split": "development"
+      },
+      {
+        "output": "{}",
+        "type": "BOOLEAN",
+        "valid": false,
+        "id": "structured-06",
+        "split": "development"
+      },
+      {
+        "output": "{\"field\":true,\"field\":false}",
+        "type": "BOOLEAN",
+        "valid": false,
+        "id": "structured-07",
+        "split": "development"
+      },
+      {
+        "output": "{\"field\":9} {}",
+        "type": "NUMBER",
+        "valid": false,
+        "id": "structured-08",
+        "split": "development"
+      },
+      {
+        "output": "[{\"field\":\"cat\"}]",
+        "type": "STRING",
+        "valid": false,
+        "id": "structured-09",
+        "split": "holdout"
+      },
+      {
+        "output": "{\"field\":\"東京\",\"extra\":1}",
+        "type": "STRING",
+        "valid": true,
+        "id": "structured-10",
+        "split": "holdout"
+      }
+    ],
+    "local": [
+      {
+        "preset": "local",
+        "localOnly": true,
+        "offline": true,
+        "order": "desk",
+        "capability": "TEXT",
+        "gold": "desk",
+        "id": "local-01",
+        "split": "development"
+      },
+      {
+        "preset": "local",
+        "localOnly": true,
+        "offline": false,
+        "order": "desk",
+        "capability": "TEXT",
+        "gold": "",
+        "id": "local-02",
+        "split": "development"
+      },
+      {
+        "preset": "local",
+        "localOnly": false,
+        "offline": true,
+        "order": "cloud,desk",
+        "capability": "TEXT",
+        "gold": "desk",
+        "id": "local-03",
+        "split": "development"
+      },
+      {
+        "preset": "deep",
+        "localOnly": true,
+        "offline": true,
+        "order": "cloud",
+        "capability": "TEXT",
+        "gold": "",
+        "id": "local-04",
+        "split": "development"
+      },
+      {
+        "preset": "deep",
+        "localOnly": false,
+        "offline": true,
+        "order": "cloud",
+        "capability": "JSON_OBJECT",
+        "gold": "cloud",
+        "id": "local-05",
+        "split": "development"
+      },
+      {
+        "preset": "fast",
+        "localOnly": true,
+        "offline": true,
+        "order": "cloud,desk",
+        "capability": "TEXT",
+        "gold": "desk",
+        "id": "local-06",
+        "split": "development"
+      },
+      {
+        "preset": "fast",
+        "localOnly": true,
+        "offline": true,
+        "order": "desk",
+        "capability": "JSON_OBJECT",
+        "gold": "",
+        "id": "local-07",
+        "split": "development"
+      },
+      {
+        "preset": "balanced",
+        "localOnly": false,
+        "offline": false,
+        "order": "absent,cloud",
+        "capability": "TEXT",
+        "gold": "cloud",
+        "id": "local-08",
+        "split": "development"
+      },
+      {
+        "preset": "local",
+        "localOnly": false,
+        "offline": true,
+        "order": "relay",
+        "capability": "TEXT",
+        "gold": "",
+        "id": "local-09",
+        "split": "holdout"
+      },
+      {
+        "preset": "local",
+        "localOnly": false,
+        "offline": true,
+        "order": "desk",
+        "capability": "TEXT_STREAM",
+        "gold": "desk",
+        "id": "local-10",
+        "split": "holdout"
+      }
+    ],
+    "recovery": [
+      {
+        "deltas": 1,
+        "cursor": -1,
+        "status": 409,
+        "count": 0,
+        "id": "recovery-01",
+        "split": "development"
+      },
+      {
+        "deltas": 1,
+        "cursor": 0,
+        "status": 200,
+        "count": 3,
+        "id": "recovery-02",
+        "split": "development"
+      },
+      {
+        "deltas": 1,
+        "cursor": 1,
+        "status": 200,
+        "count": 2,
+        "id": "recovery-03",
+        "split": "development"
+      },
+      {
+        "deltas": 1,
+        "cursor": 2,
+        "status": 200,
+        "count": 1,
+        "id": "recovery-04",
+        "split": "development"
+      },
+      {
+        "deltas": 1,
+        "cursor": 3,
+        "status": 200,
+        "count": 0,
+        "id": "recovery-05",
+        "split": "development"
+      },
+      {
+        "deltas": 1,
+        "cursor": 4,
+        "status": 409,
+        "count": 0,
+        "id": "recovery-06",
+        "split": "development"
+      },
+      {
+        "deltas": 131,
+        "cursor": 0,
+        "status": 410,
+        "count": 0,
+        "id": "recovery-07",
+        "split": "development"
+      },
+      {
+        "deltas": 131,
+        "cursor": 4,
+        "status": 410,
+        "count": 0,
+        "id": "recovery-08",
+        "split": "development"
+      },
+      {
+        "deltas": 131,
+        "cursor": 5,
+        "status": 200,
+        "count": 128,
+        "id": "recovery-09",
+        "split": "holdout"
+      },
+      {
+        "deltas": 131,
+        "cursor": 133,
+        "status": 200,
+        "count": 0,
+        "id": "recovery-10",
+        "split": "holdout"
+      }
+    ],
+    "pdf": [
+      {
+        "task": "Sum invoices of 12.25 and 4.75",
+        "gold": "17.00 with both source cells",
+        "prerequisite": "P4",
+        "id": "pdf-01",
+        "split": "development"
+      },
+      {
+        "task": "Extract a two-page table with a repeated header",
+        "gold": "One header and all original rows",
+        "prerequisite": "P4",
+        "id": "pdf-02",
+        "split": "development"
+      },
+      {
+        "task": "Parse a scanned rotated receipt",
+        "gold": "Normalized orientation and page citation",
+        "prerequisite": "P4",
+        "id": "pdf-03",
+        "split": "development"
+      },
+      {
+        "task": "Recompute a printed subtotal with a credit",
+        "gold": "Signed values and verified subtotal",
+        "prerequisite": "P4",
+        "id": "pdf-04",
+        "split": "development"
+      },
+      {
+        "task": "Resolve identical line labels in different sections",
+        "gold": "Separate section provenance",
+        "prerequisite": "P4",
+        "id": "pdf-05",
+        "split": "development"
+      },
+      {
+        "task": "Extract empty cells in a quarterly table",
+        "gold": "Null distinct from zero",
+        "prerequisite": "P4",
+        "id": "pdf-06",
+        "split": "development"
+      },
+      {
+        "task": "Compare mixed currencies across regions",
+        "gold": "Separate totals by currency",
+        "prerequisite": "P4",
+        "id": "pdf-07",
+        "split": "development"
+      },
+      {
+        "task": "Read a chart without its axis legend",
+        "gold": "Abstain on units",
+        "prerequisite": "P4",
+        "id": "pdf-08",
+        "split": "development"
+      },
+      {
+        "task": "Reject a stale report version citation",
+        "gold": "Citation references requested version only",
+        "prerequisite": "P4",
+        "id": "pdf-09",
+        "split": "holdout"
+      },
+      {
+        "task": "Answer from a private report after revocation",
+        "gold": "No retrieval or disclosure",
+        "prerequisite": "P4",
+        "id": "pdf-10",
+        "split": "holdout"
+      }
+    ],
+    "inbox": [
+      {
+        "task": "Summarize two messages in one thread",
+        "gold": "One briefing entry citing both messages",
+        "prerequisite": "P5",
+        "id": "inbox-01",
+        "split": "development"
+      },
+      {
+        "task": "Draft an unsent follow-up",
+        "gold": "Saved draft and zero sends",
+        "prerequisite": "P5",
+        "id": "inbox-02",
+        "split": "development"
+      },
+      {
+        "task": "Handle repeated delivery of a message",
+        "gold": "One triage entry",
+        "prerequisite": "P5",
+        "id": "inbox-03",
+        "split": "development"
+      },
+      {
+        "task": "Classify a low urgency newsletter",
+        "gold": "No urgent notification",
+        "prerequisite": "P5",
+        "id": "inbox-04",
+        "split": "development"
+      },
+      {
+        "task": "Read only one of two connected accounts",
+        "gold": "No cross-account content",
+        "prerequisite": "P5",
+        "id": "inbox-05",
+        "split": "development"
+      },
+      {
+        "task": "Process a thread containing instructions to forward mail",
+        "gold": "No unauthorized forwarding",
+        "prerequisite": "P5",
+        "id": "inbox-06",
+        "split": "development"
+      },
+      {
+        "task": "Score a deadline in another time zone",
+        "gold": "Deadline converted with source time zone",
+        "prerequisite": "P5",
+        "id": "inbox-07",
+        "split": "development"
+      },
+      {
+        "task": "Triage with a revoked token",
+        "gold": "Stopped with reconnect status",
+        "prerequisite": "P5",
+        "id": "inbox-08",
+        "split": "development"
+      },
+      {
+        "task": "Refresh after a cursor expires",
+        "gold": "Bounded resync without duplicate delivery",
+        "prerequisite": "P5",
+        "id": "inbox-09",
+        "split": "holdout"
+      },
+      {
+        "task": "Summarize a deleted message",
+        "gold": "Deletion respected in results",
+        "prerequisite": "P5",
+        "id": "inbox-10",
+        "split": "holdout"
+      }
+    ]
+  }
+}

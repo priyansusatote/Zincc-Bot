@@ -231,6 +231,15 @@ class BrowserSessionTest {
 			.statusCode()).isEqualTo(204);
 		assertThat(modelRequest.get()).contains("First question", "Translate autumn").doesNotContain("Follow up");
 		assertThat(get(browser, thread + "/events?after=" + revision).body()).contains("秋", "completed");
+		var receipts = owner.queryForList(
+				"SELECT provider,model_name,state,input_tokens,output_tokens FROM zincc.conversation_turn WHERE conversation_id=? ORDER BY base_revision",
+				UUID.fromString(thread.substring(thread.lastIndexOf('/') + 1)));
+		assertThat(receipts).hasSize(3);
+		assertThat(receipts.get(0)).containsEntry("input_tokens", 4)
+			.containsEntry("output_tokens", 1)
+			.containsEntry("provider", "OLLAMA");
+		assertThat(receipts.get(1)).containsEntry("state", "interrupted").containsEntry("input_tokens", 4);
+		assertThat(receipts.get(2)).containsEntry("input_tokens", 12).containsEntry("output_tokens", 1);
 	}
 
 	@Test

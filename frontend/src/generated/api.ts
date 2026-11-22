@@ -165,6 +165,7 @@ export interface components {
             threads: components["schemas"]["ThreadInfo"][];
             routes: string[];
             publicResearch?: boolean;
+            researchSource?: string;
         };
         Turn: {
             /** Format: uuid */

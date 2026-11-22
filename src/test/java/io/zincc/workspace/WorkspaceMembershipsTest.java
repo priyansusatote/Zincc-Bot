@@ -125,6 +125,29 @@ class WorkspaceMembershipsTest {
 					e -> assertThat(e.getStatusCode().value()).isEqualTo(409));
 	}
 
+	@org.junit.jupiter.api.TestFactory
+	java.util.stream.Stream<org.junit.jupiter.api.DynamicTest> frozenReplayCases() throws Exception {
+		return io.zincc.eval.FrozenCases.group("recovery")
+			.map(row -> org.junit.jupiter.api.DynamicTest.dynamicTest(row.path("id").asString(), () -> {
+				var store = new ConversationStore(pool);
+				var scope = new Scope(alice, first);
+				var id = UUID.randomUUID();
+				var command = new Command(UUID.randomUUID(), 0L, "fixture", "Replay");
+				store.reserve(scope, id, command);
+				for (int i = 0; i < row.path("deltas").asInt(); i++)
+					store.append(scope, id, command.turnId(), "delta", "x");
+				store.append(scope, id, command.turnId(), "completed", "");
+				long cursor = row.path("cursor").asLong();
+				int status = row.path("status").asInt();
+				if (status == 200)
+					assertThat(store.replay(scope, id, cursor)).hasSize(row.path("count").asInt());
+				else
+					assertThatThrownBy(() -> store.replay(scope, id, cursor)).isInstanceOfSatisfying(
+							ResponseStatusException.class,
+							e -> assertThat(e.getStatusCode().value()).isEqualTo(status));
+			}));
+	}
+
 	@Test
 	void privateReplayExpiresToSnapshotAndLostGenerationRemainsInterrupted() {
 		var store = new ConversationStore(pool);

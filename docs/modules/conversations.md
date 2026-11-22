@@ -1,6 +1,6 @@
 # Workbench conversations
 
-After applying Flyway V4, run the packaged workbench with the OIDC profile, a provisioned workspace membership and a configured model route. For the existing free OpenRouter routes, use `SPRING_PROFILES_ACTIVE=oidc,openrouter-free` with the server-side key configured. Open the workspace, choose a model, and send the first message. The workbench lists the thread under the opening words of that message. Each thread belongs to its creator within that workspace. [Workbench setup](workbench.md) · [Browser sign-in](browser-sessions.md) · [Model configuration](model-gateway.md)
+After applying Flyway V5, run the packaged workbench with the OIDC profile, a provisioned workspace membership and a configured model route. For the existing free OpenRouter routes, use `SPRING_PROFILES_ACTIVE=oidc,openrouter-free` with the server-side key configured. Open the workspace, choose a model, and send the first message. The workbench lists the thread under the opening words of that message. Each thread belongs to its creator within that workspace. [Workbench setup](workbench.md) · [Browser sign-in](browser-sessions.md) · [Model configuration](model-gateway.md)
 
 ## Client contract
 

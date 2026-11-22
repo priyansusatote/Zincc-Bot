@@ -2,7 +2,9 @@
 
 Updated: **22 November 2026**.
 
-## Current authorized task
+## Completed Phase 2 batch
+
+**P2.3–P2.5 complete.** The workbench resolves route presets, supports deployment-wide local-only inference and offers cited public research. Flyway V5 persists available model usage with conversation outcomes. A frozen evaluation manifest and an offline statement reconciler ship with the batch. [Routing](learning-notes/013-route-selection.md) · [Research](learning-notes/014-cited-search.md) · [Evaluation and costs](learning-notes/015-evaluation-accounting.md)
 
 The user authorized the remaining Phase 2 batch on 22 November. Scope covers P2.3 model selection and local privacy, P2.4 bounded cited public-web research, and P2.5 the frozen evaluation and usage reconciliation baseline. Acceptance follows the three entries in the [roadmap](phases/roadmap.md). P3 requires separate authorization.
 
@@ -58,6 +60,8 @@ Latest feature addition: research the supplied procedural ocean example and add 
 
 ## Verification
 
+**P2 closeout, 22 November.** The final workbench build passed 79 Java tests with three opt-in probes skipped. All eight installed-Edge tests passed against the production frontend bundle. The generated API check, type check, lint and three Python reconciliation tests passed. The baseline includes 40 passing deterministic cases and 20 future PDF/inbox cases. Separate live checks exercised the Wikipedia adapter and the two free OpenRouter routes. The Firecrawl v2 adapter passed HTTP fixture tests; hosted billing and live Firecrawl remain unqualified. A real offline Ollama model and a live billing statement were unavailable for this qualification. [Test definitions and limits](modules/phase-two-evaluation.md)
+
 **P2.2, 21 November.** The workbench-profile JAR passed Maven verification. Of 33 Java tests, 32 passed and the opt-in live-provider test was skipped. All seven Edge tests passed against the production frontend bundle with fixture HTTP responses. The backend HTTP tests used PostgreSQL, a local OIDC issuer and a loopback model server for streaming and text-only routes. The frontend contract check, type check, lint and build passed.
 
 **P2.1 OpenRouter follow-up, 19 November.** The opt-in Lightning greeting passed. The Gemma greeting failed twice, with HTTP 429 observed in a separate request to that route. The workbench-profile regression suite passed 30 tests and skipped the opt-in smoke test.
@@ -80,7 +84,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P2.3–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P3.0–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.
@@ -101,6 +105,6 @@ Hosting budget and region; identity provider; initial production accounts/API ac
 
 ## Stop point
 
-The next task awaiting authorization is P2.3, local-only routing and rule-based model selection.
+The next task awaiting authorization is P3.0, the versioned agent definition.
 
 Hardware, hosting budget/region, identity provider, license and API access remain task-specific decisions documented in the final review.

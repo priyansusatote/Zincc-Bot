@@ -156,6 +156,14 @@ All labs are **pending, not authorized to execute yet**. Each receives its own f
 
 These labs interleave with their prerequisites rather than all waiting until the final release. Large-scale distributed training, custom GPU kernels and multi-region production deployment remain study/qualified-extension work unless an actual need and resources are established.
 
+## Phase 2 component evidence
+
+| Topic | Evidence and level |
+| --- | --- |
+| Capability routing and privacy | Implemented deterministic selection. Two free cloud routes experimentally compared on fixed synthetic prompts. [Report](learning-notes/013-route-selection.md) |
+| Retrieval and citations | Implemented lexical passage selection and explicit cache provenance. Tested freshness and partial retrieval, including a live source. [Report](learning-notes/014-cited-search.md) |
+| Task evaluation and cost | Implemented frozen regression cases, durable turn usage and an offline statement reconciler. Studied calibration and exercised the Brier calculation with synthetic labels. [Report](learning-notes/015-evaluation-accounting.md) |
+
 ## 9. Evidence of learning and completion
 
 For every component, the learning note identifies the covered topics from this matrix and link to implemented code or experiment evidence. Preserve five states: planned, studied, implemented, experimentally evaluated, and production-adopted. None implies the others.

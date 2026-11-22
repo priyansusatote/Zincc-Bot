@@ -391,6 +391,9 @@
           },
           "publicResearch": {
             "type": "boolean"
+            },
+            "researchSource": {
+              "type": "string"
           }
         }
       },

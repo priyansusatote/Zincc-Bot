@@ -16,5 +16,6 @@ The table tracks adoption by component. Initial research was completed on 14 Nov
 | [0010](0010-workspace-access.md) | Transaction-local workspace membership reads under a restricted PostgreSQL role | Adopted in P1.2 |
 | [0011](0011-browser-identity.md) | OIDC browser sessions with live workspace authorization | Adopted in P1.3 |
 | [0012](0012-conversation-replay.md) | Atomic turn projection and replay within a private conversation | Adopted in P2.2 |
+| [0013](0013-phase-two-boundaries.md) | Inference locality, explicit public research and atomic turn usage | Adopted in P2.3–P2.5 |
 
 Future ADRs must state context/problem, decision, alternatives, trade-offs, consequences, and verification. A library name alone is not a design decision.

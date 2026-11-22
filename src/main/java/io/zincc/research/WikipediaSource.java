@@ -44,7 +44,13 @@ class WikipediaSource implements WebResearch.Source {
 		var response = client.send(request, BodyHandlers.limiting(BodyHandlers.ofByteArray(), 131072));
 		if (response.statusCode() != 200)
 			throw new IOException("Search provider unavailable");
-		var query = json.readTree(response.body()).path("query");
+		JsonNode query;
+		try {
+			query = json.readTree(response.body()).path("query");
+		}
+		catch (tools.jackson.core.JacksonException ex) {
+			throw new IOException("Invalid search response");
+		}
 		if (!query.isObject())
 			throw new IOException("Invalid search response");
 		return query;

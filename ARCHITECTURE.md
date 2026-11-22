@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P2.3–P2.5 filter inference routes before client creation, expose public research through a workspace-authorized endpoint and write provider usage alongside terminal turns. The gateway and web-search adapter both enforce the deployment's local-only setting. [Decision and trade-offs](docs/architecture-decisions/0013-phase-two-boundaries.md)
+
 P2.2 stores each personal conversation in the member’s workspace. PostgreSQL allocates replay sequence numbers under a per-conversation lock. The browser can reconnect independently of generation. [Conversation decision](docs/architecture-decisions/0012-conversation-replay.md)
 
 OpenRouter uses the OpenAI chat-completions wire protocol with a distinct provider ID, fixed HTTPS origin and separate credential. The opt-in free profile registers two explicitly selectable text routes. [Model gateway](docs/modules/model-gateway.md)

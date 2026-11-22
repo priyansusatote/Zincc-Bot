@@ -7,6 +7,8 @@ frontend/playwright-report/
 *.log
 hs_err_pid*
 *.hprof
+__pycache__/
+.usage-reports/
 .pgdata/
 pgdata/
 

@@ -1,0 +1,9 @@
+# 0013 — Model selection, public evidence and usage receipts
+
+**Accepted in P2.3–P2.5, 22 November 2026.** A connected workspace can contain private conversations even when public research is enabled. The system must also recover a turn without losing its route or counting a retry twice.
+
+**Decision.** Construct eligible inference clients at startup according to deployment policy. Resolve ordered presets by required capability. Store the concrete selection on the turn. Give public research a separate, authenticated input and bounded source adapter. Keep a process-local cache of public page content. Return verbatim passages with provenance. Persist available model usage alongside the terminal projection. Reconcile offline against provider totals for the same period and population.
+
+**Alternatives and consequences.** A model-selected fallback could transmit private history before a policy check. Ordered eligibility is deterministic but needs operator qualification of the offline service. Combining web search with every conversation would make it difficult to see which terms leave the installation. Separate research requires an extra interaction and preserves an explicit disclosure boundary. A generated synthesis could be smoother to read but would introduce a second authorization and factual validation step. A standalone billing service would duplicate the turn identity at this stage. Recording receipts on turns gives atomic completion and a concrete scope of conversation inference; later non-chat activities need their own metering.
+
+**Verified boundaries.** Local-only starts without cloud credentials, public research checks live membership, bounded retrieval returns partial coverage, and PostgreSQL exposes one receipt per accepted turn. [Model selection](../modules/model-gateway.md) · [Public research](../modules/public-research.md) · [Evaluation](../modules/phase-two-evaluation.md)

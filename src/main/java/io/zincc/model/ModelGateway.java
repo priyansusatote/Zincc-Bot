@@ -53,6 +53,12 @@ public final class ModelGateway {
 	}
 
 	public record Usage(Integer inputTokens, Integer outputTokens) {
+		public Usage {
+			if (inputTokens != null && inputTokens < 0)
+				inputTokens = null;
+			if (outputTokens != null && outputTokens < 0)
+				outputTokens = null;
+		}
 	}
 
 	public record Result(Route route, String text, Usage usage, String finishReason) {
@@ -72,9 +78,20 @@ public final class ModelGateway {
 
 		private final Failure failure;
 
+		private final Usage usage;
+
 		GatewayException(Failure failure) {
+			this(failure, null);
+		}
+
+		private GatewayException(Failure failure, Usage usage) {
 			super(failure.name());
 			this.failure = failure;
+			this.usage = usage;
+		}
+
+		public Usage usage() {
+			return usage;
 		}
 
 		public Failure failure() {
@@ -164,12 +181,17 @@ public final class ModelGateway {
 				.timeout(this.deadline)
 				.map(part -> {
 					recordUsage(port.route(), part.usage());
-					requireComplete(part.finishReason());
-					if (part.text().isBlank() || part.text().length() > MAX_CHARACTERS)
-						throw invalidOutput();
-					if (capability == Capability.JSON_OBJECT)
-						validate(part.text(), fields);
-					return new Result(port.route(), part.text(), part.usage(), part.finishReason());
+					try {
+						requireComplete(part.finishReason());
+						if (part.text().isBlank() || part.text().length() > MAX_CHARACTERS)
+							throw invalidOutput();
+						if (capability == Capability.JSON_OBJECT)
+							validate(part.text(), fields);
+						return new Result(port.route(), part.text(), part.usage(), part.finishReason());
+					}
+					catch (GatewayException ex) {
+						throw new GatewayException(ex.failure(), part.usage());
+					}
 				});
 		}).onErrorMap(ModelGateway::normalize);
 	}
@@ -195,7 +217,8 @@ public final class ModelGateway {
 				return new Finished(port.route(), state.usage, state.reason);
 			}))
 				.timeout(Mono.delay(this.deadline),
-						event -> Mono.delay(Duration.ofNanos(Math.max(0, expiresAt - System.nanoTime()))));
+						event -> Mono.delay(Duration.ofNanos(Math.max(0, expiresAt - System.nanoTime()))))
+				.onErrorMap(error -> new GatewayException(normalize(error).failure(), state.usage));
 		}).onErrorMap(ModelGateway::normalize);
 	}
 
@@ -246,9 +269,9 @@ public final class ModelGateway {
 		return new GatewayException(Failure.INVALID_OUTPUT);
 	}
 
-	private static Throwable normalize(Throwable error) {
-		if (error instanceof GatewayException)
-			return error;
+	private static GatewayException normalize(Throwable error) {
+		if (error instanceof GatewayException gatewayError)
+			return gatewayError;
 		return new GatewayException(
 				error instanceof java.util.concurrent.TimeoutException ? Failure.TIMEOUT : Failure.PROVIDER_ERROR);
 	}

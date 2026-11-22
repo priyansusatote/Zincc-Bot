@@ -135,6 +135,10 @@ public class ConversationStore {
 
 	/** Empty optional means this exact command was already accepted. */
 	public Optional<List<Turn>> reserve(Scope scope, UUID id, Command cmd) {
+		return reserve(scope, id, cmd, null, null);
+	}
+
+	Optional<List<Turn>> reserve(Scope scope, UUID id, Command cmd, String provider, String model) {
 		return scoped(scope, () -> {
 			if (cmd.revision() == 0)
 				db.update(
@@ -157,16 +161,22 @@ public class ConversationStore {
 				throw new ResponseStatusException(HttpStatus.CONFLICT);
 			if (history.size() >= 64)
 				throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
-			db.update("""
-					INSERT INTO zincc.conversation_turn(conversation_id,id,base_revision,route,question,state)
-					VALUES(?,?,?,?,?,'running')
-					""", id, cmd.turnId(), current, cmd.route(), cmd.question());
+			db.update(
+					"""
+							INSERT INTO zincc.conversation_turn(conversation_id,id,base_revision,route,question,state,provider,model_name)
+							VALUES(?,?,?,?,?,'running',?,?)
+							""",
+					id, cmd.turnId(), current, cmd.route(), cmd.question(), provider, model);
 			event(id, cmd.turnId(), "started", cmd.question());
 			return Optional.of(history);
 		});
 	}
 
 	public void append(Scope scope, UUID id, UUID turn, String kind, String body) {
+		append(scope, id, turn, kind, body, null);
+	}
+
+	void append(Scope scope, UUID id, UUID turn, String kind, String body, io.zincc.model.ModelGateway.Usage usage) {
 		scoped(scope, () -> {
 			lock(id);
 			String state = switch (kind) {
@@ -176,9 +186,10 @@ public class ConversationStore {
 			};
 			int updated = db.update(
 					"""
-							UPDATE zincc.conversation_turn SET answer=answer || ?,state=? WHERE conversation_id=? AND id=? AND state='running'
+							UPDATE zincc.conversation_turn SET answer=answer || ?,state=?,input_tokens=?,output_tokens=? WHERE conversation_id=? AND id=? AND state='running'
 							""",
-					body, state, id, turn);
+					body, state, usage == null ? null : usage.inputTokens(),
+					usage == null ? null : usage.outputTokens(), id, turn);
 			if (updated == 1)
 				event(id, turn, kind, body);
 			return updated;

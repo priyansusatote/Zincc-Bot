@@ -44,11 +44,11 @@ class ConversationApi {
 
 	private final JsonMapper json;
 
-	private final boolean publicResearch;
+	private final io.zincc.research.WebResearch research;
 
 	ConversationApi(ConversationStore store, SessionPrincipal principals, ModelGateway gateway, JsonMapper json,
 			io.zincc.research.WebResearch research) {
-		this.publicResearch = research.enabled();
+		this.research = research;
 		this.store = store;
 		this.principals = principals;
 		this.gateway = gateway;
@@ -61,14 +61,14 @@ class ConversationApi {
 	}
 
 	record Directory(List<ThreadInfo> threads, List<String> routes, java.util.Map<String, String> presets,
-			boolean publicResearch) {
+			boolean publicResearch, String researchSource) {
 	}
 
 	@GetMapping
 	Directory list(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace) {
 		return new Directory(store.directory(scope(user, workspace)),
 				gateway.routes().stream().map(ModelGateway.Route::id).toList(),
-				gateway.selections(ModelGateway.Capability.TEXT), publicResearch);
+				gateway.selections(ModelGateway.Capability.TEXT), research.enabled(), research.sourceName());
 	}
 
 	@GetMapping("/{id}")
@@ -107,7 +107,7 @@ class ConversationApi {
 			.filter(r -> r.id().equals(cmd.route()))
 			.findFirst()
 			.orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
-		var reservation = store.reserve(scope, id, cmd);
+		var reservation = store.reserve(scope, id, cmd, route.provider(), route.model());
 		if (reservation.isEmpty())
 			return;
 		var input = new ModelGateway.Input(context(reservation.get()), cmd.question());
@@ -117,11 +117,11 @@ class ConversationApi {
 			}
 			else {
 				var result = gateway.answer(cmd.route(), input).block();
-				store.append(scope, id, cmd.turnId(), "completed", result.text());
+				store.append(scope, id, cmd.turnId(), "completed", result.text(), result.usage());
 			}
 		}
 		catch (ModelGateway.GatewayException ex) {
-			store.append(scope, id, cmd.turnId(), "interrupted", "");
+			store.append(scope, id, cmd.turnId(), "interrupted", "", ex.usage());
 		}
 	}
 
@@ -141,13 +141,13 @@ class ConversationApi {
 						flushed = now;
 					}
 				}
-				else if (e instanceof ModelGateway.Finished) {
-					store.append(scope, id, cmd.turnId(), "completed", pending.toString());
+				else if (e instanceof ModelGateway.Finished done) {
+					store.append(scope, id, cmd.turnId(), "completed", pending.toString(), done.usage());
 				}
 			}
 		}
 		catch (ModelGateway.GatewayException ex) {
-			store.append(scope, id, cmd.turnId(), "interrupted", pending.toString());
+			store.append(scope, id, cmd.turnId(), "interrupted", pending.toString(), ex.usage());
 		}
 	}
 

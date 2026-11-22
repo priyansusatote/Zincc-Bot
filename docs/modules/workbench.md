@@ -19,7 +19,7 @@ Set-Location ..
 & "$env:JAVA_HOME/bin/java.exe" -jar target/zincc-control-plane-0.1.0-SNAPSHOT.jar
 ```
 
-Open `http://127.0.0.1:8080/workbench/`. The default Spring profile shows the shell and explains how to enable sign-in. For real workspace access, apply migrations through V4 and configure the [OIDC profile](browser-sessions.md). Set its public base URL to the browser origin. The bundled application lands on the workbench after login. A plain backend build can still run independently. Use a clean build when switching Maven packaging profiles.
+Open `http://127.0.0.1:8080/workbench/`. The default Spring profile shows the shell and explains how to enable sign-in. For real workspace access, apply migrations through V5 and configure the [OIDC profile](browser-sessions.md). Set its public base URL to the browser origin. The bundled application lands on the workbench after login. A plain backend build can still run independently. Use a clean build when switching Maven packaging profiles.
 
 For frontend development, start Spring on port 8080 and run `pnpm dev` inside `frontend`. Open the Vite origin under `/workbench/`. The dev server proxies API, login and callback paths to Spring. Set `ZINCC_WORKBENCH_ENABLED=true` for the unbundled service and register the **Vite origin** as the public callback for that development client.
 
