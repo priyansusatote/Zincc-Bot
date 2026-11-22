@@ -53,14 +53,32 @@ class ModelConfiguration {
 
 	@Bean
 	ModelGateway modelGateway(Settings settings, MeterRegistry meters, Environment env) {
-		var ports = settings.routes().stream().map(e -> switch (e.provider()) {
+		boolean localOnly = env.getProperty("zincc.local-only", Boolean.class, false);
+		boolean offlineOllama = env.getProperty("zincc.models.ollama-offline", Boolean.class, false);
+		var eligible = settings.routes().stream().filter(e -> !localOnly || local(e, offlineOllama)).toList();
+		var ports = eligible.stream().map(e -> switch (e.provider()) {
 			case OPENAI -> port(e, "https://api.openai.com/v1", env.getRequiredProperty("ZINCC_OPENAI_API_KEY"));
 			case OPENROUTER -> port(e, "https://openrouter.ai/api/v1", env.getRequiredProperty("OPENROUTER_API_KEY"));
 			case ANTHROPIC -> port(e, "https://api.anthropic.com", env.getRequiredProperty("ZINCC_ANTHROPIC_API_KEY"));
 			case OLLAMA ->
 				port(e, "http://127.0.0.1:" + env.getProperty("zincc.models.ollama-port", Integer.class, 11434), null);
 		}).toList();
-		return new ModelGateway(List.copyOf(ports), meters, DEADLINE);
+		var gateway = new ModelGateway(List.copyOf(ports), meters, DEADLINE);
+		var localIds = eligible.stream().filter(e -> local(e, offlineOllama)).map(Entry::id).toList();
+		var preferences = new java.util.LinkedHashMap<String, List<String>>();
+		for (String preset : List.of("fast", "balanced", "deep", "local")) {
+			String order = env.getProperty("zincc.models.presets." + preset, "");
+			var ids = order.isBlank() && preset.equals("local") ? localIds
+					: java.util.Arrays.stream(order.split(",")).map(String::strip).filter(s -> !s.isEmpty()).toList();
+			preferences.put(preset, preset.equals("local") ? ids.stream().filter(localIds::contains).toList() : ids);
+		}
+		gateway.configurePresets(preferences);
+		return gateway;
+	}
+
+	private static boolean local(Entry entry, boolean offlineOllama) {
+		return offlineOllama && entry.provider() == Provider.OLLAMA
+				&& !entry.model().toLowerCase(java.util.Locale.ROOT).contains("cloud");
 	}
 
 	static ModelGateway.Port port(Entry entry, String baseUrl, String key) {

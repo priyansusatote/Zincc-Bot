@@ -1,8 +1,10 @@
 # Zincc status
 
-Updated: **21 November 2026**.
+Updated: **22 November 2026**.
 
 ## Current authorized task
+
+The user authorized the remaining Phase 2 batch on 22 November. Scope covers P2.3 model selection and local privacy, P2.4 bounded cited public-web research, and P2.5 the frozen evaluation and usage reconciliation baseline. Acceptance follows the three entries in the [roadmap](phases/roadmap.md). P3 requires separate authorization.
 
 **P2.2 implemented.** Private conversations persist in PostgreSQL and resume in the workbench from a cursor or snapshot. [API and limits](modules/conversations.md) · [Learning report](learning-notes/012-conversation-replay.md).
 

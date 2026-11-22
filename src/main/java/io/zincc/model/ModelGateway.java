@@ -108,6 +108,24 @@ public final class ModelGateway {
 
 	private final Duration deadline;
 
+	private Map<String, List<String>> preferences = Map.of();
+
+	void configurePresets(Map<String, List<String>> preferences) {
+		this.preferences = Map.copyOf(preferences);
+	}
+
+	public Map<String, String> selections(Capability capability) {
+		var selected = new java.util.TreeMap<String, String>();
+		this.preferences.forEach((preset, ids) -> ids.stream()
+			.map(this.ports::get)
+			.filter(java.util.Objects::nonNull)
+			.map(Port::route)
+			.filter(r -> r.capabilities().contains(capability))
+			.findFirst()
+			.ifPresent(r -> selected.put(preset, r.id())));
+		return selected;
+	}
+
 	ModelGateway(Collection<Port> ports, MeterRegistry meters, Duration deadline) {
 		this.ports = ports.stream().collect(Collectors.toUnmodifiableMap(p -> p.route().id(), Function.identity()));
 		this.meters = meters;

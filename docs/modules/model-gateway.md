@@ -46,6 +46,10 @@ For a cloud route, set `provider` to `openai` or `anthropic`, choose a model acc
 
 ## Caller contract
 
+P2.3 adds ordered preset selection. Set `zincc.models.presets.fast`, `.balanced`, or `.deep` to comma-separated route IDs in operator preference order. The workbench displays the resolved route beside each available preset and stores that ID. Local defaults to eligible offline Ollama routes in registration order. Errors after dispatch end the attempt.
+
+For an inference-local deployment, set `zincc.local-only=true`. Disable cloud features **on the Ollama service** with `OLLAMA_NO_CLOUD=1`, restart it, and verify its offline setting and network restrictions. Then set `zincc.models.ollama-offline=true` in Zincc. Without that declaration, local-only starts with no eligible routes. Local-only also disables public web research. Host the control plane, database and identity service locally for a fully local installation. [Ollama offline configuration](https://docs.ollama.com/faq#how-do-i-disable-ollamas-cloud-features) · [Selection and quality probe](../learning-notes/013-route-selection.md)
+
 - `routes()` returns configured identities and capabilities. Callers supply a route ID on every request. Each Reactor subscription starts one generation. Subscribing twice can incur two charges.
 - `text()` returns complete text. `jsonObject()` requests one object and validates required top-level string, number or boolean fields. Extra fields are allowed. Invalid types, duplicate keys, trailing content and incomplete generation fail the request. Correct syntax alone does not establish factual accuracy.
 - `streamText()` emits provisional deltas followed by one completion receipt on success. An error can follow visible text. Save a response as completed only after receiving the receipt. The caller receives a timeout after the 60-second deadline. A disconnected caller cannot establish that the provider stopped billing.
