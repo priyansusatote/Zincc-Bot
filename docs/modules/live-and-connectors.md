@@ -1,5 +1,7 @@
 # Live actions, connectors, plugins, and automations
 
+**P5 implementation.** Read the [local connections and routines guide](phase-five-integrations.md) for the verified slice and OAuth setup. The following sections describe the broader product design.
+
 **Proposed design.** A single action system serves typed chat, scheduled work, and live voice.
 
 ## Connection architecture

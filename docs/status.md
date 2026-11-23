@@ -2,6 +2,10 @@
 
 Updated: **23 November 2026**.
 
+## Completed Phase 5 local workbench batch
+
+On 23 November the user authorized P5.1–P5.5, including the calendar subtask. The local delivery covers account registration and sync, Slack events, Calendar deltas, curated MCP, declarative skill versions, durable time/event triggers and receipts. [Operator guide and provider setup](modules/phase-five-integrations.md) · [Architecture decision](architecture-decisions/0016-private-integrations.md). External Google and Slack account qualification requires provider app setup and browser consent. The workbench labels synthetic accounts explicitly. The signed-in Edge journey synchronized three sample providers, produced a daily briefing through the isolated MCP server, delivered a changed-source briefing, refreshed the existing dashboard to 17.00 USD and preserved receipts across reload. All three example routines were paused after verification. The Java suite exercised 97 passing cases with four optional probes skipped. Nine frontend regressions passed. After provider credentials were configured, a signed-in browser confirmed that Gmail and Calendar authorization were available. Live account sync still requires provider consent. Slack authorization needs a registered HTTPS callback.
+
 ## Completed Phase 4 batch
 
 The user authorized P4.0 through P4.4 as one batch. P4 ships a pinned, fixed-purpose local worker, PDF ingest with page provenance, private hybrid retrieval, deterministic table analytics and persistent dashboard revisions. The local slice supports digital PDFs, bounded English OCR and single-page ruled tables. The public hostile-tenant gate remains part of P6. [Run and verify](modules/private-knowledge.md) · [Architecture decision](architecture-decisions/0015-private-document-pipeline.md).
@@ -96,7 +100,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P5.1–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P6.1–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.
@@ -117,6 +121,6 @@ Hosting budget and region; identity provider; initial production accounts/API ac
 
 ## Stop point
 
-The next task awaiting authorization is P5.1, the connection registry and email sync.
+The next implementation task awaiting authorization is P6.1, the general sandbox broker. P5 production operations and live provider qualification are tracked in the [integration guide](modules/phase-five-integrations.md).
 
 Hardware, hosting budget/region, identity provider, license and API access remain task-specific decisions documented in the final review.

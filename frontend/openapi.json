@@ -1077,6 +1077,316 @@
           }
         }
       }
+    },
+    "/api/workspaces/{workspaceId}/integrations": {
+      "get": {
+        "operationId": "integrationWorkspace",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/connections": {
+      "post": {
+        "operationId": "connectFeed",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "nullable": true
+                    },
+                    "url": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "url"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "provider": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "channel": {
+                    "type": "string"
+                  },
+                  "fixture": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "provider",
+                  "label",
+                  "channel",
+                  "fixture"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/connections/{id}": {
+      "post": {
+        "operationId": "changeFeed",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "attempt": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "action",
+                  "attempt"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/skills": {
+      "post": {
+        "operationId": "installSkill",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer"
+                  },
+                  "digest": {
+                    "type": "string"
+                  },
+                  "permissions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "name",
+                  "version",
+                  "digest",
+                  "permissions"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/routines": {
+      "post": {
+        "operationId": "createRoutine",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RoutineSpec"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/routines/{id}": {
+      "post": {
+        "operationId": "changeRoutine",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string"
+                  },
+                  "attempt": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  }
+                },
+                "required": [
+                  "action",
+                  "attempt"
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1885,6 +2195,312 @@
           "total",
           "missing",
           "error"
+        ]
+      },
+      "Feed": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "resource": {
+            "type": "string"
+          },
+          "fixture": {
+            "type": "boolean"
+          },
+          "grantScope": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "syncedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "provider",
+          "label",
+          "resource",
+          "fixture",
+          "grantScope",
+          "state",
+          "syncedAt"
+        ]
+      },
+      "Skill": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "instructions": {
+            "type": "string"
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "digest": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "version",
+          "instructions",
+          "permissions",
+          "digest"
+        ]
+      },
+      "RoutineSpec": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "skill": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "trigger": {
+            "type": "string"
+          },
+          "zone": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "feeds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "document": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "dashboard": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name",
+          "skill",
+          "version",
+          "trigger",
+          "zone",
+          "time",
+          "feeds",
+          "document",
+          "dashboard"
+        ]
+      },
+      "IntegrationView": {
+        "type": "object",
+        "properties": {
+          "feeds": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Feed"
+            }
+          },
+          "catalog": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Skill"
+            }
+          },
+          "installed": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "package": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer"
+                },
+                "digest": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "package",
+                "version",
+                "digest"
+              ]
+            }
+          },
+          "routines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "package": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer"
+                },
+                "trigger_kind": {
+                  "type": "string"
+                },
+                "zone": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "string"
+                },
+                "paused": {
+                  "type": "boolean"
+                },
+                "next_time": {
+                  "type": "string",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "package",
+                "version",
+                "trigger_kind",
+                "zone",
+                "time",
+                "paused",
+                "next_time"
+              ]
+            }
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "cause": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "receipt": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "name",
+                "cause",
+                "state",
+                "created_at",
+                "receipt"
+              ]
+            }
+          },
+          "dashboards": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "document_id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "document_id",
+                "name"
+              ]
+            }
+          },
+          "available": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "taskGrants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "reference": {
+                  "type": "string"
+                },
+                "resource": {
+                  "type": "string"
+                },
+                "active": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "reference",
+                "resource",
+                "active"
+              ]
+            }
+          }
+        },
+        "required": [
+          "feeds",
+          "catalog",
+          "installed",
+          "routines",
+          "history",
+          "dashboards",
+          "available",
+          "taskGrants"
         ]
       }
     }

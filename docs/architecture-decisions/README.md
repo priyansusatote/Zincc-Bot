@@ -19,5 +19,6 @@ The table tracks adoption by component. Initial research was completed on 14 Nov
 | [0013](0013-phase-two-boundaries.md) | Inference locality, explicit public research and atomic turn usage | Adopted in P2.3–P2.5 |
 | [0014](0014-agent-versions-and-connector.md) | Pin definitions, intersect grants, bind approval to one provider action | Adopted in P3 |
 | [0015](0015-private-document-pipeline.md) | Fixed local document worker, private retrieval and deterministic dashboard provenance | Adopted in P4 |
+| [0016](0016-private-integrations.md) | Private connector feeds, pinned skill grants and durable read-only triggers | Adopted in P5 |
 
 Future ADRs must state context/problem, decision, alternatives, trade-offs, consequences, and verification. A library name alone is not a design decision.

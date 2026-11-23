@@ -533,3 +533,4 @@ dd {
 		background: #364e3e;
 	}
 }
+.routine-receipt { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }

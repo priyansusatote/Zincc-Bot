@@ -45,9 +45,20 @@ class SessionSecurity {
 				builder.additionalParameters(params -> params.put("prompt", "select_account"));
 			}
 		}));
-		return http
+		return http.csrf(csrf -> csrf.ignoringRequestMatchers("/api/integrations/slack/events"))
 			.authorizeHttpRequests(auth -> auth.dispatcherTypeMatchers(DispatcherType.ERROR)
 				.permitAll()
+				.requestMatchers(HttpMethod.POST, "/api/integrations/slack/events")
+				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/integrations/callback",
+						"/api/workspaces/{workspaceId}/integrations")
+				.authenticated()
+				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/integrations/connections",
+						"/api/workspaces/{workspaceId}/integrations/connections/{id}",
+						"/api/workspaces/{workspaceId}/integrations/skills",
+						"/api/workspaces/{workspaceId}/integrations/routines",
+						"/api/workspaces/{workspaceId}/integrations/routines/{id}")
+				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/knowledge",
 						"/api/workspaces/{workspaceId}/knowledge/{id}/source",
 						"/api/workspaces/{workspaceId}/knowledge/{id}/pages/{page}",

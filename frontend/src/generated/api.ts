@@ -373,6 +373,102 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workspaces/{workspaceId}/integrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["integrationWorkspace"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/integrations/connections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["connectFeed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/integrations/connections/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["changeFeed"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/integrations/skills": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["installSkill"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/integrations/routines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createRoutine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/integrations/routines/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["changeRoutine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -578,6 +674,80 @@ export interface components {
             total: string | null;
             missing: number;
             error: string;
+        };
+        Feed: {
+            /** Format: uuid */
+            id: string;
+            provider: string;
+            label: string;
+            resource: string;
+            fixture: boolean;
+            grantScope: string;
+            state: string;
+            syncedAt: string | null;
+        };
+        Skill: {
+            name: string;
+            version: number;
+            instructions: string;
+            permissions: string[];
+            digest: string;
+        };
+        RoutineSpec: {
+            name: string;
+            skill: string;
+            version: number;
+            trigger: string;
+            zone: string;
+            time: string;
+            feeds: string[];
+            /** Format: uuid */
+            document: string | null;
+            /** Format: uuid */
+            dashboard: string | null;
+        };
+        IntegrationView: {
+            feeds: components["schemas"]["Feed"][];
+            catalog: components["schemas"]["Skill"][];
+            installed: {
+                package: string;
+                version: number;
+                digest: string;
+            }[];
+            routines: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                package: string;
+                version: number;
+                trigger_kind: string;
+                zone: string;
+                time: string;
+                paused: boolean;
+                next_time: string | null;
+            }[];
+            history: {
+                /** Format: uuid */
+                id: string;
+                name: string;
+                cause: string;
+                state: string;
+                created_at: string;
+                receipt: string;
+            }[];
+            dashboards: {
+                /** Format: uuid */
+                id: string;
+                /** Format: uuid */
+                document_id: string;
+                name: string;
+            }[];
+            available: string[];
+            taskGrants: {
+                reference: string;
+                resource: string;
+                active: boolean;
+            }[];
         };
     };
     responses: never;
@@ -1335,6 +1505,179 @@ export interface operations {
                 content: {
                     "text/csv": string;
                 };
+            };
+        };
+    };
+    integrationWorkspace: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntegrationView"];
+                };
+            };
+        };
+    };
+    connectFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    provider: string;
+                    label: string;
+                    channel: string;
+                    fixture: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string | null;
+                        url: string | null;
+                    };
+                };
+            };
+        };
+    };
+    changeFeed: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    action: string;
+                    /** Format: uuid */
+                    attempt: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    installSkill: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    name: string;
+                    version: number;
+                    digest: string;
+                    permissions: string[];
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    createRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoutineSpec"];
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                    };
+                };
+            };
+        };
+    };
+    changeRoutine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    action: string;
+                    /** Format: uuid */
+                    attempt: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

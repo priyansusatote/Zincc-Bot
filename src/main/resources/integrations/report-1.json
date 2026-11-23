@@ -1,0 +1,8 @@
+{
+  "name": "report",
+  "version": 1,
+  "permissions": [
+    "dashboard"
+  ],
+  "instructions": "Recalculate the selected private dashboard and report its revision and total."
+}

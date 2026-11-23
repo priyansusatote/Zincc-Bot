@@ -187,6 +187,16 @@ The local failure drill experimentally evaluated replay across process and servi
 | Fixed transformations, missing values and unit checks | [Decimal analytics](learning-notes/025-decimal-analytics.md) |
 | Dataset lineage, optimistic revisions and export | [Dashboards](learning-notes/026-private-dashboards.md) |
 
+## Phase 5 component evidence
+
+| Implemented and locally evaluated topic | Component note |
+| --- | --- |
+| Principal-specific OAuth, checkpoint transactions and account separation | [Account sync](learning-notes/027-account-sync.md) |
+| Calendar deltas, Slack event authenticity and retry behavior | [Provider events](learning-notes/028-channel-calendar.md) |
+| MCP negotiation, schema limits and credential isolation | [Curated MCP](learning-notes/029-curated-mcp.md) |
+| Digest pinning, permission expansion and rollback | [Skill versions](learning-notes/030-skill-versions.md) |
+| Wall-clock scheduling, idempotency and restart behavior | [Routine recovery](learning-notes/031-routine-recovery.md) |
+
 ## 9. Evidence of learning and completion
 
 For every component, the learning note identifies the covered topics from this matrix and link to implemented code or experiment evidence. Preserve five states: planned, studied, implemented, experimentally evaluated, and production-adopted. None implies the others.

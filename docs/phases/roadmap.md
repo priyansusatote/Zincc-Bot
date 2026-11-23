@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**P1 through P4 complete for the local workbench.** [P4 implementation and qualification](../modules/private-knowledge.md). The P3 batch passed the local sandbox, worker restart, durable approval and duplicate-write gates. [Operate the agent workbench](../modules/phase-three-agents.md). The 22 November batch included P2.3 through P2.5. [Routing](../learning-notes/013-route-selection.md) · [Research](../learning-notes/014-cited-search.md) · [Evaluation and costs](../modules/phase-two-evaluation.md). P5.1 awaits authorization. The user authorizes one scoped task at a time. [P2.1 live qualification](../learning-notes/011-openrouter.md) · [P2.2 replay qualification](../learning-notes/012-conversation-replay.md)
+**P1 through P5 implemented for the local workbench.** [P5 qualification and account setup](../modules/phase-five-integrations.md). [P4 implementation and qualification](../modules/private-knowledge.md). The P3 batch passed the local sandbox, worker restart, durable approval and duplicate-write gates. [Operate the agent workbench](../modules/phase-three-agents.md). The 22 November batch included P2.3 through P2.5. [Routing](../learning-notes/013-route-selection.md) · [Research](../learning-notes/014-cited-search.md) · [Evaluation and costs](../modules/phase-two-evaluation.md). P6.1 awaits authorization. The user authorizes one scoped task at a time. [P2.1 live qualification](../learning-notes/011-openrouter.md) · [P2.2 replay qualification](../learning-notes/012-conversation-replay.md)
 
 ## Task completion contract
 
@@ -83,6 +83,8 @@ Gate: report-to-dashboard journey has traceable numbers. Difficult extraction sh
 P4.0 becomes the minimal execution-provider contract reused/extended in P6, not a second broker. Trusted local development containers are not hostile-tenant qualification. Before public multi-tenant document processing, complete the applicable P6.2 isolation gate. Fixed allowlisted transformations may precede arbitrary generated Python/SQL execution; the latter requires the stronger sandbox gate.
 
 ## P5 — Connectors, MCP, skills, and recurring work
+
+The user authorized the full P5.1–P5.5 batch including Calendar. The local acceptance scope uses sample accounts, the real isolated MCP tool and P4 dashboards. External provider qualification requires user consent. [Implementation and limits](../modules/phase-five-integrations.md)
 
 The [provider follow-up](../modules/model-gateway.md#provider-follow-up-for-the-local-workbench) tracks the user's OpenRouter, Numes, Context.dev, OpenCode and Google AI Pro options for separately scoped qualification.
 

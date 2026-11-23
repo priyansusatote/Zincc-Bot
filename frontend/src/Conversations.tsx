@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, type Session } from "./client";
 import { Research } from "./Research";
 import { Knowledge } from "./Knowledge";
+import { Integrations } from "./Integrations";
 import { Agents } from "./Agents";
 import {
 	directory,
@@ -60,6 +61,9 @@ export function Conversations(props: Props) {
 				<Knowledge workspace={workspace} session={props.session} />
 			)}
 			{index.agentsEnabled && <Agents {...props} />}
+			{index.agentsEnabled && (
+				<Integrations workspace={workspace} session={props.session} />
+			)}
 			{index.publicResearch && (
 				<Research
 					{...props}

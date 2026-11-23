@@ -1,0 +1,8 @@
+{
+  "name": "briefing",
+  "version": 1,
+  "permissions": [
+    "gmail"
+  ],
+  "instructions": "List recent inbox subjects."
+}

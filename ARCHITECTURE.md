@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P5 adds `io.zincc.integrations` for resource-scoped account sync, versioned skill grants, an MCP stdio client and private read-only routines. Connection checkpoints and scheduled causes are durable PostgreSQL records. Reports reuse the P4 calculation path. [Decision and limits](docs/architecture-decisions/0016-private-integrations.md)
+
 P4 adds `io.zincc.knowledge` for private document ingest, hybrid search and deterministic reports. Spring owns authorization, stored source bytes and versioned projections. A fixed local container owns PDF parsing, OCR, embedding inference and decimal analytics. The separate worker receives bounded stdin and returns bounded JSON without credentials, host mounts or network access. Source deletion cascades to derived results. [Decision and consequences](docs/architecture-decisions/0015-private-document-pipeline.md)
 
 P3 adds `io.zincc.agents` to the Spring control plane. An outbox commits with each accepted run. Temporal drives bounded activities and approval waits. Provider writes pass through a PostgreSQL ledger, and their receipts identify tasks in the external provider or explicit sandbox. The initial local worker shares the service process and uses its own task queue. Restart recovery preserves the user's run and private grants. [Architecture decision](docs/architecture-decisions/0002-durable-execution.md) · [Component guide](docs/modules/phase-three-agents.md)

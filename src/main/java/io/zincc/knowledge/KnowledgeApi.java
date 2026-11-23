@@ -2,7 +2,8 @@ package io.zincc.knowledge;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import io.zincc.knowledge.KnowledgeReports.Report;
+import io.zincc.knowledge.KnowledgeReports.Row;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,6 +30,8 @@ import static io.zincc.knowledge.KnowledgeWorker.Operation.*;
 @RequestMapping("/api/workspaces/{workspace}/knowledge")
 class KnowledgeApi {
 
+	private final KnowledgeReports reports;
+
 	private final KnowledgeStore store;
 
 	private final KnowledgeWorker worker;
@@ -37,7 +40,9 @@ class KnowledgeApi {
 
 	private final JsonMapper json;
 
-	KnowledgeApi(KnowledgeStore store, KnowledgeWorker worker, SessionPrincipal principals, JsonMapper json) {
+	KnowledgeApi(KnowledgeReports reports, KnowledgeStore store, KnowledgeWorker worker, SessionPrincipal principals,
+			JsonMapper json) {
+		this.reports = reports;
 		this.store = store;
 		this.worker = worker;
 		this.principals = principals;
@@ -185,66 +190,24 @@ class KnowledgeApi {
 		return Map.of("revision", store.save(scope(user, workspace), doc, id, settings));
 	}
 
-	record Row(int sourceRow, JsonNode values, JsonNode cells) {
-	}
-
-	record Report(Dashboard dashboard, int page, JsonNode headers, List<Row> rows, JsonNode groups, String total,
-			int missing, String error) {
-	}
-
 	@GetMapping("/{doc}/dashboards/{id}")
 	Report report(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace, @PathVariable UUID doc,
 			@PathVariable UUID id) {
-		return calculate(scope(user, workspace), doc, id);
-	}
-
-	private Report calculate(Scope scope, UUID doc, UUID id) {
-		var snapshot = store.snapshot(scope, doc, id);
-		var config = snapshot.dashboard();
-		var dataset = snapshot.dataset();
-		var rows = dataset.data().path("rows");
-		var args = json.createObjectNode();
-		args.set("rows", rows);
-		args.put("column", config.measure())
-			.put("category", config.category())
-			.put("selected", config.selected())
-			.put("unit", config.unit());
-		var result = worker.run(AGGREGATE, json.writeValueAsBytes(args));
-		if (!store.snapshot(scope, doc, id).dashboard().equals(config))
-			throw conflict("Dashboard revision changed");
-		String error = result.path("error").asString("");
-		if (error.equals("ambiguous_number"))
-			return new Report(config, dataset.page(), rows.get(0), List.of(), json.createArrayNode(), null, 0,
-					"Check the unit or number format on table row " + result.path("row").asInt() + ".");
-		if (error.equals("mixed_or_mismatched_units"))
-			return new Report(config, dataset.page(), rows.get(0), List.of(), json.createArrayNode(), null, 0,
-					"Select rows with one unit and match it to the dashboard unit.");
-		if (!error.isEmpty() || !result.path("total").isString() || !result.path("rows").isArray()
-				|| !result.path("groups").isArray())
-			throw invalidWorker();
-		var filtered = new ArrayList<Row>();
-		for (var ix : result.path("rows")) {
-			int row = ix.asInt();
-			if (row < 1 || row >= rows.size())
-				throw invalidWorker();
-			filtered.add(new Row(row + 1, rows.get(row), dataset.data().path("cells").get(row)));
-		}
-		return new Report(config, dataset.page(), rows.get(0), List.copyOf(filtered), result.path("groups"),
-				result.path("total").asString(), result.path("missing").asInt(), "");
+		return reports.calculate(scope(user, workspace), doc, id);
 	}
 
 	@GetMapping("/{doc}/dashboards/{id}/export")
 	ResponseEntity<byte[]> export(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
 			@PathVariable UUID doc, @PathVariable UUID id, @RequestParam int revision) {
-		var report = calculate(scope(user, workspace), doc, id);
-		if (report.dashboard.revision() != revision)
+		var report = reports.calculate(scope(user, workspace), doc, id);
+		if (report.dashboard().revision() != revision)
 			throw conflict("Dashboard revision changed");
-		if (!report.error.isEmpty())
-			throw conflict(report.error);
+		if (!report.error().isEmpty())
+			throw conflict(report.error());
 		var csv = new StringBuilder();
-		csvRow(csv, report.headers, "Source page", "Table row");
-		for (Row row : report.rows)
-			csvRow(csv, row.values, Integer.toString(report.page), Integer.toString(row.sourceRow));
+		csvRow(csv, report.headers(), "Source page", "Table row");
+		for (Row row : report.rows())
+			csvRow(csv, row.values(), Integer.toString(report.page()), Integer.toString(row.sourceRow()));
 		return attachment(csv.toString().getBytes(StandardCharsets.UTF_8), "dashboard.csv",
 				new MediaType("text", "csv", StandardCharsets.UTF_8));
 	}
