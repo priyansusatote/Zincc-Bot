@@ -84,6 +84,8 @@ P4.0 becomes the minimal execution-provider contract reused/extended in P6, not 
 
 ## P5 — Connectors, MCP, skills, and recurring work
 
+The [provider follow-up](../modules/model-gateway.md#provider-follow-up-for-the-local-workbench) tracks the user's OpenRouter, Numes, Context.dev, OpenCode and Google AI Pro options for separately scoped qualification.
+
 | ID | Scoped task | Acceptance / learning focus |
 | --- | --- | --- |
 | P5.1 | Expand connection contract into registry and full email sync | Reuse P3.4a, then incremental sync, revoked scope, multi-account separation; teach cursor-based sync |

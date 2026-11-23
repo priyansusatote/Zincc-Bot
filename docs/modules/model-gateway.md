@@ -2,6 +2,19 @@
 
 P2.1 adds an internal Spring bean for explicitly selected model routes. It can produce text, validate a JSON object, or stream text. The service starts with an empty registry until an operator configures routes. Registration describes the intended model and capabilities. A live call is needed to verify the provider account and model combination.
 
+## Provider follow-up for the local workbench
+
+The current free profile exposes `lightning-free` and `gemma-free`. The following candidates come from the workspace owner's available accounts and credits. Recheck free availability and run synthetic chat and agent-step checks before making any of them a default.
+
+| Source | Qualification to carry forward |
+| --- | --- |
+| OpenRouter | Use the existing `OPENROUTER_API_KEY` to evaluate `baidu/ernie-5.5-flash-preview:free` and `particle-ai/particle-1:free`. Compare completion, structured agent steps, latency and free-tier errors. Keep the exact selected route visible. [ERNIE](https://openrouter.ai/baidu/ernie-5.5-flash-preview:free) · [Particle-1](https://openrouter.ai/particle-ai/particle-1:free) |
+| Numes AI | Qualify a separate OpenAI-compatible adapter using `NUMES_API_KEY`. Check `deepseek/deepseek-v4.1-flash:free`, `z-ai/glm-5.3-flash:free`, and the user-supplied candidates `glm-5.3-uncensored`, `glm-5.3-flash-uncensored`, and `dealignai/deepseek-v4.1-flash-uncensored-fp8:free` against the account's model list for exact IDs and price before calling them. [Model-list contract](https://numes.ai/docs/api-reference/models/list-models) |
+| Context.dev | Use the available credits for a research adapter with `CONTEXT_DEV_API_KEY`. Evaluate search and page extraction against the current evidence contract for citations, freshness, and page coverage. Research outputs can feed a separate answer model. [Provider capabilities](https://docs.context.dev/agent-quickstart.md) |
+| OpenCode and Google AI Pro / Antigravity | Discover eligible models and account allowances through each provider's supported path in P9.10 and P9.11. Display engine, effective model, and billing source together. [Engine qualification](connected-ai-engines.md) · [OpenCode catalog](https://opencode.ai/docs/console/models/) |
+
+Keep cloud routes and public research adapters unavailable for local-only requests. P4 PDF parsing, OCR, and embeddings already run locally. Provider comparisons are pending qualification.
+
 ## Configure and exercise a route
 
 ### OpenRouter free text routes
