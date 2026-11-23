@@ -1,5 +1,7 @@
 # Web workbench
 
+The signed-in workbench offers **Documents and dashboards** when the `knowledge` profile is active. Apply Flyway V7 and configure the pinned worker image for this profile. [Document setup](private-knowledge.md).
+
 The signed-in workbench also offers an **Agents and runs** panel when the `agents` profile is active. Apply Flyway V6 for this profile. [Agent setup](phase-three-agents.md).
 
 The workbench has two views. **Workbench** shows the current workspace, membership role, and conversation area. **Account** shows the signed-in identity and provides switch-account and sign-out actions. The conversation area supports sending messages and recovering history. [Conversation setup and limits](conversations.md). The light/dark shell follows the device theme.

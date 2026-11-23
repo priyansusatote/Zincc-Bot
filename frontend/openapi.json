@@ -585,6 +585,498 @@
           }
         }
       }
+    },
+    "/api/workspaces/{workspaceId}/knowledge": {
+      "get": {
+        "operationId": "documents",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrivateDocument"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "uploadDocument",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivateDocument"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}": {
+      "delete": {
+        "operationId": "deleteDocument",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/source": {
+      "get": {
+        "operationId": "sourceDocument",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/pages/{page}": {
+      "get": {
+        "operationId": "documentPage",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentEvidence"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/search": {
+      "post": {
+        "operationId": "searchDocument",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentEvidence"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/datasets": {
+      "get": {
+        "operationId": "documentDatasets",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentDataset"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/dashboards": {
+      "get": {
+        "operationId": "documentDashboards",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DocumentDashboard"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/dashboards/{id}": {
+      "put": {
+        "operationId": "saveDashboard",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "revision": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "revision"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DashboardSettings"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "documentReport",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DocumentReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/knowledge/{doc}/dashboards/{id}/export": {
+      "get": {
+        "operationId": "exportDocumentReport",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "doc",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -644,6 +1136,9 @@
             "type": "string"
           },
           "agentsEnabled": {
+            "type": "boolean"
+          },
+          "knowledgeEnabled": {
             "type": "boolean"
           }
         }
@@ -1104,6 +1599,293 @@
             }
           }
         }
+      },
+      "PrivateDocument": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "checksum": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "integer"
+          },
+          "missingPages": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "scannedPages": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "workerRevision": {
+            "type": "string"
+          },
+          "embeddingRevision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "checksum",
+          "state",
+          "detail",
+          "pages",
+          "missingPages",
+          "scannedPages",
+          "workerRevision",
+          "embeddingRevision"
+        ]
+      },
+      "DocumentEvidence": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "integer"
+          },
+          "text": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "page",
+          "text"
+        ]
+      },
+      "DocumentDataset": {
+        "type": "object",
+        "properties": {
+          "ordinal": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "box": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "rows": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "cells": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "nullable": true
+                  }
+                }
+              }
+            },
+            "required": [
+              "box",
+              "rows",
+              "cells"
+            ]
+          }
+        },
+        "required": [
+          "ordinal",
+          "page",
+          "data"
+        ]
+      },
+      "DashboardSettings": {
+        "type": "object",
+        "properties": {
+          "dataset": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "measure": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "string",
+            "nullable": true
+          },
+          "expectedRevision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "dataset",
+          "name",
+          "measure",
+          "category",
+          "unit",
+          "selected",
+          "expectedRevision"
+        ]
+      },
+      "DocumentDashboard": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "dataset": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "measure": {
+            "type": "integer"
+          },
+          "category": {
+            "type": "integer"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "selected": {
+            "type": "string",
+            "nullable": true
+          },
+          "revision": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "dataset",
+          "name",
+          "measure",
+          "category",
+          "unit",
+          "selected",
+          "revision"
+        ]
+      },
+      "DocumentReport": {
+        "type": "object",
+        "properties": {
+          "dashboard": {
+            "$ref": "#/components/schemas/DocumentDashboard"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "headers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "sourceRow": {
+                  "type": "integer"
+                },
+                "values": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "cells": {
+                  "type": "array",
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "number"
+                    },
+                    "nullable": true
+                  }
+                }
+              },
+              "required": [
+                "sourceRow",
+                "values",
+                "cells"
+              ]
+            }
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "total": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "total"
+              ]
+            }
+          },
+          "total": {
+            "type": "string",
+            "nullable": true
+          },
+          "missing": {
+            "type": "integer"
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dashboard",
+          "page",
+          "headers",
+          "rows",
+          "groups",
+          "total",
+          "missing",
+          "error"
+        ]
       }
     }
   }

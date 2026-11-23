@@ -177,6 +177,16 @@ These labs interleave with their prerequisites rather than all waiting until the
 
 The local failure drill experimentally evaluated replay across process and service restarts. Hosted Google Tasks, multi-replica operation and production scaling remain unqualified.
 
+## Phase 4 component evidence
+
+| Implemented topic | Evidence |
+| --- | --- |
+| Container resource, process and egress limits | [Worker boundary](learning-notes/022-document-isolation.md) |
+| PDF lifecycle, OCR and atomic publication | [Ingestion](learning-notes/023-document-ingestion.md) |
+| Embeddings, full-text ranking and fusion | [Retrieval and controlled Recall@1 check](learning-notes/024-hybrid-retrieval.md) |
+| Fixed transformations, missing values and unit checks | [Decimal analytics](learning-notes/025-decimal-analytics.md) |
+| Dataset lineage, optimistic revisions and export | [Dashboards](learning-notes/026-private-dashboards.md) |
+
 ## 9. Evidence of learning and completion
 
 For every component, the learning note identifies the covered topics from this matrix and link to implemented code or experiment evidence. Preserve five states: planned, studied, implemented, experimentally evaluated, and production-adopted. None implies the others.

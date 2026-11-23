@@ -1,6 +1,6 @@
 # Implementation roadmap
 
-**P1 through P3 complete.** The P3 batch passed the local sandbox, worker restart, durable approval and duplicate-write gates. [Operate the agent workbench](../modules/phase-three-agents.md). The 22 November batch included P2.3 through P2.5. [Routing](../learning-notes/013-route-selection.md) · [Research](../learning-notes/014-cited-search.md) · [Evaluation and costs](../modules/phase-two-evaluation.md). P4.0 awaits authorization. The user authorizes one scoped task at a time. [P2.1 live qualification](../learning-notes/011-openrouter.md) · [P2.2 replay qualification](../learning-notes/012-conversation-replay.md)
+**P1 through P4 complete for the local workbench.** [P4 implementation and qualification](../modules/private-knowledge.md). The P3 batch passed the local sandbox, worker restart, durable approval and duplicate-write gates. [Operate the agent workbench](../modules/phase-three-agents.md). The 22 November batch included P2.3 through P2.5. [Routing](../learning-notes/013-route-selection.md) · [Research](../learning-notes/014-cited-search.md) · [Evaluation and costs](../modules/phase-two-evaluation.md). P5.1 awaits authorization. The user authorizes one scoped task at a time. [P2.1 live qualification](../learning-notes/011-openrouter.md) · [P2.2 replay qualification](../learning-notes/012-conversation-replay.md)
 
 ## Task completion contract
 

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, type Session } from "./client";
 import { Research } from "./Research";
+import { Knowledge } from "./Knowledge";
 import { Agents } from "./Agents";
 import {
 	directory,
@@ -55,6 +56,9 @@ export function Conversations(props: Props) {
 	if (!index || !id) return <p role="status">Loading conversations…</p>;
 	return (
 		<section className="conversation">
+			{index.knowledgeEnabled && (
+				<Knowledge workspace={workspace} session={props.session} />
+			)}
 			{index.agentsEnabled && <Agents {...props} />}
 			{index.publicResearch && (
 				<Research

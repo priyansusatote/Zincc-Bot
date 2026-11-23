@@ -6,6 +6,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+P4 adds `io.zincc.knowledge` for private document ingest, hybrid search and deterministic reports. Spring owns authorization, stored source bytes and versioned projections. A fixed local container owns PDF parsing, OCR, embedding inference and decimal analytics. The separate worker receives bounded stdin and returns bounded JSON without credentials, host mounts or network access. Source deletion cascades to derived results. [Decision and consequences](docs/architecture-decisions/0015-private-document-pipeline.md)
+
 P3 adds `io.zincc.agents` to the Spring control plane. An outbox commits with each accepted run. Temporal drives bounded activities and approval waits. Provider writes pass through a PostgreSQL ledger, and their receipts identify tasks in the external provider or explicit sandbox. The initial local worker shares the service process and uses its own task queue. Restart recovery preserves the user's run and private grants. [Architecture decision](docs/architecture-decisions/0002-durable-execution.md) · [Component guide](docs/modules/phase-three-agents.md)
 
 P2.3–P2.5 filter inference routes before client creation, expose public research through a workspace-authorized endpoint and write provider usage alongside terminal turns. The gateway and web-search adapter both enforce the deployment's local-only setting. [Decision and trade-offs](docs/architecture-decisions/0013-phase-two-boundaries.md)

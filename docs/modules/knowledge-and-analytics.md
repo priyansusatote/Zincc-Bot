@@ -1,6 +1,6 @@
 # Documents, retrieval, and trustworthy analytics
 
-**Proposed design.** Goal: turn private documents into supported answers and reproducible analysis, including PDFs with difficult layout.
+**P4 implements the local document workbench.** See the [implemented scope and run guide](private-knowledge.md). The following sections describe the evolving design. The goal is to turn private documents into supported answers and reproducible analysis, including PDFs with difficult layout.
 
 P4.0 establishes restricted fixed-purpose worker execution before parsing. Public hostile multi-tenant processing and arbitrary generated analysis require the applicable P6 isolation gate. The same execution contract is extended later; parser/OCR binaries never run with control-plane credentials.
 

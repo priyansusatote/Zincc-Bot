@@ -1,5 +1,7 @@
 # Zincc
 
+**Phase 4 is implemented.** Upload a private PDF, find cited passages with local embeddings, and turn a ruled table into a filterable dashboard and CSV. [Run and use the document workbench](docs/modules/private-knowledge.md)
+
 **Phase 3 is implemented.** In the signed-in workbench, open **Agents and runs** to create or version an agent, run it, review an exact proposed task, and inspect its provider receipt. The local qualification uses a persistent task sandbox. [Agent setup and limits](docs/modules/phase-three-agents.md)
 
 **Phase 2 is implemented.** The workbench offers model-route presets, private conversations and public search with cited passages. Local-only deployments exclude cloud inference and public search. The evaluation suite and usage report cover the first working components. [Model settings](docs/modules/model-gateway.md) · [Search sources](docs/modules/public-research.md) · [Evaluation and costs](docs/modules/phase-two-evaluation.md)
@@ -40,6 +42,7 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 | [Technology baseline](docs/technology-baseline.md) | Observed releases, proposed versions, and compatibility gates |
 | [Implementation roadmap](docs/phases/roadmap.md) | Small tasks, dependencies, acceptance tests, and learning topics |
 | [Runtime design](docs/modules/agent-runtime.md) | Harness, routing, parallel agents, memory, and caching |
+| [Private document workbench](docs/modules/private-knowledge.md) | Active upload, OCR, retrieval and dashboard scope |
 | [Document intelligence](docs/modules/knowledge-and-analytics.md) | PDF parsing, RAG, numerical analysis, and dashboards |
 | [Execution security](docs/modules/security-and-sandboxes.md) | Hosted sandboxes, users' Docker/VMs, credentials, and approvals |
 | [Live actions and integrations](docs/modules/live-and-connectors.md) | Voice, connectors, MCP, plugins, and automations |
@@ -51,4 +54,4 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 
 The two Maven launcher scripts come from the Apache Maven Wrapper 3.3.4 only-script distribution. Their [license](.mvn/wrapper/LICENSE) and [notice](.mvn/wrapper/NOTICE) accompany them. The product license decision remains open.
 
-The next task awaiting authorization is **P4.0**, the restricted document-worker boundary.
+The next task awaiting authorization is **P5.1**, the connection registry and email sync.

@@ -2,6 +2,10 @@
 
 Updated: **23 November 2026**.
 
+## Completed Phase 4 batch
+
+The user authorized P4.0 through P4.4 as one batch. P4 ships a pinned, fixed-purpose local worker, PDF ingest with page provenance, private hybrid retrieval, deterministic table analytics and persistent dashboard revisions. The local slice supports digital PDFs, bounded English OCR and single-page ruled tables. The public hostile-tenant gate remains part of P6. [Run and verify](modules/private-knowledge.md) · [Architecture decision](architecture-decisions/0015-private-document-pipeline.md).
+
 ## Completed Phase 3 batch
 
 The user authorized P3.0–P3.4, including P3.4a, as one batch on 23 November. The acceptance gates cover immutable definitions, durable dispatch, bounded steps, exact approvals, connection revocation and a sandbox connector receipt. The six tasks are complete for the documented single-process, sandbox-qualified deployment. [Use the agent workbench](modules/phase-three-agents.md).
@@ -64,6 +68,8 @@ Latest feature addition: research the supplied procedural ocean example and add 
 
 ## Verification
 
+**P4, 23 November.** The Workbench JAR passed verification with 89 passing Java tests and four opt-in checks skipped. The document tests used PostgreSQL, the pinned worker image, real local embeddings and a synthetic rasterized PDF. The isolation probe verified the non-root UID, empty route table and absence of product credentials and the Docker socket. The nine Edge regression tests passed. A separate signed-in Edge run verified upload, retrieval, source page text, exact decimal totals, revision persistence and filtered CSV. Flyway V7 is applied to the local workspace. [Run and verify](modules/private-knowledge.md)
+
 **P3, 23 November.** Verified local browser sign-in, persistent chat and cited public research with Docker PostgreSQL and Keycloak. The live agent panel created an immutable definition and a waiting proposal. With Temporal stopped, two submissions of one request left one queued run. Restarting Temporal and the worker recovered that run and the earlier wait. Exact approval created one sandbox task with a matching provider receipt. Replaying the outbox entry after completion preserved that single write. A free-model planning run completed with a one-step final response. The final build passed 86 Java tests including the real Temporal worker replacement test, with three opt-in P2 provider probes skipped. Nine Edge regression tests passed. PostgreSQL and HTTP protocol fixtures cover stale approvals, grant replacement, cancellation, no progress, token refresh, ambiguous writes and later reconciliation. [Component guide](modules/phase-three-agents.md)
 
 **P2 closeout, 22 November.** The final workbench build passed 79 Java tests with three opt-in probes skipped. All eight installed-Edge tests passed against the production frontend bundle. The generated API check, type check, lint and three Python reconciliation tests passed. The baseline includes 40 passing deterministic cases and 20 future PDF/inbox cases. Separate live checks exercised the Wikipedia adapter and the two free OpenRouter routes. The Firecrawl v2 adapter passed HTTP fixture tests; hosted billing and live Firecrawl remain unqualified. A real offline Ollama model and a live billing statement were unavailable for this qualification. [Test definitions and limits](modules/phase-two-evaluation.md)
@@ -90,7 +96,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P4.0–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P5.1–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.
@@ -111,6 +117,6 @@ Hosting budget and region; identity provider; initial production accounts/API ac
 
 ## Stop point
 
-The next task awaiting authorization is P4.0, the restricted document-worker boundary.
+The next task awaiting authorization is P5.1, the connection registry and email sync.
 
 Hardware, hosting budget/region, identity provider, license and API access remain task-specific decisions documented in the final review.

@@ -48,6 +48,21 @@ class SessionSecurity {
 		return http
 			.authorizeHttpRequests(auth -> auth.dispatcherTypeMatchers(DispatcherType.ERROR)
 				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/knowledge",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/source",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/pages/{page}",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/datasets",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/dashboards",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/dashboards/{dashboard}",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/dashboards/{dashboard}/export")
+				.authenticated()
+				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/knowledge",
+						"/api/workspaces/{workspaceId}/knowledge/{id}/search")
+				.authenticated()
+				.requestMatchers(HttpMethod.PUT, "/api/workspaces/{workspaceId}/knowledge/{id}/dashboards/{dashboard}")
+				.authenticated()
+				.requestMatchers(HttpMethod.DELETE, "/api/workspaces/{workspaceId}/knowledge/{id}")
+				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/agents")
 				.authenticated()
 				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/agents/{id}/versions",

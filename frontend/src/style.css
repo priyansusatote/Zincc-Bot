@@ -398,6 +398,41 @@ dd {
 .conversation textarea {
 	resize: vertical;
 }
+.report-scroll {
+	overflow: auto;
+}
+.report-scroll table {
+	border-collapse: collapse;
+	width: 100%;
+	text-align: left;
+}
+.report-scroll :is(th, td) {
+	border-bottom: 1px solid var(--line);
+	padding: 0.5rem;
+	vertical-align: top;
+}
+.report-chart {
+	margin: 1rem 0;
+}
+.report-chart > div {
+	display: grid;
+	grid-template-columns: minmax(5rem, 1fr) minmax(5rem, 2fr) minmax(5rem, 1fr);
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 0.5rem;
+	overflow-wrap: anywhere;
+}
+.report-bar {
+	background: var(--field);
+	box-shadow: inset 0 0 0 1px var(--line);
+	position: relative;
+	height: 0.8rem;
+}
+.report-bar i {
+	background: var(--green);
+	position: absolute;
+	height: 100%;
+}
 .exchange {
 	border-bottom: 1px solid var(--line);
 	padding: 12px 0;
