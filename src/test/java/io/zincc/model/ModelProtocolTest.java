@@ -118,6 +118,15 @@ class ModelProtocolTest {
 	}
 
 	@Test
+	void openRouterRateLimitRemainsDistinct() {
+		var gateway = gateway(ModelConfiguration.Provider.OPENROUTER, "/api/v1/chat/completions", "application/json",
+				"{\"error\":{\"message\":\"provider busy\"}}", 429);
+		assertThatThrownBy(() -> gateway.text("fixture", "hello").block()).isInstanceOfSatisfying(
+				ModelGateway.GatewayException.class,
+				e -> assertThat(e.failure()).isEqualTo(ModelGateway.Failure.RATE_LIMITED));
+	}
+
+	@Test
 	void providerFailureDoesNotRetryOrExposeResponseBody() {
 		var gateway = gateway(ModelConfiguration.Provider.OPENAI, "/v1/chat/completions", "application/json",
 				"{\"error\":{\"message\":\"private upstream diagnostic\"}}", 503);

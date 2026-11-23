@@ -14,6 +14,14 @@ import {
 	type Snapshot,
 } from "./conversation-client";
 
+const interruption: Record<string, string> = {
+	RATE_LIMITED:
+		"Provider rate limit reached. Try another route or retry later.",
+	OUTPUT_LIMIT: "The model reached its output limit before finishing.",
+	TIMEOUT: "The model timed out. Retry or choose another route.",
+	PROVIDER_ERROR: "The model provider could not complete this request.",
+	INVALID_OUTPUT: "The model returned an incomplete or invalid response.",
+};
 type Props = { workspace: string; session: Session; refresh: () => void };
 export function Conversations(props: Props) {
 	const { workspace, refresh } = props;
@@ -236,7 +244,9 @@ function Thread({
 					{t.answer && <p>{t.answer}</p>}
 					{t.state !== "completed" && (
 						<small>
-							{t.state === "running" ? "Responding…" : "Response interrupted"}
+							{t.state === "running"
+								? "Responding…"
+								: (interruption[t.failure ?? ""] ?? "Response interrupted")}
 						</small>
 					)}
 				</article>

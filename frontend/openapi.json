@@ -1483,6 +1483,10 @@
               "completed",
               "interrupted"
             ]
+          },
+          "failure": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -1567,6 +1571,10 @@
           },
           "route": {
             "type": "string"
+          },
+          "failure": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -2225,6 +2233,10 @@
           "syncedAt": {
             "type": "string",
             "nullable": true
+          },
+          "itemCount": {
+            "type": "integer",
+            "format": "int64"
           }
         },
         "required": [
@@ -2235,7 +2247,8 @@
           "fixture",
           "grantScope",
           "state",
-          "syncedAt"
+          "syncedAt",
+          "itemCount"
         ]
       },
       "Skill": {

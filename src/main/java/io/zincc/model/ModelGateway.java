@@ -33,7 +33,7 @@ public final class ModelGateway {
 
 	public enum Failure {
 
-		UNKNOWN_ROUTE, UNSUPPORTED, INVALID_REQUEST, INVALID_OUTPUT, TIMEOUT, PROVIDER_ERROR
+		UNKNOWN_ROUTE, UNSUPPORTED, INVALID_REQUEST, INVALID_OUTPUT, TIMEOUT, PROVIDER_ERROR, RATE_LIMITED, OUTPUT_LIMIT
 
 	}
 
@@ -260,6 +260,8 @@ public final class ModelGateway {
 	}
 
 	private static void requireComplete(String reason) {
+		if ("length".equalsIgnoreCase(reason) || "max_tokens".equalsIgnoreCase(reason))
+			throw new GatewayException(Failure.OUTPUT_LIMIT);
 		if (reason == null
 				|| !Set.of("stop", "end_turn", "stop_sequence").contains(reason.toLowerCase(java.util.Locale.ROOT)))
 			throw invalidOutput();
@@ -272,8 +274,17 @@ public final class ModelGateway {
 	private static GatewayException normalize(Throwable error) {
 		if (error instanceof GatewayException gatewayError)
 			return gatewayError;
-		return new GatewayException(
-				error instanceof java.util.concurrent.TimeoutException ? Failure.TIMEOUT : Failure.PROVIDER_ERROR);
+		for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+			if (cause instanceof com.openai.errors.RateLimitException
+					|| cause instanceof org.springframework.web.client.RestClientResponseException response
+							&& response.getStatusCode().value() == 429)
+				return new GatewayException(Failure.RATE_LIMITED);
+			if (cause instanceof java.util.concurrent.TimeoutException
+					|| cause instanceof java.net.http.HttpTimeoutException
+					|| cause instanceof java.net.SocketTimeoutException)
+				return new GatewayException(Failure.TIMEOUT);
+		}
+		return new GatewayException(Failure.PROVIDER_ERROR);
 	}
 
 	private void recordUsage(Route route, Usage usage) {

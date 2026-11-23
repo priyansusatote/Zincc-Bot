@@ -228,7 +228,7 @@ class ProviderClient {
 		if (full && anchor.isEmpty())
 			anchor = required(get(MAIL + "profile", Map.of(), access), "historyId");
 		var params = new HashMap<String, String>();
-		params.put("maxResults", "8");
+		params.put("maxResults", full ? "32" : "8");
 		if (!page.isEmpty())
 			params.put("pageToken", page);
 		if (full)
@@ -245,31 +245,51 @@ class ProviderClient {
 			for (var h : response.path("history"))
 				for (var m : h.path("messages"))
 					ids.add(required(m, "id"));
-		if (ids.size() > 16)
+		if (ids.size() > (full ? 32 : 16))
 			throw new Failure("reset", 1);
 		var items = new ArrayList<Item>();
-		for (String id : ids) {
+		try (var reads = java.util.concurrent.Executors.newFixedThreadPool(4, Thread.ofVirtual().factory())) {
 			try {
-				var m = get(MAIL + "messages/" + enc(id), Map.of("format", "metadata", "metadataHeaders", "Subject"),
-						access);
-				boolean inbox = false;
-				for (var label : m.path("labelIds"))
-					if (label.asString("").equals("INBOX"))
-						inbox = true;
-				String subject = "(no subject)";
-				for (var header : m.path("payload").path("headers"))
-					if (header.path("name").asString("").equalsIgnoreCase("Subject"))
-						subject = header.path("value").asString(subject);
-				items.add(new Item(id, brief(subject), m.path("internalDate").asString(""), !inbox));
+				var futures = ids.stream().map(id -> reads.submit(() -> mailItem(access, id))).toList();
+				for (var future : futures)
+					items.add(future.get());
 			}
-			catch (Failure f) {
-				if (!f.state.equals("gone"))
+			catch (InterruptedException ex) {
+				Thread.currentThread().interrupt();
+				throw new Failure("unavailable", 60);
+			}
+			catch (java.util.concurrent.ExecutionException ex) {
+				if (ex.getCause() instanceof Failure f)
 					throw f;
-				items.add(new Item(id, "", "", true));
+				throw new Failure("unavailable", 60);
+			}
+			finally {
+				reads.shutdownNow();
 			}
 		}
 		return new Page(items, response.path("nextPageToken").asString(""), anchor,
 				full ? anchor : required(response, "historyId"), full);
+	}
+
+	private Item mailItem(String access, String id) {
+		try {
+			var m = get(MAIL + "messages/" + enc(id), Map.of("format", "metadata", "metadataHeaders", "Subject"),
+					access);
+			boolean inbox = false;
+			for (var label : m.path("labelIds"))
+				if (label.asString("").equals("INBOX"))
+					inbox = true;
+			String subject = "(no subject)";
+			for (var header : m.path("payload").path("headers"))
+				if (header.path("name").asString("").equalsIgnoreCase("Subject"))
+					subject = header.path("value").asString(subject);
+			return new Item(id, brief(subject), m.path("internalDate").asString(""), !inbox);
+		}
+		catch (Failure f) {
+			if (!f.state.equals("gone"))
+				throw f;
+			return new Item(id, "", "", true);
+		}
 	}
 
 	Page calendar(String access, String cursor, String page) {

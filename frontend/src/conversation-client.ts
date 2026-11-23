@@ -136,6 +136,7 @@ export async function replay(
 					{
 						...last,
 						answer: last.answer + row.body,
+						failure: row.failure,
 						state: row.kind === "delta" ? "running" : row.kind,
 					},
 				],

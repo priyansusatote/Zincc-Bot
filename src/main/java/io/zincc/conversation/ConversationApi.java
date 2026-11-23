@@ -128,7 +128,7 @@ class ConversationApi {
 			}
 		}
 		catch (ModelGateway.GatewayException ex) {
-			store.append(scope, id, cmd.turnId(), "interrupted", "", ex.usage());
+			store.append(scope, id, cmd.turnId(), "interrupted", "", ex.usage(), ex.failure());
 		}
 	}
 
@@ -154,7 +154,7 @@ class ConversationApi {
 			}
 		}
 		catch (ModelGateway.GatewayException ex) {
-			store.append(scope, id, cmd.turnId(), "interrupted", pending.toString(), ex.usage());
+			store.append(scope, id, cmd.turnId(), "interrupted", pending.toString(), ex.usage(), ex.failure());
 		}
 	}
 

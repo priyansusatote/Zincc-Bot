@@ -26,7 +26,7 @@ class IntegrationStore {
 	}
 
 	record Feed(UUID id, String provider, String label, String resource, boolean fixture, String grantScope,
-			String state, Instant syncedAt) {
+			String state, Instant syncedAt, long itemCount) {
 	}
 
 	record Summary(String stamp, String summary) {
@@ -150,10 +150,10 @@ class IntegrationStore {
 
 	List<Feed> feeds() {
 		return db.query(
-				"SELECT id,provider,label,resource,fixture,grant_scope,state,synced_at FROM zincc.feed ORDER BY label,id",
+				"SELECT id,provider,label,resource,fixture,grant_scope,state,synced_at,(SELECT count(*) FROM zincc.feed_item i WHERE i.feed_id=f.id) FROM zincc.feed f ORDER BY label,id",
 				(r, i) -> new Feed(r.getObject(1, UUID.class), r.getString(2), r.getString(3), r.getString(4),
 						r.getBoolean(5), r.getString(6), r.getString(7),
-						r.getTimestamp(8) == null ? null : r.getTimestamp(8).toInstant()));
+						r.getTimestamp(8) == null ? null : r.getTimestamp(8).toInstant(), r.getLong(9)));
 	}
 
 	void revoke(Scope s, UUID id) {

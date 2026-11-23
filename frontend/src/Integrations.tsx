@@ -193,7 +193,9 @@ function Panel({ workspace, session }: Props) {
 							<p>
 								{f.syncedAt
 									? `Last synchronized ${new Date(f.syncedAt).toLocaleString()}`
-									: "Awaiting first sync"}
+									: f.state === "syncing"
+										? `First sync in progress · ${f.itemCount} items saved. Updates automatically.`
+										: "First sync pending"}
 							</p>
 							{(f.fixture
 								? ["sync", "sample", "revoke"]

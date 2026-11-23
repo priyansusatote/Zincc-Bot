@@ -197,6 +197,8 @@ The local failure drill experimentally evaluated replay across process and servi
 | Digest pinning, permission expansion and rollback | [Skill versions](learning-notes/030-skill-versions.md) |
 | Wall-clock scheduling, idempotency and restart behavior | [Routine recovery](learning-notes/031-routine-recovery.md) |
 
+[Operational follow-up on bounded reads, progress visibility and rate-limit reporting](learning-notes/032-sync-progress-and-model-failures.md)
+
 ## 9. Evidence of learning and completion
 
 For every component, the learning note identifies the covered topics from this matrix and link to implemented code or experiment evidence. Preserve five states: planned, studied, implemented, experimentally evaluated, and production-adopted. None implies the others.

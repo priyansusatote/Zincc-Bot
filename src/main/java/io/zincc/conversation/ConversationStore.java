@@ -27,13 +27,13 @@ public class ConversationStore {
 	public record Command(UUID turnId, Long revision, String route, String question) {
 	}
 
-	public record Turn(UUID id, String route, String question, String answer, String state) {
+	public record Turn(UUID id, String route, String question, String answer, String state, String failure) {
 	}
 
 	public record Snapshot(long revision, List<Turn> turns) {
 	}
 
-	public record Event(long seq, UUID turnId, String kind, String body, Instant at, String route) {
+	public record Event(long seq, UUID turnId, String kind, String body, Instant at, String route, String failure) {
 	}
 
 	private static final int REPLAY_WINDOW = 128;
@@ -106,10 +106,10 @@ public class ConversationStore {
 	private List<Turn> turns(UUID id) {
 		return db.query(
 				"""
-						SELECT id,route,question,answer,state FROM zincc.conversation_turn WHERE conversation_id=? ORDER BY base_revision
+						SELECT id,route,question,answer,state,failure FROM zincc.conversation_turn WHERE conversation_id=? ORDER BY base_revision
 						""",
 				(rs, i) -> new Turn(rs.getObject(1, UUID.class), rs.getString(2), rs.getString(3), rs.getString(4),
-						rs.getString(5)),
+						rs.getString(5), rs.getString(6)),
 				id);
 	}
 
@@ -124,12 +124,15 @@ public class ConversationStore {
 				throw new ResponseStatusException(HttpStatus.CONFLICT);
 			if (after < revision - REPLAY_WINDOW)
 				throw new ResponseStatusException(HttpStatus.GONE);
-			return db.query("""
-					SELECT e.seq,e.turn_id,e.kind,e.body,e.occurred_at,t.route FROM zincc.conversation_event e
-					JOIN zincc.conversation_turn t ON (e.conversation_id,e.turn_id)=(t.conversation_id,t.id)
-					WHERE e.conversation_id=? AND e.seq>? ORDER BY e.seq
-					""", (rs, i) -> new Event(rs.getLong(1), rs.getObject(2, UUID.class), rs.getString(3),
-					rs.getString(4), rs.getTimestamp(5).toInstant(), rs.getString(6)), id, after);
+			return db
+				.query("""
+						SELECT e.seq,e.turn_id,e.kind,e.body,e.occurred_at,t.route,CASE WHEN e.kind='interrupted' THEN t.failure END FROM zincc.conversation_event e
+						JOIN zincc.conversation_turn t ON (e.conversation_id,e.turn_id)=(t.conversation_id,t.id)
+						WHERE e.conversation_id=? AND e.seq>? ORDER BY e.seq
+						""",
+						(rs, i) -> new Event(rs.getLong(1), rs.getObject(2, UUID.class), rs.getString(3),
+								rs.getString(4), rs.getTimestamp(5).toInstant(), rs.getString(6), rs.getString(7)),
+						id, after);
 		});
 	}
 
@@ -177,6 +180,11 @@ public class ConversationStore {
 	}
 
 	void append(Scope scope, UUID id, UUID turn, String kind, String body, io.zincc.model.ModelGateway.Usage usage) {
+		append(scope, id, turn, kind, body, usage, null);
+	}
+
+	void append(Scope scope, UUID id, UUID turn, String kind, String body, io.zincc.model.ModelGateway.Usage usage,
+			io.zincc.model.ModelGateway.Failure failure) {
 		scoped(scope, () -> {
 			lock(id);
 			String state = switch (kind) {
@@ -186,10 +194,10 @@ public class ConversationStore {
 			};
 			int updated = db.update(
 					"""
-							UPDATE zincc.conversation_turn SET answer=answer || ?,state=?,input_tokens=?,output_tokens=? WHERE conversation_id=? AND id=? AND state='running'
+							UPDATE zincc.conversation_turn SET answer=answer || ?,state=?,input_tokens=?,output_tokens=?,failure=? WHERE conversation_id=? AND id=? AND state='running'
 							""",
 					body, state, usage == null ? null : usage.inputTokens(),
-					usage == null ? null : usage.outputTokens(), id, turn);
+					usage == null ? null : usage.outputTokens(), failure == null ? null : failure.name(), id, turn);
 			if (updated == 1)
 				event(id, turn, kind, body);
 			return updated;

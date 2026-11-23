@@ -497,6 +497,7 @@ export interface components {
             answer: string;
             /** @enum {string} */
             state: "running" | "completed" | "interrupted";
+            failure?: string | null;
         };
         ConversationSnapshot: {
             /** Format: int64 */
@@ -522,6 +523,7 @@ export interface components {
             /** Format: date-time */
             at: string;
             route: string;
+            failure?: string | null;
         };
         Session: {
             accountLabel: string;
@@ -685,6 +687,8 @@ export interface components {
             grantScope: string;
             state: string;
             syncedAt: string | null;
+            /** Format: int64 */
+            itemCount: number;
         };
         Skill: {
             name: string;

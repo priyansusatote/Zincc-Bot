@@ -19,7 +19,7 @@ Keep cloud routes and public research adapters unavailable for local-only reques
 
 ### OpenRouter free text routes
 
-From the repository root, use the `openrouter-free` profile with `OPENROUTER_API_KEY` in the environment or the gitignored local `.env` file. This profile reads that file as Java properties, so enter the key as an unquoted value. Select one route for each test. Both routes use a maximum of 512 output tokens and send only the synthetic greeting during this test.
+From the repository root, use the `openrouter-free` profile with `OPENROUTER_API_KEY` in the environment or the gitignored local `.env` file. This profile reads that file as Java properties, so enter the key as an unquoted value. Select one route for each test. The smoke test sends a synthetic greeting. Gemma allows 512 output tokens and Lightning allows 1,536. The higher Lightning ceiling gives reasoning and visible output more room. New interrupted turns preserve the failure category for replay and reload.
 
 ```powershell
 $env:SPRING_PROFILES_ACTIVE = 'openrouter-free'

@@ -220,6 +220,7 @@ class BrowserSessionTest {
 			.statusCode()).isEqualTo(204);
 		assertThat(modelRequest.get()).contains("First question", "assistant", "answer", "Follow up");
 		var interrupted = json.readTree(get(browser, thread).body()).path("turns").get(1);
+		assertThat(interrupted.path("failure").asString()).isEqualTo("OUTPUT_LIMIT");
 		assertThat(interrupted.path("state").asString()).isEqualTo("interrupted");
 		assertThat(interrupted.path("answer").asString()).isEqualTo("answer");
 		long revision = json.readTree(get(browser, thread).body()).path("revision").asLong();

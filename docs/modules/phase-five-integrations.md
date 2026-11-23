@@ -4,7 +4,7 @@ Open the signed-in workbench and expand **Connections and routines**. The local 
 
 ## Try a briefing
 
-1. Choose Gmail, enter an account label and select **Add sample account**. Repeat for Slack with channel ID `CDEMO`. Sample accounts have two synthetic items each. Wait for **ready**. Expand **Grant and sync** to see the resource, scope and last successful sync.
+1. Choose Gmail, enter an account label and select **Add sample account**. Repeat for Slack with channel ID `CDEMO`. Sample accounts have two synthetic items each. During first sync, expand **Grant and sync** to watch the number of committed items grow. Wait for **ready** before running a briefing that needs that account. Expand **Grant and sync** to see the resource, scope and last successful sync.
 2. Choose **Source briefing · v2**, review its permissions and install. Select the accounts the routine may read, give it a name, and choose a daily time and IANA time zone.
 3. Select **Run now**. The receipt includes up to three recent items per selected account, labeled by account. A source that is unavailable produces a partial result. A revoked grant withdraws previously stored briefing text that used that source. Confirmed removal of a cached item also withdraws earlier receipts that used the account. This conservative rule avoids keeping a stale copy when the item is deleted or leaves the granted resource.
 4. Create a second briefing with **When a selected source changes**. On a ready sample account, **Simulate incoming item** lets you exercise the change path locally. A real Slack notification requests a fresh provider read before the routine runs.

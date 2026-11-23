@@ -48,6 +48,9 @@ class IntegrationStoreTest {
 			store.revoke(alice, live);
 			assertThat(store.sync(alice, mail, true)).isFalse();
 			assertThat(store.scoped(alice, () -> store.summaries(mail))).isEmpty();
+			assertThat(store.scoped(alice, store::feeds)).filteredOn(f -> f.id().equals(mail))
+				.extracting(Feed::itemCount)
+				.containsExactly(1L);
 			var restarted = new IntegrationStore(source, provider, env, json);
 			assertThat(restarted.sync(alice, mail, true)).isTrue();
 			assertThat(store.scoped(alice, () -> store.summaries(mail))).hasSize(2);
