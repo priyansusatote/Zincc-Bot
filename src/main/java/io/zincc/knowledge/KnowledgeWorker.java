@@ -1,7 +1,7 @@
 package io.zincc.knowledge;
 
 import java.io.IOException;
-import java.util.UUID;
+import io.zincc.sandbox.SandboxBroker;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -56,40 +56,38 @@ class KnowledgeWorker {
 			throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE);
 		if (!slots.tryAcquire())
 			throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "Document worker busy");
-		String name = "zincc-knowledge-" + UUID.randomUUID();
+
 		try (var tasks = Executors.newVirtualThreadPerTaskExecutor()) {
-			var process = isolated(name, operation);
-			var send = tasks.submit(() -> {
-				try (var stdin = process.getOutputStream()) {
-					stdin.write(input);
+			try (var sandbox = SandboxBroker.knowledge(image, operation.command)) {
+				var process = sandbox.process();
+				var send = tasks.submit(() -> {
+					try (var stdin = process.getOutputStream()) {
+						stdin.write(input);
+					}
+					return null;
+				});
+				var receive = tasks.submit(() -> {
+					try (var stdout = process.getInputStream()) {
+						var bytes = stdout.readNBytes(OUTPUT_LIMIT + 1);
+						if (bytes.length > OUTPUT_LIMIT)
+							throw new IOException("Worker output exceeded limit");
+						return bytes;
+					}
+				});
+				try {
+					byte[] output = receive.get(72, TimeUnit.SECONDS);
+					if (!process.waitFor(3, TimeUnit.SECONDS) || process.exitValue() != 0)
+						throw new IOException();
+					send.get(1, TimeUnit.SECONDS);
+					var result = json.readTree(output);
+					if (result == null || !result.isObject())
+						throw new IOException();
+					return result;
 				}
-				return null;
-			});
-			var receive = tasks.submit(() -> {
-				try (var stdout = process.getInputStream()) {
-					var bytes = stdout.readNBytes(OUTPUT_LIMIT + 1);
-					if (bytes.length > OUTPUT_LIMIT)
-						throw new IOException("Worker output exceeded limit");
-					return bytes;
+				finally {
+					send.cancel(true);
+					receive.cancel(true);
 				}
-			});
-			try {
-				byte[] output = receive.get(72, TimeUnit.SECONDS);
-				if (!process.waitFor(3, TimeUnit.SECONDS) || process.exitValue() != 0)
-					throw new IOException();
-				send.get(1, TimeUnit.SECONDS);
-				var result = json.readTree(output);
-				if (result == null || !result.isObject())
-					throw new IOException();
-				return result;
-			}
-			finally {
-				if (process.isAlive()) {
-					process.destroyForcibly();
-					clean(name);
-				}
-				send.cancel(true);
-				receive.cancel(true);
 			}
 		}
 		catch (InterruptedException ex) {
@@ -102,30 +100,6 @@ class KnowledgeWorker {
 		}
 		finally {
 			slots.release();
-		}
-	}
-
-	private Process isolated(String name, Operation operation) throws IOException {
-		return new ProcessBuilder("docker", "run", "--rm", "--interactive", "--pull=never", "--name", name,
-				"--network=none", "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges", "--ipc=none",
-				"--user=65532:65532", "--pids-limit=48", "--memory=768m", "--memory-swap=768m", "--cpus=1", "--tmpfs",
-				"/tmp:rw,noexec,nosuid,nodev,size=24m", "--log-driver=none", image, operation.command)
-			.redirectError(ProcessBuilder.Redirect.DISCARD)
-			.start();
-	}
-
-	private static void clean(String name) {
-		try {
-			var cleanup = new ProcessBuilder("docker", "rm", "-f", name).redirectError(ProcessBuilder.Redirect.DISCARD)
-				.redirectOutput(ProcessBuilder.Redirect.DISCARD)
-				.start();
-			if (!cleanup.waitFor(4, TimeUnit.SECONDS))
-				cleanup.destroyForcibly();
-		}
-		catch (IOException ex) {
-			/* Worker carries an independent process deadline. */ }
-		catch (InterruptedException ex) {
-			Thread.currentThread().interrupt();
 		}
 	}
 

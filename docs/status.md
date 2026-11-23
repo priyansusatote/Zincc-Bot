@@ -1,5 +1,9 @@
 # Zincc status
 
+## Phase 6 batch authorized on 23 November 2026
+
+P6.1, P6.3 and the curated P6.4 browser handoff are implemented locally. P6.2 is open pending live hosted qualification. The local engine has no registered gVisor runtime. The Docker Cloud benchmark has a dry-run mode. The signed-in workbench produced a real one-file count through a paired local runner. Hosted compute has not been provisioned. [Setup and qualification](modules/phase-six-runners.md)
+
 Updated: **23 November 2026**.
 
 ## Completed Phase 5 local workbench batch
@@ -100,7 +104,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P6.1–P12.5 and expansion epics P13–P16 remain pending. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P6.2, P7–P12 and expansion epics P13–P16 remain open. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.

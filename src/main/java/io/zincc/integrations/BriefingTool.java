@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
-import org.springframework.core.io.ClassPathResource;
+import io.zincc.sandbox.SandboxBroker;
 import org.springframework.stereotype.Component;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -21,47 +21,20 @@ class BriefingTool {
 
 	private final JsonMapper json;
 
-	private final String script;
-
 	BriefingTool(Environment env, JsonMapper json) throws IOException {
 		this.env = env;
 		this.json = json;
-		this.script = new ClassPathResource("integrations/briefing_mcp.py").getContentAsString(StandardCharsets.UTF_8);
+
 	}
 
 	String run(List<String> sources) {
 		String image = env.getProperty("zincc.knowledge.image", "");
 		if (!image.matches("sha256:[a-f0-9]{64}"))
 			throw new IllegalStateException("Curated worker unavailable");
-		String name = "zincc-brief-" + UUID.randomUUID();
-		try {
-			var process = new ProcessBuilder("docker", "run", "--rm", "-i", "--pull=never", "--name", name,
-					"--network=none", "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges",
-					"--user=65532:65532", "--pids-limit=12", "--memory=64m", "--memory-swap=64m", "--cpus=0.5",
-					"--log-driver=none", "--entrypoint=/usr/bin/timeout", image, "--kill-after=2s", "25s", "python",
-					"-I", "-B", "-u", "-c",
-					"exec(__import__('base64').b64decode('"
-							+ Base64.getEncoder().encodeToString(script.getBytes(StandardCharsets.UTF_8)) + "'))")
-				.redirectError(ProcessBuilder.Redirect.DISCARD)
-				.start();
-			try (var tasks = Executors.newVirtualThreadPerTaskExecutor()) {
-				var future = tasks.submit(() -> exchange(process.getInputStream(), process.getOutputStream(), sources));
-				try {
-					return future.get(20, TimeUnit.SECONDS);
-				}
-				finally {
-					process.getOutputStream().close();
-					if (!process.waitFor(2, TimeUnit.SECONDS)) {
-						process.destroyForcibly();
-						var cleanup = new ProcessBuilder("docker", "rm", "-f", name)
-							.redirectError(ProcessBuilder.Redirect.DISCARD)
-							.redirectOutput(ProcessBuilder.Redirect.DISCARD)
-							.start();
-						if (!cleanup.waitFor(3, TimeUnit.SECONDS))
-							cleanup.destroyForcibly();
-					}
-				}
-			}
+		try (var tasks = Executors.newVirtualThreadPerTaskExecutor(); var sandbox = SandboxBroker.briefing(image)) {
+			var process = sandbox.process();
+			var future = tasks.submit(() -> exchange(process.getInputStream(), process.getOutputStream(), sources));
+			return future.get(20, TimeUnit.SECONDS);
 		}
 		catch (InterruptedException e) {
 			Thread.currentThread().interrupt();

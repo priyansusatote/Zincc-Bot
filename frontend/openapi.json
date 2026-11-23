@@ -1387,6 +1387,123 @@
           }
         }
       }
+    },
+    "/api/workspaces/{workspaceId}/runners": {
+      "get": {
+        "operationId": "runnerView",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunnerView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "inviteRunner",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/runners/{device}": {
+      "post": {
+        "operationId": "runnerCommand",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "device",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "action"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "inventory",
+                      "browser",
+                      "revoke",
+                      "pause",
+                      "resume"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2515,6 +2632,96 @@
           "available",
           "taskGrants"
         ]
+      },
+      "RunnerDevice": {
+        "type": "object",
+        "required": [
+          "id",
+          "state",
+          "online",
+          "folder",
+          "browser"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "active",
+              "paused",
+              "revoked",
+              "pairing",
+              "expired"
+            ]
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "folder": {
+            "type": "boolean"
+          },
+          "browser": {
+            "type": "boolean"
+          }
+        }
+      },
+      "RunnerJob": {
+        "type": "object",
+        "required": [
+          "id",
+          "device",
+          "kind",
+          "state",
+          "result"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "device": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "inventory",
+              "browser"
+            ]
+          },
+          "state": {
+            "type": "string"
+          },
+          "result": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "RunnerView": {
+        "type": "object",
+        "required": [
+          "devices",
+          "jobs"
+        ],
+        "properties": {
+          "devices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunnerDevice"
+            }
+          },
+          "jobs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RunnerJob"
+            }
+          }
+        }
       }
     }
   }

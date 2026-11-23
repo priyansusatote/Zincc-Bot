@@ -3,6 +3,7 @@ import { ApiError, type Session } from "./client";
 import { Research } from "./Research";
 import { Knowledge } from "./Knowledge";
 import { Integrations } from "./Integrations";
+import { Runners } from "./Runners";
 import { Agents } from "./Agents";
 import {
 	directory,
@@ -68,6 +69,7 @@ export function Conversations(props: Props) {
 			{index.knowledgeEnabled && (
 				<Knowledge workspace={workspace} session={props.session} />
 			)}
+			{index.agentsEnabled && <Runners key={workspace} {...props} />}
 			{index.agentsEnabled && <Agents {...props} />}
 			{index.agentsEnabled && (
 				<Integrations workspace={workspace} session={props.session} />

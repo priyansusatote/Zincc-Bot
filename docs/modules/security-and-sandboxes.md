@@ -1,5 +1,7 @@
 # Execution security and customer compute
 
+The [P6 operator guide](phase-six-runners.md) identifies implemented local controls. Hosted qualification, customer executable code and general browser accounts remain open. The sections below describe the broader target design.
+
 **Proposed design.** Isolation and authorization must hold even when a model follows malicious instructions in a webpage or document.
 
 ## Trust boundaries and permissions

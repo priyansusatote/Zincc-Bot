@@ -1,5 +1,12 @@
 # Zincc engineering learning roadmap
 
+| P6 topic | Coverage | Component note |
+| --- | --- | --- |
+| Resource admission and container lifecycle | Implemented, local Docker evaluation | [Broker](learning-notes/033-sandbox-broker.md) |
+| VM isolation and snapshot policy | Studied, hosted evaluation pending | [Qualification](learning-notes/034-hosted-isolation.md) |
+| Device authentication, leases and RLS | Implemented, PostgreSQL integration tested | [Runner leases](learning-notes/035-runner-leases.md) |
+| Isolated browser context and human takeover | Implemented, Edge exercised | [Browser handoff](learning-notes/036-browser-takeover.md) |
+
 P1.1 implemented startup, dependency management, HTTP health and a package-dependency test on 18 November 2026. See the [component learning report](learning-notes/006-spring-foundation.md). Later entries describe planned coverage.
 
 ## 1. What the earlier summary missed

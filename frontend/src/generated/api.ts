@@ -469,6 +469,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workspaces/{workspaceId}/runners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["runnerView"];
+        put?: never;
+        post: operations["inviteRunner"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/runners/{device}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["runnerCommand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -752,6 +784,29 @@ export interface components {
                 resource: string;
                 active: boolean;
             }[];
+        };
+        RunnerDevice: {
+            /** Format: uuid */
+            id: string;
+            /** @enum {string} */
+            state: "active" | "paused" | "revoked" | "pairing" | "expired";
+            online: boolean;
+            folder: boolean;
+            browser: boolean;
+        };
+        RunnerJob: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            device: string;
+            /** @enum {string} */
+            kind: "inventory" | "browser";
+            state: string;
+            result: number | null;
+        };
+        RunnerView: {
+            devices: components["schemas"]["RunnerDevice"][];
+            jobs: components["schemas"]["RunnerJob"][];
         };
     };
     responses: never;
@@ -1672,6 +1727,80 @@ export interface operations {
                     action: string;
                     /** Format: uuid */
                     attempt: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    runnerView: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunnerView"];
+                };
+            };
+        };
+    };
+    inviteRunner: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        code: string;
+                    };
+                };
+            };
+        };
+    };
+    runnerCommand: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+                device: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    action: "inventory" | "browser" | "revoke" | "pause" | "resume";
                 };
             };
         };

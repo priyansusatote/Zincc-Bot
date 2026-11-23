@@ -1,6 +1,6 @@
 # ADR 0005 — Brokered sandboxes and customer runners
 
-Status: **Proposed**. Related: [security and sandboxes](../modules/security-and-sandboxes.md).
+Status: **Partially adopted in P6**. Related: [security and sandboxes](../modules/security-and-sandboxes.md).
 
 ## Problem
 
@@ -26,3 +26,5 @@ Stronger isolation costs memory, startup time, and operational expertise. Snapsh
 ## Validation
 
 Cross-tenant filesystem/network tests, secret injection boundary, malicious job limits, stale lease rejection, runner revocation, snapshot restore authorization, and browser account isolation.
+
+The fixed Docker broker, foreground outbound device and private offline browser review implement the local decision. Credentials are memory-only on devices. Hosted provider selection and executable tenant workloads remain unqualified. [Implementation and verification](../modules/phase-six-runners.md).
