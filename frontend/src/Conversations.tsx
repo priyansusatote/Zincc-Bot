@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError, type Session } from "./client";
 import { Research } from "./Research";
+import { Agents } from "./Agents";
 import {
 	directory,
 	replay,
@@ -54,6 +55,7 @@ export function Conversations(props: Props) {
 	if (!index || !id) return <p role="status">Loading conversations…</p>;
 	return (
 		<section className="conversation">
+			{index.agentsEnabled && <Agents {...props} />}
 			{index.publicResearch && (
 				<Research
 					{...props}

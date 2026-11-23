@@ -48,6 +48,13 @@ class SessionSecurity {
 		return http
 			.authorizeHttpRequests(auth -> auth.dispatcherTypeMatchers(DispatcherType.ERROR)
 				.permitAll()
+				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/agents")
+				.authenticated()
+				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/agents/{id}/versions",
+						"/api/workspaces/{workspaceId}/agents/{id}/runs",
+						"/api/workspaces/{workspaceId}/agents/connection",
+						"/api/workspaces/{workspaceId}/agents/runs/{id}/decision")
+				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/actuator/health", "/workbench", "/workbench/**")
 				.permitAll()
 				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/conversations/{id}/turns",

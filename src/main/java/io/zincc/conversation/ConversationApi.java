@@ -46,8 +46,11 @@ class ConversationApi {
 
 	private final io.zincc.research.WebResearch research;
 
+	private final boolean agentsEnabled;
+
 	ConversationApi(ConversationStore store, SessionPrincipal principals, ModelGateway gateway, JsonMapper json,
-			io.zincc.research.WebResearch research) {
+			io.zincc.research.WebResearch research, org.springframework.core.env.Environment env) {
+		this.agentsEnabled = env.matchesProfiles("agents");
 		this.research = research;
 		this.store = store;
 		this.principals = principals;
@@ -61,14 +64,15 @@ class ConversationApi {
 	}
 
 	record Directory(List<ThreadInfo> threads, List<String> routes, java.util.Map<String, String> presets,
-			boolean publicResearch, String researchSource) {
+			boolean publicResearch, String researchSource, boolean agentsEnabled) {
 	}
 
 	@GetMapping
 	Directory list(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace) {
 		return new Directory(store.directory(scope(user, workspace)),
 				gateway.routes().stream().map(ModelGateway.Route::id).toList(),
-				gateway.selections(ModelGateway.Capability.TEXT), research.enabled(), research.sourceName());
+				gateway.selections(ModelGateway.Capability.TEXT), research.enabled(), research.sourceName(),
+				agentsEnabled);
 	}
 
 	@GetMapping("/{id}")

@@ -36,6 +36,66 @@ async function ready(page: Page, workspaces: Membership[] = [first, second]) {
 	}
 }
 
+test("agent approval binds the displayed task; an uncertain write offers only reconciliation", async ({
+	page,
+}) => {
+	await ready(page, [first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	const runId = "20000000-0000-4000-8000-000000000099";
+	let state = "waiting";
+	await page.route(`${base}/conversations`, (r) =>
+		r.fulfill({ json: { threads: [], routes: [], agentsEnabled: true } }),
+	);
+	await page.route(`${base}/agents`, (r) =>
+		r.fulfill({
+			json: {
+				agents: [],
+				routes: [],
+				available: true,
+				provider: "sandbox-tasks",
+				connection: { active: true },
+				runs: [
+					{
+						id: runId,
+						goal: "Draft review task",
+						version: 1,
+						state,
+						steps: 1,
+						title: "Review proposal",
+						resource: "personal",
+						digest: "fixed-digest",
+						outcome: "",
+						receipt: state === "completed" ? "task-1" : null,
+					},
+				],
+			},
+		}),
+	);
+	await page.route(`${base}/agents/runs/${runId}/decision`, async (r) => {
+		const command = r.request().postDataJSON();
+		expect(await r.request().headerValue(session.csrfHeader)).toBe(
+			session.csrfToken,
+		);
+		expect(command).toEqual({
+			operation: state === "waiting" ? "approve" : "reconcile",
+			digest: "fixed-digest",
+		});
+		state = state === "waiting" ? "unknown" : "completed";
+		await r.fulfill({ status: 200, body: "" });
+	});
+	await page.goto("/workbench/");
+	await page.getByText("Agents and runs", { exact: true }).click();
+	await expect(
+		page.getByText("Task title: Review proposal · List: personal"),
+	).toBeVisible();
+	await page.getByRole("button", { name: "Approve exact task" }).click();
+	await expect(
+		page.getByRole("button", { name: "Approve exact task" }),
+	).toHaveCount(0);
+	await page.getByRole("button", { name: "Recheck provider receipt" }).click();
+	await expect(page.getByText("Provider receipt: task-1")).toBeVisible();
+});
+
 test("workbench resolves presets and shows public source coverage", async ({
 	page,
 }) => {

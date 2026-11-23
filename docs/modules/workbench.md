@@ -1,5 +1,7 @@
 # Web workbench
 
+The signed-in workbench also offers an **Agents and runs** panel when the `agents` profile is active. Apply Flyway V6 for this profile. [Agent setup](phase-three-agents.md).
+
 The workbench has two views. **Workbench** shows the current workspace, membership role, and conversation area. **Account** shows the signed-in identity and provides switch-account and sign-out actions. The conversation area supports sending messages and recovering history. [Conversation setup and limits](conversations.md). The light/dark shell follows the device theme.
 
 ![Workbench with a sample account and workspace](../design/workbench-p14.png)

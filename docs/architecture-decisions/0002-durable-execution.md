@@ -1,6 +1,6 @@
 # ADR 0002 — Durable orchestration and explicit external effects
 
-Status: **Proposed**. Related: [runtime](../modules/agent-runtime.md).
+Status: **Adopted in P3, 23 November 2026**, for the loopback Temporal deployment and PostgreSQL-backed authority checks. The local restart drill recovered a queued run and a pending approval, and duplicate delivery produced one provider task. [Qualification](../modules/phase-three-agents.md). Related: [runtime](../modules/agent-runtime.md).
 
 ## Problem
 

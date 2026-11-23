@@ -1,5 +1,7 @@
 # Zincc
 
+**Phase 3 is implemented.** In the signed-in workbench, open **Agents and runs** to create or version an agent, run it, review an exact proposed task, and inspect its provider receipt. The local qualification uses a persistent task sandbox. [Agent setup and limits](docs/modules/phase-three-agents.md)
+
 **Phase 2 is implemented.** The workbench offers model-route presets, private conversations and public search with cited passages. Local-only deployments exclude cloud inference and public search. The evaluation suite and usage report cover the first working components. [Model settings](docs/modules/model-gateway.md) · [Search sources](docs/modules/public-research.md) · [Evaluation and costs](docs/modules/phase-two-evaluation.md)
 
 **P2.2 adds private workspace conversations.** Choose a model route, send follow-ups, and reopen the saved transcript. The workbench catches up from the last event it received. [Run conversations](docs/modules/conversations.md).
@@ -49,4 +51,4 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 
 The two Maven launcher scripts come from the Apache Maven Wrapper 3.3.4 only-script distribution. Their [license](.mvn/wrapper/LICENSE) and [notice](.mvn/wrapper/NOTICE) accompany them. The product license decision remains open.
 
-The next task awaiting authorization is **P3.0**, the versioned agent definition.
+The next task awaiting authorization is **P4.0**, the restricted document-worker boundary.

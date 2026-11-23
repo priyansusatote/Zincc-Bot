@@ -164,6 +164,19 @@ These labs interleave with their prerequisites rather than all waiting until the
 | Retrieval and citations | Implemented lexical passage selection and explicit cache provenance. Tested freshness and partial retrieval, including a live source. [Report](learning-notes/014-cited-search.md) |
 | Task evaluation and cost | Implemented frozen regression cases, durable turn usage and an offline statement reconciler. Studied calibration and exercised the Brier calculation with synthetic labels. [Report](learning-notes/015-evaluation-accounting.md) |
 
+## Phase 3 component evidence
+
+| Implemented topic | Evidence |
+| --- | --- |
+| Versioning, delegation, optimistic concurrency | [Definitions](learning-notes/016-agent-versions.md) |
+| Outbox, at-least-once delivery and replay | [Durable dispatch and restart qualification](learning-notes/017-durable-dispatch.md) |
+| Bounded model loop, checkpoints, cancellation and no-progress detection | [Agent execution](learning-notes/018-bounded-loop.md) |
+| Human approval, idempotency, grant revocation and ambiguous outcomes | [Action ledger](learning-notes/019-action-approval.md) |
+| OAuth refresh ownership, per-principal resource grants | [Connection boundary](learning-notes/020-connection-grants.md) |
+| External consistency, receipt verification and read-only reconciliation | [Connector slice](learning-notes/021-task-receipts.md) |
+
+The local failure drill experimentally evaluated replay across process and service restarts. Hosted Google Tasks, multi-replica operation and production scaling remain unqualified.
+
 ## 9. Evidence of learning and completion
 
 For every component, the learning note identifies the covered topics from this matrix and link to implemented code or experiment evidence. Preserve five states: planned, studied, implemented, experimentally evaluated, and production-adopted. None implies the others.
