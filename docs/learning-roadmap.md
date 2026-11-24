@@ -6,6 +6,7 @@
 | Context caching and ACL invalidation | Implemented, cold readers and revision changes evaluated | [Projection cache](learning-notes/038-context-cache.md) |
 | Private source-linked memory | Implemented, correction, deletion and recall tested | [Memory editor](learning-notes/039-source-linked-memory.md) |
 | Harness optimization | Offline promotion implemented, fixture and model comparisons evaluated | [Holdout results](phases/p7-evaluation.md) |
+| Provider qualification | Numes gateway implemented, signed-in tasks and cross-model tool selection experimentally evaluated | [Route qualification](learning-notes/041-numes-route-qualification.md) |
 
 | P6 topic | Coverage | Component note |
 | --- | --- | --- |

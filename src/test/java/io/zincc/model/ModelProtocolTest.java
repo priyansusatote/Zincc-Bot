@@ -66,7 +66,7 @@ class ModelProtocolTest {
 		});
 		String base = this.origin + switch (provider) {
 			case OPENAI -> "/v1";
-			case OPENROUTER -> "/api/v1";
+			case OPENROUTER, NUMES -> "/api/v1";
 			default -> "";
 		};
 		var entry = new ModelConfiguration.Entry("fixture", provider, "test-model", 64, true, true);
@@ -82,9 +82,9 @@ class ModelProtocolTest {
 		String path;
 		Map<String, Object> assistant = Map.of("role", "assistant", "content", answer);
 		switch (provider) {
-			case OPENAI, OPENROUTER -> {
-				path = provider == ModelConfiguration.Provider.OPENROUTER ? "/api/v1/chat/completions"
-						: "/v1/chat/completions";
+			case OPENAI, OPENROUTER, NUMES -> {
+				path = provider == ModelConfiguration.Provider.OPENAI ? "/v1/chat/completions"
+						: "/api/v1/chat/completions";
 				reply = Map.of("id", "chatcmpl-test", "object", "chat.completion", "created", 1, "model", "test-model",
 						"choices", List.of(Map.of("index", 0, "message", assistant, "finish_reason", "stop")), "usage",
 						Map.of("prompt_tokens", 15, "completion_tokens", 6, "total_tokens", 21));

@@ -9,13 +9,19 @@ The current free profile exposes `lightning-free` and `gemma-free`. The followin
 | Source | Qualification to carry forward |
 | --- | --- |
 | OpenRouter | Use the existing `OPENROUTER_API_KEY` to evaluate `baidu/ernie-5.5-flash-preview:free` and `particle-ai/particle-1:free`. Compare completion, structured agent steps, latency and free-tier errors. Keep the exact selected route visible. [ERNIE](https://openrouter.ai/baidu/ernie-5.5-flash-preview:free) · [Particle-1](https://openrouter.ai/particle-ai/particle-1:free) |
-| Numes AI | Qualify a separate OpenAI-compatible adapter using `NUMES_API_KEY`. Check `deepseek/deepseek-v4.1-flash:free`, `z-ai/glm-5.3-flash:free`, and the user-supplied candidates `glm-5.3-uncensored`, `glm-5.3-flash-uncensored`, and `dealignai/deepseek-v4.1-flash-uncensored-fp8:free` against the account's model list for exact IDs and price before calling them. [Model-list contract](https://numes.ai/docs/api-reference/models/list-models) |
+| Numes AI | Two optional workbench routes use the OpenAI-compatible client with the official Numes origin and a separate credential. The synthetic harness also accepts the exact free catalog IDs under a `numes/` prefix. [Live evaluation](../phases/p7-evaluation.md) |
 | Context.dev | Use the available credits for a research adapter with `CONTEXT_DEV_API_KEY`. Evaluate search and page extraction against the current evidence contract for citations, freshness, and page coverage. Research outputs can feed a separate answer model. [Provider capabilities](https://docs.context.dev/agent-quickstart.md) |
 | OpenCode and Google AI Pro / Antigravity | Discover eligible models and account allowances through each provider's supported path in P9.10 and P9.11. Display engine, effective model, and billing source together. [Engine qualification](connected-ai-engines.md) · [OpenCode catalog](https://opencode.ai/docs/console/models/) |
 
 Keep cloud routes and public research adapters unavailable for local-only requests. P4 PDF parsing, OCR, and embeddings already run locally. Provider comparisons are pending qualification.
 
 ## Configure and exercise a route
+
+### Numes free routes
+
+Add `numes-free` to the active Spring profiles and set `NUMES_API_KEY` in the environment or the ignored root `.env`. For the local workbench launcher, set `$env:SPRING_PROFILES_INCLUDE='numes-free'` in its PowerShell session before launch. The profile adds `numes-glm-flash-free` (Z.ai GLM 5.3 Flash) and `numes-ultra-free` (NVIDIA Nemotron 3 Ultra) alongside any configured routes. Select one explicitly in chat or an agent version. Fast and balanced retain their configured orders. The local-only filter applies before cloud clients read credentials.
+
+Both routes send text to Numes at `https://api.numes.ai/api/v1` using its free-only model IDs. Check availability through the account catalog. A provider can be listed and still return HTTP 503 on inference. [Numes models and free pricing](https://numes.ai/docs/models) · [Client contract](https://numes.ai/docs/integrations/overview)
 
 ### OpenRouter free text routes
 

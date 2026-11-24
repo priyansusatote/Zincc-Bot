@@ -29,7 +29,7 @@ class ModelConfiguration {
 
 	enum Provider {
 
-		OPENAI, OPENROUTER, ANTHROPIC, OLLAMA
+		OPENAI, OPENROUTER, NUMES, ANTHROPIC, OLLAMA
 
 	}
 
@@ -43,9 +43,10 @@ class ModelConfiguration {
 	}
 
 	@ConfigurationProperties("zincc.models")
-	record Settings(List<Entry> routes) {
+	record Settings(List<Entry> routes, List<Entry> additionalRoutes) {
 		Settings {
 			routes = routes == null ? List.of() : List.copyOf(routes);
+			additionalRoutes = additionalRoutes == null ? List.of() : List.copyOf(additionalRoutes);
 		}
 	}
 
@@ -55,10 +56,13 @@ class ModelConfiguration {
 	ModelGateway modelGateway(Settings settings, MeterRegistry meters, Environment env) {
 		boolean localOnly = env.getProperty("zincc.local-only", Boolean.class, false);
 		boolean offlineOllama = env.getProperty("zincc.models.ollama-offline", Boolean.class, false);
-		var eligible = settings.routes().stream().filter(e -> !localOnly || local(e, offlineOllama)).toList();
+		var eligible = java.util.stream.Stream.concat(settings.routes().stream(), settings.additionalRoutes().stream())
+			.filter(e -> !localOnly || local(e, offlineOllama))
+			.toList();
 		var ports = eligible.stream().map(e -> switch (e.provider()) {
 			case OPENAI -> port(e, "https://api.openai.com/v1", env.getRequiredProperty("ZINCC_OPENAI_API_KEY"));
 			case OPENROUTER -> port(e, "https://openrouter.ai/api/v1", env.getRequiredProperty("OPENROUTER_API_KEY"));
+			case NUMES -> port(e, "https://api.numes.ai/api/v1", env.getRequiredProperty("NUMES_API_KEY"));
 			case ANTHROPIC -> port(e, "https://api.anthropic.com", env.getRequiredProperty("ZINCC_ANTHROPIC_API_KEY"));
 			case OLLAMA ->
 				port(e, "http://127.0.0.1:" + env.getProperty("zincc.models.ollama-port", Integer.class, 11434), null);
@@ -90,8 +94,8 @@ class ModelConfiguration {
 		var route = new ModelGateway.Route(entry.id(), entry.provider().name(), entry.model(), caps,
 				entry.outputTokenLimit());
 		ChatModel chat = switch (entry.provider()) {
-			case OPENAI,
-					OPENROUTER ->
+			case OPENAI, OPENROUTER,
+					NUMES ->
 				OpenAiChatModel.builder()
 					.options(OpenAiChatOptions.builder()
 						.baseUrl(baseUrl)

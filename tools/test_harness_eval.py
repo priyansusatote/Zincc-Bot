@@ -1,12 +1,33 @@
 import copy
+import io
+import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import harness_eval as harness
 
 
 class ExperimentTest(unittest.TestCase):
+    def test_numes_run_uses_provider_key_and_exact_free_model(self):
+        model = "z-ai/glm-5.3-flash:free"
+        route = "numes/" + model
+        wire = {"model": model, "choices": [{"message": {"content": '{"answer":"5"}'}}],
+                "usage": {"prompt_tokens": 7, "completion_tokens": 4}}
+        with patch.dict(harness.os.environ, {"NUMES_API_KEY":"numes-test", "OPENROUTER_API_KEY":"other-test"}), \
+                patch.object(harness.HTTP, "open", return_value=io.BytesIO(json.dumps(wire).encode())) as send:
+            trial = harness.Trial(route, harness.key_from_env(route))
+            self.assertEqual(trial.ask("Count synthetic events.", None), {"answer": "5"})
+            request = send.call_args.args[0]
+            self.assertEqual(request.full_url, "https://api.numes.ai/api/v1/chat/completions")
+            self.assertEqual(request.get_header("Authorization"), "Bearer numes-test")
+            self.assertEqual(json.loads(request.data)["model"], model)
+            self.assertEqual((trial.input_tokens, trial.output_tokens), (7, 4))
+            with self.assertRaises(ValueError):
+                harness.Trial(route.removesuffix(":free"), "fixture").ask("count", None)
+            self.assertEqual(send.call_count, 1)
+
     def test_read_plan_rechecks_grants_on_every_page(self):
         class Revoked(harness.Broker):
             def read(self, name, offset):

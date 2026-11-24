@@ -24,3 +24,18 @@ The fixture is a scripted reference planner with known correct actions. Its char
 **Provenance.** Live reports used evaluator digests 8f2943237fc5, f8acd965e2b9. The completed release fixture used f5915f504271. The fixture catalog was made explicitly grant-filtered and malformed planner output handling tightened during qualification. Live results describe their executed revisions.
 
 [Experiment implementation](../../tools/harness_eval.py) · [Operating the workbench](../modules/phase-seven-agents.md)
+
+## Numes free models
+
+On 24 November the account catalog returned nine free model IDs with zero listed rates. An arithmetic smoke test returned the expected JSON on Z.ai GLM 5.3 Flash, DealignAI GLM 5.3 Flash FP8 and NVIDIA Nemotron 3 Ultra. Five other routes returned HTTP 503 and DealignAI GLM 5.3 FP8 timed out. DeepSeek V4.1 Flash also returned 503 on the report-sum task. These are observations of the free endpoints at test time. [Numes catalog semantics](https://numes.ai/docs/models)
+
+The workbench exercised synthetic inputs through a signed-in session and the existing Temporal workers. GLM Flash completed chat, failed the single-agent run and failed the team when a reviewer received a provider error. Ultra completed chat and returned the required structured finish action. Both Ultra reviewers completed. After selecting both reviews, a fresh session verified both original strings in the persisted parent receipt. One matched its requested text exactly and the other omitted the final period.
+
+The same frozen tool tasks, budgets, validators and catalogs used for OpenRouter ran against both models. Counts below include every planned trial at evaluator revision `4c714ca24991`. An earlier GLM availability probe stopped at a 503 in its first trial and is excluded from the table.
+
+| Numes model | Direct correct / 6 | Lookup correct / 6 | Program correct / 6 | Trials ending in HTTP 503 | Other transport or invalid results | Validated but incorrect |
+| --- | --- | --- | --- | --- | --- | --- |
+| `z-ai/glm-5.3-flash:free` | 1 | 0 | 0 | 7 | 10 | 0 |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | 3 | 0 | 1 | 10 | 3 | 1 |
+
+Neither route met the promotion gate. The existing generic error category combines transport and output-validation failures, so those trials cannot support a model-only accuracy estimate. Only the two routes in the table received the full comparison. The team and benchmark used synthetic data. No separate billing audit was performed.

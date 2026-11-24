@@ -26,7 +26,7 @@ class ModelRegistryConfigurationTest {
 	void openRouterRequiresItsOwnCredential() {
 		var entry = new ModelConfiguration.Entry("free", ModelConfiguration.Provider.OPENROUTER,
 				"google/gemma-4-26b-a4b-it:free", 512, false, false);
-		var settings = new ModelConfiguration.Settings(List.of(entry));
+		var settings = new ModelConfiguration.Settings(List.of(entry), List.of());
 		var configuration = new ModelConfiguration();
 		var env = new MockEnvironment().withProperty("ZINCC_OPENAI_API_KEY", "fixture-openai");
 		var meters = new SimpleMeterRegistry();

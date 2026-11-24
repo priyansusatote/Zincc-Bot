@@ -10,6 +10,8 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
+The optional Numes profile contributes additional model routes to the existing Spring gateway. The local-only admission filter runs on both configured route lists before client construction. Offline experiments identify a route by its serving provider and model. [Gateway configuration](docs/modules/model-gateway.md#numes-free-routes)
+
 P5 adds `io.zincc.integrations` for resource-scoped account sync, versioned skill grants, an MCP stdio client and private read-only routines. Connection checkpoints and scheduled causes are durable PostgreSQL records. Reports reuse the P4 calculation path. [Decision and limits](docs/architecture-decisions/0016-private-integrations.md)
 
 P4 adds `io.zincc.knowledge` for private document ingest, hybrid search and deterministic reports. Spring owns authorization, stored source bytes and versioned projections. A fixed local container owns PDF parsing, OCR, embedding inference and decimal analytics. The separate worker receives bounded stdin and returns bounded JSON without credentials, host mounts or network access. Source deletion cascades to derived results. [Decision and consequences](docs/architecture-decisions/0015-private-document-pipeline.md)

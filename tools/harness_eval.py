@@ -12,6 +12,19 @@ import urllib.request
 ROOT = Path(__file__).resolve().parents[1]
 STRATEGIES = ("direct", "lookup", "program")
 ROUTES = ("nvidia/nemotron-3.5-lightning:free", "google/gemma-4-26b-a4b-it:free", "nvidia/nemotron-3.5-super-vl:free")
+NUMES_MODELS = ("deepseek/deepseek-v4.1-flash:free", "z-ai/glm-5.3:free", "z-ai/glm-5.3-flash:free",
+                "moonshotai/kimi-k3.1-pro:free", "dealignai/glm-5.3-uncensored-fp8:free",
+                "dealignai/glm-5.3-flash-uncensored-fp8:free", "dealignai/deepseek-v4.1-flash-uncensored-fp8:free",
+                "uniboshi/kimi-k3-abliterated-v1:free", "nvidia/nemotron-3-ultra-550b-a55b:free")
+NUMES_ROUTES = {"numes/" + model: model for model in NUMES_MODELS}
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+HTTP = urllib.request.build_opener(NoRedirect())
 CASES = (
     ("inbox", "Give the first inbox subject.", "first", "Orange release"),
     ("calendar", "Count the calendar events across all pages.", "count", "5"),
@@ -71,13 +84,14 @@ def reduce_rows(op, rows):
     return str(len(rows))
 
 
-def key_from_env():
-    if os.getenv("OPENROUTER_API_KEY"):
-        return os.environ["OPENROUTER_API_KEY"]
+def key_from_env(route):
+    name = "NUMES_API_KEY" if route in NUMES_ROUTES else "OPENROUTER_API_KEY"
+    if os.getenv(name):
+        return os.environ[name]
     for line in (ROOT / ".env").read_text(encoding="utf-8-sig").splitlines():
-        if line.startswith("OPENROUTER_API_KEY="):
+        if line.startswith(name + "="):
             return line.partition("=")[2].strip().strip("\"'")
-    raise ValueError("OpenRouter key unavailable")
+    raise ValueError(name + " unavailable")
 
 
 class Trial:
@@ -91,15 +105,19 @@ class Trial:
         self.chars += len(message)
         if self.route == "fixture":
             return replay
-        if self.route not in ROUTES:
+        if self.route not in ROUTES and self.route not in NUMES_ROUTES:
             raise ValueError("Only fixed free routes allowed")
-        body = {"model": self.route, "messages": [{"role":"user","content":message}], "max_tokens":350,
-                "reasoning":{"enabled":False},"provider":{"allow_fallbacks":True}}
-        req = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", encoded(body).encode(),
+        model = NUMES_ROUTES.get(self.route, self.route)
+        base = "https://api.numes.ai/api/v1" if self.route in NUMES_ROUTES else "https://openrouter.ai/api/v1"
+        body = {"model": model, "messages": [{"role":"user","content":message}], "max_tokens":350,
+                "reasoning":{"enabled":False}}
+        if self.route in ROUTES:
+            body["provider"] = {"allow_fallbacks": True}
+        req = urllib.request.Request(base + "/chat/completions", encoded(body).encode(),
                                      {"Authorization":"Bearer "+self.key,"Content-Type":"application/json"})
-        with urllib.request.urlopen(req, timeout=22) as response:
+        with HTTP.open(req, timeout=22) as response:
             result = json.load(response)
-        if result.get("model","").removesuffix(":free") != self.route.removesuffix(":free"):
+        if result.get("model","").removesuffix(":free") != model.removesuffix(":free"):
             raise ValueError("Unexpected model")
         usage = result.get("usage") or {}
         for field, target in (("prompt_tokens","input_tokens"),("completion_tokens","output_tokens")):
@@ -142,6 +160,7 @@ def evaluate_one(route, key, strategy, case, size):
         success=str(result)==expected and plan=={"tool":name,"op":op}
     except urllib.error.HTTPError as exc:
         error="http_"+str(exc.code)
+        trial.usage_known=False
     except (OSError,KeyError,IndexError,TypeError,ValueError):
         error="transport_or_invalid_result"
     return dict(route=route,strategy=strategy,case=name,catalog=size,correct=success,error=error,
@@ -205,7 +224,7 @@ def main():
     parser.add_argument("action",choices=["evaluate","promote","rollback","try"])
     parser.add_argument("--db",type=Path,default=ROOT/"target/p7-harness.sqlite")
     parser.add_argument("--report",type=Path)
-    parser.add_argument("--route",choices=("fixture",*ROUTES),default="fixture")
+    parser.add_argument("--route",choices=("fixture",*ROUTES,*NUMES_ROUTES),default="fixture")
     parser.add_argument("--strategy",choices=("lookup","program"),default="program")
     parser.add_argument("--experiment",type=int)
     parser.add_argument("--case",choices=list(DATA),default="calendar")
@@ -219,7 +238,7 @@ def main():
             db.execute("""DELETE FROM selection WHERE id=(SELECT s.id FROM selection s JOIN experiment e
                 ON e.id=s.experiment WHERE s.route=? AND e.revision=? ORDER BY s.id DESC LIMIT 1)""",(args.route,revision()))
     else:
-        key=key_from_env() if args.route!="fixture" else None
+        key=key_from_env(args.route) if args.route!="fixture" else None
         if args.action=="try":
             case=next(c for c in CASES if c[0]==args.case)
             print(encoded(evaluate_one(args.route,key,active(db,args.route),case,32)))

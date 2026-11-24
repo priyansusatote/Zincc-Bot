@@ -2,6 +2,8 @@
 
 ## Phase 7 local workbench and evaluation
 
+**Numes follow-up, 24 November.** Both optional free routes completed signed-in chat. Nemotron Ultra completed a structured single-agent run and a two-reviewer team with a verified stored merge. GLM Flash's team failed. Across 18 tool-discovery trials per route, Ultra completed four correctly and GLM Flash one. Seventeen trials ended with HTTP 503. Direct remains the active strategy. [Results](phases/p7-evaluation.md#numes-free-models) · [Learning note](learning-notes/041-numes-route-qualification.md)
+
 The user authorized P7.1–P7.4 as one batch on 24 November. Bounded team runs, local and model reviewers, cancellation fencing, conflict resolution, cached source-linked memory and the offline evaluation ledger are implemented. The signed-in local team completed two deterministic reviews and preserved both results. The model-backed workbench probe recorded provider rate limits. The separate discovery comparison retained direct calls on all live model routes. P8 has not started. [Try P7](modules/phase-seven-agents.md) · [Model evidence](phases/p7-evaluation.md).
 
 ## Phase 6 batch authorized on 23 November 2026
