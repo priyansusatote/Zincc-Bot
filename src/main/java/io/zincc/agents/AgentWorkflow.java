@@ -49,7 +49,9 @@ public interface AgentWorkflow {
 			while (true) {
 				int before = changes;
 				String state = steps.advance(workspace, actor, run, Workflow.currentTimeMillis() >= deadline);
-				if (state.equals("waiting"))
+				if (state.equals("joining"))
+					Workflow.await(Duration.ofSeconds(2), () -> changes != before);
+				else if (state.equals("waiting"))
 					Workflow.await(Duration.ofMinutes(2), () -> changes != before);
 				else if (!state.equals("running") && !state.equals("approved"))
 					return;

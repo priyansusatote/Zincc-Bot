@@ -1,5 +1,7 @@
 # Zincc
 
+The local workbench supports parallel agent reviews, local text checks, editable private memory and source-linked recall. Open **Agents and runs** to try them. [P7 walkthrough and evaluation](docs/modules/phase-seven-agents.md).
+
 **Phase 5 adds Connections and routines.** Combine selected Gmail, Slack and Calendar sources into a private briefing, schedule a dashboard refresh, inspect its receipt and pause future runs. Real Gmail first sync shows its saved-item count while paging. Sample accounts work on localhost. Real accounts require provider consent. [Try Phase 5 or configure OAuth](docs/modules/phase-five-integrations.md)
 
 **Phase 4 is implemented.** Upload a private PDF, find cited passages with local embeddings, and turn a ruled table into a filterable dashboard and CSV. [Run and use the document workbench](docs/modules/private-knowledge.md)

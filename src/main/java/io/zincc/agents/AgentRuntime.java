@@ -53,6 +53,11 @@ class AgentRuntime {
 		return "zincc-agent-" + id;
 	}
 
+	@Scheduled(fixedDelay = 60000)
+	void purgeExpiredMemory() {
+		store.memory.purgeExpired();
+	}
+
 	@Scheduled(fixedDelay = 1000)
 	void dispatch() {
 		for (var work : store.pending()) {

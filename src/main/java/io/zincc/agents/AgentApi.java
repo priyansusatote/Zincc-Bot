@@ -58,6 +58,30 @@ class AgentApi {
 		return Map.of("id", store.start(scope(user, workspace), id, command));
 	}
 
+	@PostMapping("/{id}/team")
+	Map<String, UUID> team(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace, @PathVariable UUID id,
+			@RequestBody AgentTeams.Request command) {
+		return Map.of("id", store.teams.start(scope(user, workspace), id, command));
+	}
+
+	@GetMapping("/memory")
+	java.util.List<AgentMemory.Note> recall(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@RequestParam(defaultValue = "") String q) {
+		return store.memory.recall(scope(user, workspace), q);
+	}
+
+	@PostMapping("/memory")
+	void saveMemory(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@RequestBody AgentMemory.Edit edit) {
+		store.memory.edit(scope(user, workspace), edit);
+	}
+
+	@DeleteMapping("/memory/{id}")
+	void deleteMemory(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace, @PathVariable UUID id,
+			@RequestParam int revision) {
+		store.memory.remove(scope(user, workspace), id, revision);
+	}
+
 	record Decision(String operation, String digest) {
 	}
 

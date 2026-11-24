@@ -50,13 +50,17 @@ class AgentStore {
 	}
 
 	record View(List<Agent> agents, List<Run> runs, Connection connection, boolean available, String provider,
-			List<String> routes) {
+			List<String> routes, List<AgentTeams.Member> teamMembers) {
 	}
 
 	record Access(Agent version, Agent latest, Connection connection) {
 	}
 
 	final JdbcTemplate db;
+
+	final AgentTeams teams = new AgentTeams(this);
+
+	final AgentMemory memory = new AgentMemory(this);
 
 	private final TransactionTemplate tx;
 
@@ -67,7 +71,7 @@ class AgentStore {
 	AgentStore(DataSource data, TasksConnector connector, ModelGateway models) {
 		this.db = new JdbcTemplate(data);
 		if (!Boolean.TRUE.equals(db.queryForObject(
-				"SELECT row_security_active('zincc.agent_run') AND row_security_active('zincc.agent_connection')",
+				"SELECT row_security_active('zincc.agent_run') AND row_security_active('zincc.agent_connection') AND row_security_active('zincc.team_member') AND row_security_active('zincc.agent_memory') AND row_security_active('zincc.memory_epoch')",
 				Boolean.class)))
 			throw new IllegalStateException("Agent runtime requires active row security");
 		this.tx = new TransactionTemplate(new DataSourceTransactionManager(data));
@@ -105,7 +109,7 @@ class AgentStore {
 				Boolean.class, s.workspace, s.actor));
 	}
 
-	private <T> T authorized(Scope s, Supplier<T> fn) {
+	<T> T authorized(Scope s, Supplier<T> fn) {
 		return scoped(s, () -> {
 			if (!member(s))
 				throw missing();
@@ -153,10 +157,9 @@ class AgentStore {
 	}
 
 	View view(Scope s) {
-		return authorized(s,
-				() -> new View(agents(" WHERE a.version=v.version ORDER BY v.name,a.id"),
-						runs(" ORDER BY r.created_at DESC LIMIT 50"), connection(), connector.configured(s),
-						connector.reference(), models.routes().stream().map(ModelGateway.Route::id).toList()));
+		return authorized(s, () -> new View(agents(" WHERE a.version=v.version ORDER BY v.name,a.id"),
+				runs(" ORDER BY r.created_at DESC LIMIT 50"), connection(), connector.configured(s),
+				connector.reference(), models.routes().stream().map(ModelGateway.Route::id).toList(), teams.recent()));
 	}
 
 	void connect(Scope s, boolean active) {
@@ -207,9 +210,13 @@ class AgentStore {
 
 	UUID start(Scope s, UUID agent, Start req) {
 		if (req.requestId == null || !text(req.goal, 2000)
-				|| !List.of("model", "list", "create").contains(req.mode == null ? "" : req.mode)
+				|| !List.of("model", "list", "create", "recall").contains(req.mode == null ? "" : req.mode)
 				|| ("create".equals(req.mode) && !text(req.goal, 250)))
 			throw bad();
+		return startInternal(s, agent, req);
+	}
+
+	UUID startInternal(Scope s, UUID agent, Start req) {
 		return authorized(s, () -> {
 			lockDefinition(agent, false);
 			var versions = agents(" WHERE a.id=? AND a.version=v.version", agent);
@@ -282,8 +289,10 @@ class AgentStore {
 
 	void decision(Scope s, UUID id, String operation, String digest) {
 		authorized(s, () -> {
+			teams.lockParent(id);
 			var r = lock(id);
 			switch (operation) {
+				case "select" -> teams.select(s, r, digest);
 				case "approve" -> {
 					var a = access(s, r);
 					if (!"waiting".equals(r.state) || !permitted(s, a, true) || !bound(r, a)
@@ -295,6 +304,8 @@ class AgentStore {
 				case "cancel" -> {
 					if (!List.of("queued", "running", "waiting", "approved").contains(r.state))
 						throw conflict();
+					if (r.mode.equals("team"))
+						teams.stopChildren(id);
 					set(id, "cancelled", "Cancelled before dispatch.");
 				}
 				default -> throw bad();

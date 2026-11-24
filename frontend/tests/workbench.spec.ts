@@ -353,3 +353,143 @@ test("loading, invalid response and retry recover without exposing session data"
 		page.getByRole("heading", { name: "Workspace access pending" }),
 	).toBeVisible();
 });
+
+test("a conflicting team review can be retained with attribution and private memory stays editable", async ({
+	page,
+}) => {
+	await ready(page, [first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	const parent = "10000000-0000-4000-8000-000000000011";
+	const child = "10000000-0000-4000-8000-000000000012";
+	const noteId = "10000000-0000-4000-8000-000000000013";
+	let state = "waiting",
+		fact = "EUR",
+		version = 1;
+	await page.route(`${base}/conversations`, (r) =>
+		r.fulfill({ json: { threads: [], routes: [], agentsEnabled: true } }),
+	);
+	await page.route(`${base}/agents`, (r) =>
+		r.fulfill({
+			json: {
+				agents: [],
+				routes: [],
+				available: true,
+				provider: "sandbox-tasks",
+				connection: { active: true },
+				runs: [
+					{
+						id: parent,
+						goal: "Synthetic review",
+						mode: "team",
+						version: 1,
+						steps: 0,
+						state,
+						outcome: "Review results",
+					},
+				],
+				teamMembers: [
+					{
+						parentId: parent,
+						childId: child,
+						agentId: child,
+						slot: 1,
+						state: "completed",
+						outcome: "Review A",
+					},
+				],
+			},
+		}),
+	);
+	await page.route(`${base}/agents/runs/${parent}/decision`, (r) => {
+		expect(r.request().postDataJSON()).toEqual({
+			operation: "select",
+			digest: "all",
+		});
+		state = "completed";
+		return r.fulfill({ status: 200 });
+	});
+	await page.route(/\/agents\/memory(?:\?.*)?$/, (r) => {
+		if (r.request().method() === "POST") {
+			const body = r.request().postDataJSON();
+			expect(body.expectedVersion).toBe(version);
+			fact = body.fact;
+			version++;
+			return r.fulfill({ status: 200 });
+		}
+		return r.fulfill({
+			json: [
+				{
+					id: noteId,
+					topic: "currency",
+					fact,
+					sourceId: parent,
+					sourceGoal: "Synthetic review",
+					revision: version,
+				},
+			],
+		});
+	});
+	await page.goto("/workbench/");
+	await page.getByText("Agents and runs", { exact: true }).click();
+	await expect(
+		page.getByRole("button", { name: "Approve exact task" }),
+	).toHaveCount(0);
+	await page
+		.getByRole("button", { name: "Keep all attributed reviews" })
+		.click();
+	await page.getByRole("button", { name: "Open private memory" }).click();
+	await page.getByRole("button", { name: "Correct note" }).click();
+	await page.getByLabel("Fact to remember").fill("GBP");
+	await page.getByRole("button", { name: "Save correction" }).click();
+	await expect(page.getByText("GBP", { exact: true })).toBeVisible();
+});
+test("submitting a team keeps the multiline brief and the selected local methods", async ({
+	page,
+}) => {
+	await ready(page, [first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	const agents = ["Lead", "Editor", "Analyst"].map((name, i) => ({
+		id: `10000000-0000-4000-8000-00000000000${i}`,
+		name,
+		version: 1,
+		mine: true,
+		route: "model",
+	}));
+	await page.route(`${base}/conversations`, (r) =>
+		r.fulfill({ json: { threads: [], routes: [], agentsEnabled: true } }),
+	);
+	await page.route(`${base}/agents`, (r) =>
+		r.fulfill({
+			json: {
+				agents,
+				routes: ["model"],
+				available: true,
+				provider: "sandbox-tasks",
+				connection: { active: false },
+				runs: [],
+			},
+		}),
+	);
+	const goal = "Launch review\n- [ ] Review copy\n- [ ] Verify totals";
+	await page.route(`${base}/agents/${agents[0].id}/team`, (r) =>
+		r.fulfill({ json: { id: r.request().postDataJSON().requestId } }),
+	);
+	await page.goto("/workbench/");
+	await page.getByText("Agents and runs", { exact: true }).click();
+	await page.getByRole("combobox", { name: "Agent", exact: true }).selectOption(agents[0].id);
+	await page.getByLabel("Run mode").selectOption("team");
+	await page.getByRole("checkbox", { name: "Editor", exact: true }).check();
+	await page.getByRole("checkbox", { name: "Analyst", exact: true }).check();
+	await page.getByLabel("Editor review method").selectOption("word-count");
+	await page.getByLabel("Analyst review method").selectOption("checklist");
+	await page.getByLabel("Goal", { exact: true }).fill(goal);
+	const submitted = page.waitForRequest(
+		(r) => r.method() === "POST" && r.url().endsWith("/team"),
+	);
+	await page.getByRole("button", { name: "Start run" }).click();
+	expect((await submitted).postDataJSON()).toMatchObject({
+		goal,
+		reviewers: [agents[1].id, agents[2].id],
+		checks: { [agents[1].id]: "word-count", [agents[2].id]: "checklist" },
+	});
+});

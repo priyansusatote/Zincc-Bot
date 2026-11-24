@@ -70,7 +70,7 @@ export function Conversations(props: Props) {
 				<Knowledge workspace={workspace} session={props.session} />
 			)}
 			{index.agentsEnabled && <Runners key={workspace} {...props} />}
-			{index.agentsEnabled && <Agents {...props} />}
+			{index.agentsEnabled && <Agents key={workspace} {...props} />}
 			{index.agentsEnabled && (
 				<Integrations workspace={workspace} session={props.session} />
 			)}

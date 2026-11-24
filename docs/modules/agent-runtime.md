@@ -1,5 +1,7 @@
 # Agent runtime, model routing, memory, and caches
 
+For implemented parent/child runs, cancellation, merge decisions, memory and measured cache behavior, see the [P7 workbench guide](phase-seven-agents.md).
+
 P3 implements the first native agent loop with durable wait, version pinning, owner/delegate access and an exact-approval write boundary. [Implemented scope and run guide](phase-three-agents.md).
 
 **P2.1 implements the model gateway and capability registry.** See the [implemented contract](model-gateway.md) for configuration, token usage and streaming semantics. The following sections describe the target agent runtime.

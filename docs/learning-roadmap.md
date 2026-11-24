@@ -1,5 +1,12 @@
 # Zincc engineering learning roadmap
 
+| P7 topic | Coverage | Evidence |
+| --- | --- | --- |
+| Delegation, fan-out and cancellation | Implemented, concurrent database and worker tests | [Team runs](learning-notes/037-team-runs.md) |
+| Context caching and ACL invalidation | Implemented, cold readers and revision changes evaluated | [Projection cache](learning-notes/038-context-cache.md) |
+| Private source-linked memory | Implemented, correction, deletion and recall tested | [Memory editor](learning-notes/039-source-linked-memory.md) |
+| Harness optimization | Offline promotion implemented, fixture and model comparisons evaluated | [Holdout results](phases/p7-evaluation.md) |
+
 | P6 topic | Coverage | Component note |
 | --- | --- | --- |
 | Resource admission and container lifecycle | Implemented, local Docker evaluation | [Broker](learning-notes/033-sandbox-broker.md) |

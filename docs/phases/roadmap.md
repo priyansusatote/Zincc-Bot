@@ -113,6 +113,8 @@ Gate: isolated execution on a supported environment with documented limitations.
 
 ## P7 — Multiple agents, memory, caching, and improvement
 
+P7.1–P7.4 shipped for the local workbench and offline experiment desk. [Usage and limits](../modules/phase-seven-agents.md) · [Evaluation](p7-evaluation.md).
+
 | ID | Scoped task | Acceptance / learning focus |
 | --- | --- | --- |
 | P7.1 | Expand P3.0 agent management and bounded parent/child execution | Delegation lineage, resource grants, fan-out budget, cancellation, merge conflicts; teach DAGs, concurrency, fencing |

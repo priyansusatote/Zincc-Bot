@@ -1,10 +1,14 @@
 # Zincc status
 
+## Phase 7 local workbench and evaluation
+
+The user authorized P7.1–P7.4 as one batch on 24 November. Bounded team runs, local and model reviewers, cancellation fencing, conflict resolution, cached source-linked memory and the offline evaluation ledger are implemented. The signed-in local team completed two deterministic reviews and preserved both results. The model-backed workbench probe recorded provider rate limits. The separate discovery comparison retained direct calls on all live model routes. P8 has not started. [Try P7](modules/phase-seven-agents.md) · [Model evidence](phases/p7-evaluation.md).
+
 ## Phase 6 batch authorized on 23 November 2026
 
 P6.1, P6.3 and the curated P6.4 browser handoff are implemented locally. P6.2 passed a single-sandbox Docker Cloud benchmark. Independent-tenant isolation and interruption recovery remain open. The signed-in workbench produced a real one-file count through a paired local runner. The cloud test resource was deleted and its absence verified. [Setup and qualification](modules/phase-six-runners.md)
 
-Updated: **23 November 2026**.
+Updated: **24 November 2026**.
 
 ## Completed Phase 5 local workbench batch
 
@@ -104,7 +108,7 @@ The Scene Studio revision passed validation across **28 Markdown files and 103 l
 
 - P9.5–P9.9 connected-engine tasks: proposed, individually unauthorized; provider/deployment eligibility, stable protocol/version qualification and live-account verification remain gates. LoopForge and optional DuskBot feature recommendations await user review.
 
-- P6.2, P7–P12 and expansion epics P13–P16 remain open. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
+- P6.2 public qualification, P8–P12 and expansion epics P13–P16 remain open. Execution order is P1–P10, then P13–P16, final P11 polish and full P12 qualification.
 - Exact dependency locks and compatibility tests at the component's introduction.
 - Pinned source/license/security review for any actual upstream code reuse.
 - Scene Studio P10.3a–P10.3h: pending prerequisites and individual authorization, including GPU sandbox and render-adapter qualification. The ocean demo's size, performance and reported creation time have not been reproduced.

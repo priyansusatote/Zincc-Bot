@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AgentMemory } from "./AgentMemory";
 import { client, check, type Session } from "./client";
 import type { components } from "./generated/api";
 const base = "/api/workspaces/{workspaceId}/agents" as const;
@@ -22,6 +23,9 @@ function Panel({ workspace, session, refresh }: Props) {
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [mode, setMode] = useState("model");
+	const [checks, setChecks] = useState<Record<string, string>>({});
+	const [reviewers, setReviewers] = useState<string[]>([]);
+	const [memoryQuery, openMemory] = useState<string | null>(null);
 	const [goal, setGoal] = useState("");
 	const attempt = useRef("");
 	const alive = useRef(true);
@@ -78,6 +82,7 @@ function Panel({ workspace, session, refresh }: Props) {
 	}
 	if (!view) return <p role="status">{error || "Loading agents…"}</p>;
 	const agent = view.agents.find((a) => a.id === id);
+	const GoalField = mode === "team" ? "textarea" : "input";
 	const path = { workspaceId: workspace };
 	const headers = { [session.csrfHeader]: session.csrfToken };
 	return (
@@ -112,6 +117,7 @@ function Panel({ workspace, session, refresh }: Props) {
 					value={id}
 					onChange={(e) => {
 						select(e.target.value);
+						setReviewers([]);
 						attempt.current = "";
 					}}
 				>
@@ -210,11 +216,25 @@ function Panel({ workspace, session, refresh }: Props) {
 						e.preventDefault();
 						void act(async () => {
 							attempt.current ||= crypto.randomUUID();
-							const r = await client.POST(`${base}/{id}/runs`, {
-								params: { path: { ...path, id: agent.id } },
-								headers,
-								body: { requestId: attempt.current, goal, mode },
-							});
+							const r =
+								mode === "team"
+									? await client.POST(`${base}/{id}/team`, {
+											params: { path: { ...path, id: agent.id } },
+											headers,
+											body: {
+												requestId: attempt.current,
+												goal,
+												reviewers,
+												checks: Object.fromEntries(
+													reviewers.map((id) => [id, checks[id] ?? "opinion"]),
+												),
+											},
+										})
+									: await client.POST(`${base}/{id}/runs`, {
+											params: { path: { ...path, id: agent.id } },
+											headers,
+											body: { requestId: attempt.current, goal, mode },
+										});
 							check(r.response);
 							attempt.current = "";
 							setGoal("");
@@ -230,14 +250,67 @@ function Panel({ workspace, session, refresh }: Props) {
 								attempt.current = "";
 							}}
 						>
+							<option value="team">Parallel independent reviews</option>
+							<option value="recall">Recall private memory locally</option>
 							<option value="model">Let the agent choose</option>
 							<option value="list">List tasks</option>
 							<option value="create">Create a task with approval</option>
 						</select>
 					</label>
-					<label>
+					{mode === "team" && (
+						<fieldset>
+							<legend>Choose up to three reviewers</legend>
+							{view.agents
+								.filter((a) => a.id !== id)
+								.map((a) => (
+									<label key={a.id}>
+										<input
+											type="checkbox"
+											checked={reviewers.includes(a.id)}
+											disabled={
+												!reviewers.includes(a.id) && reviewers.length >= 3
+											}
+											onChange={(e) => {
+												setReviewers(
+													e.target.checked
+														? [...reviewers, a.id]
+														: reviewers.filter((x) => x !== a.id),
+												);
+												attempt.current = "";
+											}}
+										/>
+										{a.name}
+									</label>
+								))}
+							{reviewers.map((id) => (
+								<label key={id}>
+									{view.agents.find((a) => a.id === id)?.name} review method
+									<select
+										value={checks[id] ?? "opinion"}
+										onChange={(e) => {
+											setChecks({ ...checks, [id]: e.target.value });
+											attempt.current = "";
+										}}
+									>
+										<option value="opinion">Model opinion</option>
+										<option value="word-count">Local word count</option>
+										<option value="checklist">
+											Local unchecked-item count
+										</option>
+									</select>
+								</label>
+							))}
+							<p>
+								Model reviewers send the goal and their role to the selected
+								model. Local checks use only the submitted text. All reviewers
+								have no connector permissions.
+							</p>
+						</fieldset>
+					)}
+					<label htmlFor={`agent-goal-${workspace}`}>
 						{mode === "create" ? "Task title" : "Goal"}
-						<input
+						<GoalField
+							id={`agent-goal-${workspace}`}
 							value={goal}
 							onChange={(e) => {
 								setGoal(e.target.value);
@@ -247,12 +320,30 @@ function Panel({ workspace, session, refresh }: Props) {
 							maxLength={mode === "create" ? 250 : 2000}
 						/>
 					</label>
-					<button type="submit" disabled={busy}>
+					<button
+						type="submit"
+						disabled={busy || (mode === "team" && !reviewers.length)}
+					>
 						Start run
 					</button>
 				</form>
 			)}
 			{error && <p role="alert">{error}</p>}
+			<button
+				type="button"
+				onClick={() => openMemory(memoryQuery === null ? "" : null)}
+			>
+				{memoryQuery === null ? "Open private memory" : "Close private memory"}
+			</button>
+			{memoryQuery !== null && (
+				<AgentMemory
+					key={workspace + memoryQuery}
+					initial={memoryQuery}
+					workspace={workspace}
+					session={session}
+					runs={view.runs}
+				/>
+			)}
 			{view.runs.map((r) => (
 				<article key={r.id} className="exchange">
 					<h3>{r.goal}</h3>
@@ -260,6 +351,72 @@ function Panel({ workspace, session, refresh }: Props) {
 						v{r.version} · {r.state} · {r.steps} steps
 					</p>
 					<p>{r.outcome}</p>
+					{r.mode === "recall" && r.state === "completed" && (
+						<button type="button" onClick={() => openMemory(r.goal)}>
+							Open current sources
+						</button>
+					)}
+					{r.mode === "team" && (
+						<ol>
+							{view.teamMembers
+								?.filter((m) => m.parentId === r.id)
+								.map((m) => (
+									<li key={m.childId}>
+										{view.agents.find((a) => a.id === m.agentId)?.name ??
+											"Reviewer"}{" "}
+										· {m.state} {m.outcome}
+										{r.state === "waiting" && (
+											<button
+												type="button"
+												disabled={busy}
+												onClick={() =>
+													void act(async () => {
+														check(
+															(
+																await client.POST(
+																	`${base}/runs/{id}/decision`,
+																	{
+																		params: { path: { ...path, id: r.id } },
+																		headers,
+																		body: {
+																			operation: "select",
+																			digest: m.childId,
+																		},
+																	},
+																)
+															).response,
+														);
+													})
+												}
+											>
+												Keep this review
+											</button>
+										)}
+									</li>
+								))}
+						</ol>
+					)}
+					{r.mode === "team" && r.state === "waiting" && (
+						<button
+							type="button"
+							disabled={busy}
+							onClick={() =>
+								void act(async () => {
+									check(
+										(
+											await client.POST(`${base}/runs/{id}/decision`, {
+												params: { path: { ...path, id: r.id } },
+												headers,
+												body: { operation: "select", digest: "all" },
+											})
+										).response,
+									);
+								})
+							}
+						>
+							Keep all attributed reviews
+						</button>
+					)}
 					{r.title && (
 						<p>
 							Task title: {r.title} · List: {r.resource}
@@ -267,7 +424,9 @@ function Panel({ workspace, session, refresh }: Props) {
 					)}
 					{r.receipt && <p>Provider receipt: {r.receipt}</p>}
 					{(r.state === "waiting"
-						? ["approve", "cancel"]
+						? r.mode === "team"
+							? ["cancel"]
+							: ["approve", "cancel"]
 						: r.state === "unknown"
 							? ["reconcile"]
 							: ["queued", "running", "approved"].includes(r.state)

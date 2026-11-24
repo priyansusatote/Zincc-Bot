@@ -176,4 +176,149 @@ class AgentHarnessTest {
 		assertThat(run(over).outcome()).contains("budget");
 	}
 
+	@Test
+	void parallelReviewersHaveLineageAndReturnOnlyOneApprovedResult() throws Exception {
+		var first = UUID.randomUUID();
+		var second = UUID.randomUUID();
+		store.save(s, first, new Definition("Copy", "Check wording", "model", true, true, null, 0));
+		store.save(s, second, new Definition("Amounts", "Check totals", "model", true, true, null, 0));
+		var request = new AgentTeams.Request(UUID.randomUUID(), "Review the proposal", List.of(first, second));
+		UUID parent = store.teams.start(s, agent, request);
+		assertThat(store.teams.start(s, agent, request)).isEqualTo(parent);
+		assertThatThrownBy(() -> store.teams.start(s, agent,
+				new AgentTeams.Request(parent, request.goal(), List.of(second, first))))
+			.hasMessageContaining("409");
+		assertThatThrownBy(() -> store.teams.start(s, agent,
+				new AgentTeams.Request(UUID.randomUUID(), "goal", List.of(first, first))))
+			.hasMessageContaining("400");
+		var kids = store.scoped(s, () -> store.teams.members(parent));
+		assertThat(kids).extracting(AgentTeams.Member::agentId).containsExactly(first, second);
+		assertThat(tick(parent)).isEqualTo("joining");
+		var barrier = new java.util.concurrent.CyclicBarrier(2);
+		when(models.text(eq("model"), anyString())).thenAnswer(invocation -> {
+			barrier.await(5, java.util.concurrent.TimeUnit.SECONDS);
+			String prompt = invocation.getArgument(1);
+			return Mono.just(new ModelGateway.Result(models.routes().getFirst(),
+					prompt.contains("Check totals") ? "Amount mismatch" : "Wording mismatch", null, "stop"));
+		});
+		try (var tasks = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+			var a = tasks.submit(() -> tick(kids.getFirst().childId()));
+			var b = tasks.submit(() -> tick(kids.getLast().childId()));
+			assertThat(a.get()).isEqualTo("completed");
+			assertThat(b.get()).isEqualTo("completed");
+		}
+		assertThat(tick(parent)).isEqualTo("waiting");
+		assertThatThrownBy(() -> store.decision(s, parent, "select", UUID.randomUUID().toString()))
+			.hasMessageContaining("409");
+		store.decision(s, parent, "select", kids.getLast().childId().toString());
+		assertThat(run(parent).outcome()).isEqualTo("Amount mismatch");
+		var combined = store.teams.start(s, agent,
+				new AgentTeams.Request(UUID.randomUUID(), "Review the proposal again", List.of(first, second)));
+		var children = store.scoped(s, () -> store.teams.members(combined));
+		try (var pool = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+			var a = pool.submit(() -> tick(children.getFirst().childId()));
+			var b = pool.submit(() -> tick(children.getLast().childId()));
+			assertThat(a.get()).isEqualTo("completed");
+			assertThat(b.get()).isEqualTo("completed");
+		}
+		assertThat(tick(combined)).isEqualTo("waiting");
+		store.decision(s, combined, "select", "all");
+		assertThat(run(combined).outcome()).isEqualTo("Reviewer 1 � Wording mismatch\n\nReviewer 2 � Amount mismatch");
+		verify(tasks, never()).list(any());
+		verify(tasks, never()).create(any(), any(), any());
+	}
+
+	@Test
+	void parentCancellationFencesAnAlreadyRunningModelResponse() throws Exception {
+		UUID reviewer = UUID.randomUUID();
+		store.save(s, reviewer, definition(0, true, null));
+		var parent = store.teams.start(s, agent, new AgentTeams.Request(UUID.randomUUID(), "goal", List.of(reviewer)));
+		var child = store.scoped(s, () -> store.teams.members(parent)).getFirst().childId();
+		var started = new java.util.concurrent.CountDownLatch(1);
+		var release = new java.util.concurrent.CountDownLatch(1);
+		when(models.text(eq("model"), anyString())).thenAnswer(i -> {
+			started.countDown();
+			release.await(6, java.util.concurrent.TimeUnit.SECONDS);
+			return Mono.just(new ModelGateway.Result(models.routes().getFirst(), "late result", null, "stop"));
+		});
+		try (var pool = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+			var working = pool.submit(() -> tick(child));
+			try {
+				assertThat(started.await(5, java.util.concurrent.TimeUnit.SECONDS)).isTrue();
+				store.decision(s, parent, "cancel", null);
+			}
+			finally {
+				release.countDown();
+			}
+			assertThat(working.get()).isEqualTo("cancelled");
+		}
+		assertThat(run(child).outcome()).doesNotContain("late result");
+		assertThat(tick(parent)).isEqualTo("cancelled");
+	}
+
+	@Test
+	void privateRecallCoalescesReadersAndRechecksRevisionsMembershipAndSourceDeletion() throws Exception {
+		var source = start("list");
+		store.scoped(s, () -> store.set(source, "completed", "Source fixture"));
+		var mem = store.memory;
+		var id = UUID.randomUUID();
+		mem.edit(s, new AgentMemory.Edit(id, "Report currency", "USD", source, 0));
+		long before = mem.loads.sum();
+		try (var pool = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+			var futures = java.util.stream.IntStream.range(0, 16)
+				.mapToObj(i -> pool.submit(() -> mem.recall(s, "currency")))
+				.toList();
+			for (var future : futures)
+				assertThat(future.get()).extracting(AgentMemory.Note::fact).containsExactly("USD");
+		}
+		assertThat(mem.loads.sum() - before).isOne();
+		var foreign = new Scope(workspace, other);
+		assertThat(mem.recall(foreign, "currency")).isEmpty();
+		assertThatThrownBy(() -> mem.edit(foreign, new AgentMemory.Edit(UUID.randomUUID(), "x", "y", source, 0)))
+			.hasMessageContaining("404");
+		assertThatThrownBy(
+				() -> mem.edit(s, new AgentMemory.Edit(UUID.randomUUID(), "REPORT CURRENCY", "EUR", source, 0)))
+			.hasMessageContaining("409");
+		mem.edit(s, new AgentMemory.Edit(id, "Report currency", "EUR", source, 1));
+		assertThatThrownBy(() -> mem.edit(s, new AgentMemory.Edit(id, "Report currency", "JPY", source, 1)))
+			.hasMessageContaining("409");
+		assertThat(mem.recall(s, "USD")).isEmpty();
+		assertThat(mem.recall(s, "EUR")).extracting(AgentMemory.Note::sourceId).containsExactly(source);
+		admin.update("DELETE FROM zincc.workspace_membership WHERE workspace_id=? AND principal_id=?", workspace,
+				owner);
+		try {
+			assertThatThrownBy(() -> mem.recall(s, "EUR")).hasMessageContaining("404");
+		}
+		finally {
+			admin.update("INSERT INTO zincc.workspace_membership VALUES(?,?,'owner')", workspace, owner);
+		}
+		var recall = store.start(s, agent, new Start(UUID.randomUUID(), "EUR", "recall"));
+		assertThat(tick(recall)).isEqualTo("completed");
+		assertThat(run(recall).outcome()).contains("1").doesNotContain("EUR");
+		mem.remove(s, id, 2);
+		assertThat(mem.recall(s, "EUR")).isEmpty();
+		mem.edit(s, new AgentMemory.Edit(UUID.randomUUID(), "Report currency", "GBP", source, 0));
+		assertThat(mem.recall(s, "GBP")).hasSize(1);
+		admin.update("DELETE FROM zincc.agent_outbox WHERE run_id=?", source);
+		admin.update("DELETE FROM zincc.agent_run WHERE id=?", source);
+		assertThat(mem.recall(s, "GBP")).isEmpty();
+	}
+
+	@Test
+	void userSelectedLocalReviewNeedsNoModelOrConnectorAndCannotChangeOnReplay() {
+		UUID reviewer = UUID.randomUUID();
+		store.save(s, reviewer, definition(0, false, null));
+		var key = UUID.randomUUID();
+		var goal = "- [ ] A\n- [x] B";
+		var req = new AgentTeams.Request(key, goal, List.of(reviewer), java.util.Map.of(reviewer, "checklist"));
+		store.teams.start(s, agent, req);
+		assertThatThrownBy(() -> store.teams.start(s, agent, new AgentTeams.Request(key, goal, List.of(reviewer))))
+			.hasMessageContaining("409");
+		var child = store.scoped(s, () -> store.teams.members(key)).getFirst();
+		assertThat(tick(child.childId())).isEqualTo("completed");
+		assertThat(tick(key)).isEqualTo("completed");
+		assertThat(run(key).outcome()).isEqualTo("Unchecked checklist items: 1");
+		verify(models, never()).text(any(), any());
+	}
+
 }

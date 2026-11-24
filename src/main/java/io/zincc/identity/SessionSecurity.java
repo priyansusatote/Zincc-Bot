@@ -77,9 +77,13 @@ class SessionSecurity {
 				.authenticated()
 				.requestMatchers(HttpMethod.DELETE, "/api/workspaces/{workspaceId}/knowledge/{id}")
 				.authenticated()
-				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/agents")
+				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/agents",
+						"/api/workspaces/{workspaceId}/agents/memory")
+				.authenticated()
+				.requestMatchers(HttpMethod.DELETE, "/api/workspaces/{workspaceId}/agents/memory/{id}")
 				.authenticated()
 				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/agents/{id}/versions",
+						"/api/workspaces/{workspaceId}/agents/{id}/team", "/api/workspaces/{workspaceId}/agents/memory",
 						"/api/workspaces/{workspaceId}/agents/{id}/runs",
 						"/api/workspaces/{workspaceId}/agents/connection",
 						"/api/workspaces/{workspaceId}/agents/runs/{id}/decision")

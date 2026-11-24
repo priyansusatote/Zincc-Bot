@@ -42,6 +42,7 @@ class AgentEngine implements AgentWorkflow.Steps {
 		UUID id = UUID.fromString(run);
 		Stage stage = store.scoped(s, () -> prepare(s, id, expired));
 		return switch (stage.operation) {
+			case "opinion" -> opinion(s, stage);
 			case "plan" -> plan(s, stage);
 			case "write" -> write(s, stage);
 			case "reconcile" -> recover(s, stage);
@@ -50,6 +51,7 @@ class AgentEngine implements AgentWorkflow.Steps {
 	}
 
 	private Stage prepare(Scope s, UUID id, boolean expired) {
+		var parent = store.teams.lockParent(id);
 		var r = store.lock(id);
 		var a = store.access(s, r);
 		String state = r.state();
@@ -57,6 +59,32 @@ class AgentEngine implements AgentWorkflow.Steps {
 			return new Stage(r, a, "reconcile", 0);
 		if (!List.of("waiting", "approved", "queued", "running").contains(state))
 			return new Stage(r, a, state, 0);
+		if (r.mode().equals("team"))
+			return new Stage(r, a, store.teams.join(s, r, expired, a), 0);
+		if (List.of("word-count", "checklist").contains(r.mode())) {
+			if (parent == null || !List.of("queued", "running").contains(parent.state())
+					|| store.access(s, parent) == null || a == null || expired)
+				return new Stage(r, a, store.set(id, "failed", "Local review permission expired."), 0);
+			String result = r.mode().equals("word-count") ? "Words: " + r.goal().strip().split("\\s+").length
+					: "Unchecked checklist items: "
+							+ r.goal().lines().map(String::strip).filter(line -> line.startsWith("- [ ] ")).count();
+			store.db.update("UPDATE zincc.agent_run SET steps=1 WHERE id=?", id);
+			return new Stage(r, a, store.set(id, "completed", result), 0);
+		}
+		if (r.mode().equals("opinion")) {
+			if (parent == null || !List.of("queued", "running").contains(parent.state())
+					|| store.access(s, parent) == null || a == null || expired || r.steps() >= 2)
+				return new Stage(r, a, store.set(id, "failed", "Reviewer grant or attempt budget ended."), 0);
+			store.db.update("UPDATE zincc.agent_run SET state='running',steps=steps+1 WHERE id=?", id);
+			return new Stage(r, a, "opinion", r.steps() + 1);
+		}
+		if (r.mode().equals("recall") && a != null && !expired) {
+			var hits = store.memory.recall(s, r.goal());
+			return new Stage(r, a,
+					store.set(id, "completed",
+							"Local memory matches at run time: " + hits.size() + ". Open current sources to review."),
+					0);
+		}
 		if (expired || a == null || (state.equals("waiting") && (!store.permitted(s, a, true) || !store.bound(r, a))))
 			return new Stage(r, a, store.set(id, "failed", expired ? "Run deadline reached." : "Access revoked."), 0);
 		if (state.equals("waiting"))
@@ -76,6 +104,41 @@ class AgentEngine implements AgentWorkflow.Steps {
 			return new Stage(r, a, store.set(id, "failed", "Six-step budget exhausted."), 0);
 		store.db.update("UPDATE zincc.agent_run SET state='running',steps=steps+1 WHERE id=?", id);
 		return new Stage(r, a, "plan", r.steps() + 1);
+	}
+
+	private String opinion(Scope s, Stage stage) {
+		String result;
+		String diagnostic = "Reviewer returned an invalid response.";
+		try {
+			result = models.text(stage.access.version().route(),
+					"Give a concise independent review. Your only inputs are the goal and your role. You have no tools.\nRole: "
+							+ stage.access.version().instructions() + "\nGoal: " + stage.run.goal())
+				.block()
+				.text();
+			if (!text(result, 2000))
+				throw new IllegalArgumentException();
+		}
+		catch (ModelGateway.GatewayException e) {
+			result = null;
+			diagnostic = "Reviewer model: " + e.failure().name();
+		}
+		catch (RuntimeException e) {
+			result = null;
+		}
+		String failure = diagnostic;
+		String answer = result;
+		return store.scoped(s, () -> {
+			var parent = store.teams.lockParent(stage.run.id());
+			var r = store.lock(stage.run.id());
+			if (!r.state().equals("running") || r.steps() != stage.fence)
+				return r.state();
+			if (parent == null || !List.of("queued", "running").contains(parent.state())
+					|| store.access(s, parent) == null || store.access(s, r) == null)
+				return store.set(r.id(), "failed", "Reviewer grant changed.");
+			if (answer == null)
+				return store.set(r.id(), "failed", failure);
+			return store.set(r.id(), "completed", answer.strip());
+		});
 	}
 
 	private Step choose(Stage stage) {
