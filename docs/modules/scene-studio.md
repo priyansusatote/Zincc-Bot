@@ -128,3 +128,5 @@ Small source does not imply small GPU memory or fast rendering. A procedural loo
 See [P10.3a–P10.3h](../phases/roadmap.md). Build on existing artifact storage, governed jobs, isolated execution and bounded review. This expands P10; it does not start a parallel application or change the one-task authorization rule.
 
 Learning covers procedural generation, GPU pipelines/shaders, simulation clocks, deterministic jobs, content-addressed artifacts, queue backpressure, GPU placement, multimodal evaluation, independent critique, bounded repair and HITL creative review. [ADR 0007](../architecture-decisions/0007-code-generated-scenes.md) records the architectural choice. Every implementation task receives its own A–L learning report and measured evidence.
+
+P10.5 extends this renderer into a shared creative project. The brief, brand kit, storyboard approvals and slide or frame feedback carry across the team's selected output formats. [Content Studio reference and acceptance journey](../research/2026-11-24-code-mode-and-design-agent.md)

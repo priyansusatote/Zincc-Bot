@@ -1,5 +1,9 @@
 # Supplied reference review and reuse ledger
 
+## Cloudflare Code Mode and LangChain Design Agent · 24 November 2026
+
+Design inspiration and selected source inspection only. P7.4 gains a tool-discovery benchmark. P10.5 adds a shared brief, brand kit and cross-format revisions. [Pinned sources and adoption decisions](2026-11-24-code-mode-and-design-agent.md)
+
 ## Linger — 19 November 2026
 
 Selected source, tests, design documents and license reviewed at `27adbd6`. Three candidates for the existing roadmap:

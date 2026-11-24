@@ -120,6 +120,8 @@ Gate: isolated execution on a supported environment with documented limitations.
 | P7.3 | Source-linked memory and user editor | Correction/deletion/contradiction tests, scoped recall; teach working/episodic/procedural memory |
 | P7.4 | Offline harness experiment and promotion pipeline | Fixed holdout, regression/cost report, rollback; teach experimental controls and prompt/skill versioning |
 
+P7.4 includes a [tool discovery experiment](../research/2026-11-24-code-mode-and-design-agent.md). Compare direct calls, on-demand schemas and brokered programmatic calls on identical fixtures before changing the default harness.
+
 Gate: each added agent/cache/memory policy demonstrates benefit against the baseline. No unrestricted production self-rewriting.
 
 ## P8 — Live conversation that performs actions
@@ -162,6 +164,7 @@ Gate: a customer can run one automation on each supported framework with documen
 | P10.2 | Image generation/editing adapter | Model/cost/rights metadata, failure and cancellation; teach multimodal artifacts |
 | P10.3 | Scene Studio and audio/video production, decomposed below | Separate interactive scenes and qualified video exports; every subtask individually authorized |
 | P10.4 | Editable site/app artifact and controlled publication | Preview isolation, source revisions, destination/permission check; teach build versus publish boundaries |
+| P10.5 | Shared creative brief, versioned brand kit and cross-format review | One approved brief produces an editable slide and social graphic. A correction propagates to both exports with revision history. Extend to motion and qualified Slack input separately. [Acceptance journey](../research/2026-11-24-code-mode-and-design-agent.md) |
 
 **Scene Studio expansion, 15 November:** P10.3 is now a parent reference, not a single implementation task. [The module specification](../modules/scene-studio.md) defines the feature. Dependencies include P3 durable jobs, P6 isolated execution, P7 bounded review and existing artifact storage; reuse these components rather than introduce a second control plane. P10.4 reuses preview isolation from P10.3a.
 
