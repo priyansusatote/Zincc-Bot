@@ -56,4 +56,4 @@ In a second terminal, run `curl.exe -fsS http://127.0.0.1:8080/actuator/health`.
 
 The two Maven launcher scripts come from the Apache Maven Wrapper 3.3.4 only-script distribution. Their [license](.mvn/wrapper/LICENSE) and [notice](.mvn/wrapper/NOTICE) accompany them. The product license decision remains open.
 
-The workbench includes Gmail, Slack, Google Calendar and customer runners. Pair a local runner to count files in a selected directory or review an offline browser draft. Hosted qualification is open. [P6 setup](docs/modules/phase-six-runners.md).
+The workbench includes Gmail, Slack, Google Calendar and customer runners. Pair a local runner to count files in a selected directory or review an offline browser draft. The Docker Cloud lifecycle benchmark passed. Public multi-tenant execution remains gated. [P6 setup](docs/modules/phase-six-runners.md).

@@ -3,7 +3,7 @@
 | P6 topic | Coverage | Component note |
 | --- | --- | --- |
 | Resource admission and container lifecycle | Implemented, local Docker evaluation | [Broker](learning-notes/033-sandbox-broker.md) |
-| VM isolation and snapshot policy | Studied, hosted evaluation pending | [Qualification](learning-notes/034-hosted-isolation.md) |
+| VM isolation and snapshot policy | One hosted lifecycle, shape and domain policy evaluated. Tenant and snapshot isolation remain open. | [Qualification](learning-notes/034-hosted-isolation.md) |
 | Device authentication, leases and RLS | Implemented, PostgreSQL integration tested | [Runner leases](learning-notes/035-runner-leases.md) |
 | Isolated browser context and human takeover | Implemented, Edge exercised | [Browser handoff](learning-notes/036-browser-takeover.md) |
 

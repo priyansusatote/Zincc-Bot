@@ -2,7 +2,7 @@
 
 ## Phase 6 batch authorized on 23 November 2026
 
-P6.1, P6.3 and the curated P6.4 browser handoff are implemented locally. P6.2 is open pending live hosted qualification. The local engine has no registered gVisor runtime. The Docker Cloud benchmark has a dry-run mode. The signed-in workbench produced a real one-file count through a paired local runner. Hosted compute has not been provisioned. [Setup and qualification](modules/phase-six-runners.md)
+P6.1, P6.3 and the curated P6.4 browser handoff are implemented locally. P6.2 passed a single-sandbox Docker Cloud benchmark. Independent-tenant isolation and interruption recovery remain open. The signed-in workbench produced a real one-file count through a paired local runner. The cloud test resource was deleted and its absence verified. [Setup and qualification](modules/phase-six-runners.md)
 
 Updated: **23 November 2026**.
 

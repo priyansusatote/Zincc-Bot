@@ -22,7 +22,21 @@ The server Docker broker accepts four fixed operations spanning documents and cu
 
 The Docker Cloud candidate offers a managed microVM. CubeSandbox requires a compatible Linux virtualization host. Local Docker Desktop only supplied an ordinary container runtime during this review. Hosted measurements require a subscribed account and an authorized budget. Run `python tools/qualify-cloud-sandbox.py` to inspect the dry-run plan. With explicit authorization, `--run` provisions one 1-vCPU / 2-GiB sandbox with a 15-minute delete timeout, applies a sandbox-specific deny policy, checks synthetic state, measures three exec round trips and removes the sandbox. Record the effective policy, denied request evidence, resource config, deletion and timings. A reachability check alone cannot establish enforced egress isolation.
 
-Zincc exposes no cloud snapshot save/restore or template-export capability. Before accepting external executable packages, qualify isolation between independently authorized tenants, effective cloud account/kit egress and secret policy, cleanup after interruption, fingerprinted guest image and resource enforcement. A single synthetic lifecycle benchmark only covers part of that gate. [Docker lifecycle](https://docs.docker.com/ai/sandboxes/cloud/usage/) · [gVisor placement](https://gvisor.dev/docs/user_guide/quick_start/docker/)
+Zincc exposes no cloud snapshot save/restore or template-export capability. Before accepting external executable packages, qualify isolation between independently authorized tenants, effective cloud account/kit egress and secret policy, cleanup after interruption, enforcement of a pinned guest image and hard resource limits under load. A single synthetic lifecycle benchmark only covers part of that gate. [Docker lifecycle](https://docs.docker.com/ai/sandboxes/cloud/usage/) · [gVisor placement](https://gvisor.dev/docs/user_guide/quick_start/docker/)
+
+### Live Docker Cloud evidence · 23 November 2026
+
+One authorized Micro sandbox, Docker SBX CLI v0.54.0, synthetic inputs only. The launcher requested a 15-minute deletion TTL. The running resource reported 1 vCPU, 2048 MiB, delete on timeout and image `docker.io/sbx/shell@sha256:f3c1b4f30c801e014735efbd300e16853cc21988dcd1ffcd9383c96389234c83`. The shell kit resolved its tag during creation. The digest identifies this sample.
+
+| Observation | Measured result |
+| --- | --- |
+| Provisioning | 10.267 s from the CLI create invocation to success |
+| Three CLI command round trips | 2.645 s, 2.598 s and 2.310 s |
+| Guest state | One visible CPU and 2,038,236 kB of guest memory. A synthetic marker was absent initially, then readable after writing. The two checked workspace paths had no repository metadata or dotenv file. The named Zincc connection key was unset or empty. |
+| Network | Sandbox default deny with an explicit deny for example.com. The HTTPS request returned no HTTP status and curl exit 6. The provider audit recorded eight DNS denials for this domain under the per-sandbox rule. This establishes the scoped DNS result. |
+| Cleanup and budget | Created at 17:10:40 UTC. Explicit deletion and absence from cloud inventory confirmed by 17:12:30 UTC. Approximately $0.0021 of compute at the published Micro rate of $0.07/hour. Actual billing and credit balance were not inspected. |
+
+The CLI operations were measured directly. The repeatable benchmark now also checks the matching audit record and the inspected resource shape. This run did not exercise automatic TTL deletion, independent tenants, snapshot restoration, or workload dispatch from the Zincc app. [Docker pricing](https://www.docker.com/products/docker-sandboxes/)
 
 ## Verification commands
 

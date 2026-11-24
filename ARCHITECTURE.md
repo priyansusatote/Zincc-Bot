@@ -1,6 +1,6 @@
 # Zincc architecture
 
-P6 routes knowledge and curated MCP subprocesses through a shared Docker broker. Customer devices use a separate outbound polling protocol with owner-scoped job leases. Each browser review launches a fresh offline session and exports a bounded receipt. Hosted executable workloads require a separate isolation gate. [P6 architecture and operation](docs/modules/phase-six-runners.md).
+P6 routes knowledge and curated MCP subprocesses through a shared Docker broker. Customer devices use a separate outbound polling protocol with owner-scoped job leases. Each browser review launches a fresh offline session and exports a bounded receipt. One Docker Cloud Micro resource passed the lifecycle and declared-domain denial checks. Public executable workloads require additional tenant isolation qualification. [P6 architecture and operation](docs/modules/phase-six-runners.md).
 
 The user approved the architecture plan on 18 November 2026. P1.1 implements the Java control-plane entry point in `io.zincc`. Future feature packages sit directly below that root. Build checks reject package cycles and dependencies on the launcher. The service binds to IPv4 loopback by default and exposes aggregate Actuator health. The sections below describe the full target architecture. See the [running component](docs/learning-notes/006-spring-foundation.md), [technology baseline](docs/technology-baseline.md), and [decision records](docs/architecture-decisions/README.md).
 
