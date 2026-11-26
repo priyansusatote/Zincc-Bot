@@ -1,6 +1,6 @@
 # Zincc
 
-In **Agents and runs**, choose a framework, compare agent versions, restore an earlier definition or run a private local engine fixture. [P9 walkthrough and provider qualification](docs/modules/phase-nine-builder.md)
+In **Agents and runs**, choose a framework, compare agent versions, restore an earlier definition or run a task on your paired computer. A Windows Antigravity session completed a live Gemini Flash task through the workbench. [P9 walkthrough and provider qualification](docs/modules/phase-nine-builder.md)
 
 The local workbench supports parallel agent reviews, local text checks, editable private memory and source-linked recall. Open **Agents and runs** to try them. [P7 walkthrough and evaluation](docs/modules/phase-seven-agents.md).
 

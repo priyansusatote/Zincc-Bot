@@ -2,7 +2,9 @@
 
 ## Phase 9 in progress, 26 November 2026
 
-The whole P9 batch is authorized. P8 follows P10. The local workbench delivers the three bounded framework adapters, authenticated AG-UI text replay, version comparison and restoration, and the private engine-picker fixture. Real provider account connections are at different stages of qualification. The one approved OpenCode free inference attempt did not confirm completion. [Task and provider evidence](modules/phase-nine-builder.md)
+The paired engine workbench now delivers private text tasks to a member’s Windows runner. A live Antigravity run selected Gemini 3.8 Flash and completed with a stored result. OpenCode Free returned HTTP 429. Direct ChatGPT live verification awaits a completed provider consent callback. [Paired delivery](learning-notes/045-paired-engine-delivery.md) · [Reference decisions](research/2026-11-26-opencode-appubot.md)
+
+The whole P9 batch is authorized. P8 follows P10. The local workbench delivers the three bounded framework adapters, authenticated AG-UI text replay, version comparison and restoration, and the private engine-picker fixture. Real provider account connections are at different stages of qualification. The first OpenCode attempt did not confirm completion. A subsequently authorized check identified a provider rate limit. [Task and provider evidence](modules/phase-nine-builder.md)
 
 ## Phase 7 local workbench and evaluation
 

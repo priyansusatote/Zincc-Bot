@@ -4,7 +4,7 @@
 | --- | --- | --- |
 | Framework isolation, checkpoints and AG-UI replay | Implemented and tested with three SDKs and controlled inference | [Planning turns](learning-notes/042-framework-planning.md) |
 | Immutable revisions and optimistic concurrency | Implemented, database and browser verified | [Definition history](learning-notes/043-versioned-builder.md) |
-| Engine identity, consent, allowance and model acknowledgement | Private fixture implemented; provider protocols and free inference experimentally evaluated | [Engine qualification](learning-notes/044-private-engine-connections.md) |
+| Engine identity, consent, allowance and model acknowledgement | Implemented paired delivery and private grants, verified Windows Antigravity inference, and experimentally evaluated OpenCode Free rate limits | [Engine qualification](learning-notes/044-private-engine-connections.md) · [Single-use device claims](learning-notes/045-paired-engine-delivery.md) |
 
 | P7 topic | Coverage | Evidence |
 | --- | --- | --- |

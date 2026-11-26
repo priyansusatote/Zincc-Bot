@@ -23,18 +23,32 @@ Select an agent, open **Connected engines** and connect a **local fixture**. Sav
 
 An accepted run freezes the model, account, grant generation and optional conversation. Its next activity checks the grant again before consuming the goal. Reconnecting increments the generation. A revoked pin stops the run even when another default exists. Saved choices belong to the executing member. The fixture picker and its conversation overrides apply to engine runs launched here. Ordinary chat retains its model gateway picker.
 
+## Pair a provider on Windows
+
+Start the local workbench with its agents profile. In **Customer runners** choose **Create pairing code**. From the repository root start one foreground runner using one of the commands below. The CLI routes require Python 3 on PATH. Use the actual executable installed on the selected device.
+
+```powershell
+node frontend/runner/local.mjs --engine antigravity --binary 'C:\path\to\agy.exe' --profile personal
+node frontend/runner/local.mjs --engine opencode-free --binary 'C:\path\to\opencode-cli.exe' --profile personal
+node frontend/runner/local.mjs --engine chatgpt-plan --profile personal
+```
+
+Complete any provider sign-in, then paste the pairing code into the terminal. In **Agents and runs → Connected engines**, refresh, select the account and model, and save the selection. The foreground process must stay open. The provider receives the pinned agent instructions and goal after model acknowledgement. Select **Run selected engine** and refresh the run list to see its result. Each CLI engine has an isolated working directory. The private device session uses loopback Zincc access. The test device was revoked after the live check. To use your account, start a new pairing.
+
+**Windows evidence on 26 November.** A signed-in Edge workbench paired Antigravity, listed five choices, selected `gemini-3.8-flash` and received `ready` from one synthetic task. The completed run and model acknowledgement were read back through the API. The OpenCode Free CLI emitted HTTP 429 on its separate synthetic check. ChatGPT consent did not produce a verified paired account on this PC. [Learning note](../learning-notes/045-paired-engine-delivery.md) · [OpenCode and AppuBot review](../research/2026-11-26-opencode-appubot.md)
+
 ## Provider qualification
 
-The device-local tools below exercise provider interfaces independently of the fixture picker. A successful CLI handshake alone does not register a production engine or grant a Zincc agent use of a personal account.
+The standalone probes below complement the paired runner. A CLI handshake establishes protocol availability. A live workbench run also requires a member grant, model acknowledgement and a stored outcome.
 
 | Task | Delivered interface | Remaining qualification |
 | --- | --- | --- |
-| P9.6 direct ChatGPT plan | Local public-client sign-in, loopback callback, PKCE, ID-token verification, account-specific catalog, optional bounded streaming inference | Live plan-use consent, model access, revocation and service integration. The initial client keeps tokens in memory and requires a new sign-in for the next process. |
+| P9.6 direct ChatGPT plan | Local public-client sign-in, loopback callback, PKCE, ID-token verification, account-specific catalog, optional bounded streaming inference | Live plan-use consent, model access and provider-side revocation. The initial client keeps tokens in memory and requires a new sign-in for the next process. |
 | P9.7 Codex | Clean-profile app-server initialization and model-list probe | Signed-in session lifecycle, enforced native tool restrictions and action receipts on a paired device |
 | P9.8 Claude Code | Local executable and native CLI option probe | Supported account, streaming/MCP execution and enforced tool restrictions |
 | P9.9 Grok Build | Prompt-free ACP handshake using the official Windows stdio command | Signed-in session creation, account-specific discovery and device enforcement |
-| P9.10 OpenCode | Installed v2.4.1 Windows CLI, isolated standalone free-model discovery, effective agent and tool-permission checks; one live readiness attempt | The attempt did not confirm a completed answer or returned model. Go allowance and workbench dispatch remain unqualified. |
-| P9.11 Antigravity | Initialized the official Windows ACP CLI and created a clean-profile session | Signed-in model access, allowance verification and paired-device dispatch |
+| P9.10 OpenCode | Installed v2.4.1 Windows CLI, isolated standalone free-model discovery, effective agent and tool-permission checks; paired device transport and error handling | Free completion is unconfirmed after HTTP 429. Go subscription billing still needs separate qualification. |
+| P9.11 Antigravity | Completed a signed-in workbench task on the paired Windows CLI with a confirmed model | Exact remaining allowance, other operating systems and additional versions remain unverified |
 | P9.12 Kimi Code | Prompt-free ACP discovery and explicit model acknowledgement check | Signed-in membership, effective model and allowance verification |
 
 Run the prompt-free checks with `python tools/engine_probe.py ENGINE --binary ABSOLUTE_PATH`. An ACP client can request a model using `--select-model ID`. Unknown or unacknowledged changes fail the check. Local fixture, OpenCode Free, OpenCode Go and direct ChatGPT plan usage are separate billing sources. There is no automatic paid fallback.
@@ -52,10 +66,12 @@ The local ChatGPT-plan client is for an eligible locally hosted edition. From a 
 | Antigravity CLI | 1.5.18 | The checksum-verified CLI initialized ACP, advertised four authentication methods and created a session that reported a selected model. No subscription inference was exercised. |
 | Kimi Code | 2.8.0 | The checksum-verified replacement for the retired Python CLI initialized ACP. Session creation returned RPC error -32000 before any task content was sent. |
 
-The CLI tests ran on this device. Production distribution, macOS/Linux UI support, provider account qualification and release to the connected-engine picker remain open. [OpenCode free pricing](https://opencode.ai/docs/zen/) · [Codex app-server](https://developers.openai.com/codex/app-server) · [Claude Code](https://code.claude.com/docs/en/headless) · [Grok Build](https://docs.x.ai/build/overview) · [Antigravity ACP](https://antigravity.google/docs/cli/acp) · [Kimi Code](https://github.com/MoonshotAI/kimi-code)
+These initial CLI observations predate the paired-device run above. Production distribution and macOS/Linux qualification remain open. [OpenCode free pricing](https://opencode.ai/docs/zen/) · [Codex app-server](https://developers.openai.com/codex/app-server) · [Claude Code](https://code.claude.com/docs/en/headless) · [Grok Build](https://docs.x.ai/build/overview) · [Antigravity ACP](https://antigravity.google/docs/cli/acp) · [Kimi Code](https://github.com/MoonshotAI/kimi-code)
+
+OpenCode Go also exposes authenticated rolling, weekly and monthly allowance readings. From a private terminal with `ZINCC_OPENCODE_GO_KEY` set, run `node frontend/runner/opencode-go.mjs` to check entitlement and provider-reported usage. This read-only command uses the Go usage endpoint. Tests use synthetic responses. No Go credential was available for live verification. “Extra Usage” is a separate account setting that can charge the workspace balance. [Go usage and billing](https://opencode.ai/docs/console/go/)
 
 ## Verification
 
-The packaging run discovered 118 Java tests. 110 passed and eight optional tests were skipped. All 11 Edge regressions, three offline direct-plan protocol tests and two device-probe policy tests passed.
+The paired-device build discovered 118 Java tests. 111 passed and seven optional tests were skipped. All 11 Edge regressions, nine Node protocol and usage tests, and four Python selection and output tests passed.
 
 The signed-in Edge journey selected a real framework, compared revisions, restored v1 as v3, created a private fixture connection and completed a Temporal word count. The Java tests exercised the three installed frameworks with controlled model answers, an approval wait across worker replacement, cancellation, tenant scope, revocation and receipt replay. AG-UI replay frames were validated by the installed protocol SDK. The direct plan client uses locally signed tokens and synthetic streamed events in its protocol tests. [Frameworks and checkpoints](../learning-notes/042-framework-planning.md) · [Versioned builder](../learning-notes/043-versioned-builder.md) · [Engine qualification](../learning-notes/044-private-engine-connections.md)

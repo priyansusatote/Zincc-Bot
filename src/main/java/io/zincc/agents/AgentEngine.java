@@ -61,7 +61,7 @@ class AgentEngine implements AgentWorkflow.Steps {
 			return new Stage(r, a, state, 0);
 		if (r.mode().equals("team"))
 			return new Stage(r, a, store.teams.join(s, r, expired, a), 0);
-		if (r.mode().equals("engine-fixture"))
+		if (r.mode().equals("engine-fixture") || r.mode().equals("connected-engine"))
 			return new Stage(r, a, store.engines.advance(r, !expired && a != null), 0);
 		if (List.of("word-count", "checklist").contains(r.mode())) {
 			if (parent == null || !List.of("queued", "running").contains(parent.state())

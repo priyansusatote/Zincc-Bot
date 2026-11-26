@@ -261,14 +261,8 @@ export async function completedText(body, model) {
 	throw Error("Provider stream ended before completion");
 }
 
-async function main() {
-	const { values } = parseArgs({
-		options: {
-			profile: { type: "string", default: "default" },
-			model: { type: "string" },
-		},
-	});
-	if (!/^[a-zA-Z0-9_-]{1,48}$/.test(values.profile))
+export async function openPlan(profileName) {
+	if (!/^[a-zA-Z0-9_-]{1,48}$/.test(profileName))
 		throw Error("Invalid local profile name");
 	if (/^(1|true)$/i.test(process.env.ZINCC_LOCAL_ONLY ?? ""))
 		throw Error("Cloud connection disabled by local-only policy");
@@ -285,7 +279,7 @@ async function main() {
 	});
 	try {
 		const hostPath = join(dir, "host.json"),
-			profile = join(dir, values.profile + ".account.json");
+			profile = join(dir, profileName + ".account.json");
 		let host = await loadJson(hostPath);
 		if (!host) {
 			host = { id: randomUUID() };
@@ -296,48 +290,78 @@ async function main() {
 			client: result.client,
 			subject: result.subject,
 		});
-		const data = await jsonRequest(resource + "/models", {
-			headers: { Authorization: "Bearer " + result.access },
-		});
-		const models = catalog(data);
-		if (!values.model) {
-			console.log(JSON.stringify({ billing: "ChatGPT plan", models }));
-			return;
-		}
-		if (!models.includes(values.model))
-			throw Error("Selected model is unavailable on this account");
-		if (process.stdin.isTTY) throw Error("Supply one text request on stdin");
-		let input = "";
-		process.stdin.setEncoding("utf8");
-		for await (const chunk of process.stdin) {
-			input += chunk;
-			if (input.length > 8000) throw Error("Input exceeds 8000 characters");
-		}
-		if (!input.trim()) throw Error("Empty request");
-		const answer = await fetch(resource + "/responses", {
-			method: "POST",
-			redirect: "error",
-			signal: AbortSignal.timeout(60000),
-			headers: {
-				Authorization: "Bearer " + result.access,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				model: values.model,
-				input: [{ role: "user", content: input }],
-				store: false,
-				stream: true,
+		const models = catalog(
+			await jsonRequest(resource + "/models", {
+				headers: { Authorization: "Bearer " + result.access },
 			}),
-		});
-		if (!answer.ok)
-			throw Error(
-				`Plan request failed (HTTP ${answer.status}); check account permission or allowance`,
-			);
-		console.log(await completedText(answer.body, values.model));
+		);
+		return {
+			provider: "chatgpt-plan",
+			models,
+			async run(model, instructions, input, signal) {
+				if (!models.includes(model))
+					throw Error("Selected model is unavailable on this account");
+				const response = await fetch(resource + "/responses", {
+					method: "POST",
+					redirect: "error",
+					signal: AbortSignal.any([signal, AbortSignal.timeout(60000)]),
+					headers: {
+						Authorization: "Bearer " + result.access,
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						model,
+						instructions,
+						input: [{ role: "user", content: input }],
+						store: false,
+						stream: true,
+					}),
+				});
+				if (!response.ok) {
+					const category = {
+						401: "authorization",
+						403: "authorization",
+						429: "allowance",
+					}[response.status];
+					throw Object.assign(
+						Error("Provider returned HTTP " + response.status),
+						{ category },
+					);
+				}
+				return completedText(response.body, model);
+			},
+		};
 	} finally {
 		await guard.close();
 		await unlink(lock);
 	}
+}
+
+async function main() {
+	const { values } = parseArgs({
+		options: {
+			profile: { type: "string", default: "default" },
+			model: { type: "string" },
+		},
+	});
+	const plan = await openPlan(values.profile);
+	if (!values.model) {
+		console.log(
+			JSON.stringify({ billing: "ChatGPT plan", models: plan.models }),
+		);
+		return;
+	}
+	if (process.stdin.isTTY) throw Error("Supply one text request on stdin");
+	let input = "";
+	process.stdin.setEncoding("utf8");
+	for await (const chunk of process.stdin) {
+		input += chunk;
+		if (input.length > 8000) throw Error("Input exceeds 8000 characters");
+	}
+	if (!input.trim()) throw Error("Empty request");
+	console.log(
+		await plan.run(values.model, "", input, new AbortController().signal),
+	);
 }
 
 async function atomicJson(path, value) {

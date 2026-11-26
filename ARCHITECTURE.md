@@ -1,6 +1,6 @@
 # Zincc architecture
 
-P9 framework workers run one SDK planning turn inside the existing Docker broker. Spring supplies inference and owns tool dispatch. The agent revision pins its framework. Private engine selections and generation-bound run receipts use PostgreSQL row security. [P9 boundary](docs/architecture-decisions/0018-framework-planning-boundary.md) · [Provider qualification](docs/modules/phase-nine-builder.md)
+P9 framework workers run one SDK planning turn inside the existing Docker broker. Spring supplies inference and owns tool dispatch. The agent revision pins its framework. Private engine selections and generation-bound run receipts use PostgreSQL row security. A paired runner sees the selected model before it can claim a task. The claim is single-use, and a late completion must still match the run, device and active grant. [P9 boundary](docs/architecture-decisions/0018-framework-planning-boundary.md) · [Provider qualification](docs/modules/phase-nine-builder.md)
 
 P7 uses the existing agent outbox and Temporal worker for bounded team runs. The owner resolves differing reviews. PostgreSQL protects source-linked notes and versions their local recall cache. Offline harness promotion is separate from production dispatch. [P7 architecture decision](docs/architecture-decisions/0017-team-runs-and-private-memory.md).
 

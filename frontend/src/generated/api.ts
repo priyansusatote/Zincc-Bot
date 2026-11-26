@@ -984,6 +984,11 @@ export interface components {
             label: string;
             active: boolean;
             generation: number;
+            provider: string;
+            /** Format: uuid */
+            device: string | null;
+            models: string[];
+            online: boolean;
         };
         EngineChoice: {
             /** Format: uuid */

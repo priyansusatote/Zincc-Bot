@@ -1,0 +1,7 @@
+# Why a device can claim a private task at most once per run
+
+**Implemented.** The runner pairs with a single member and presents its provider and model catalog. An offer carries the run ID and chosen model. Only after the runner accepts that model can it claim the agent instructions and task. PostgreSQL locks the run, checks the member and connection generation, and records the claim in the same transaction. A second claim fails. The UI can display the difference between a selected model and a model acknowledged by the device.
+
+**Why the claim matters.** If the connection breaks just after the server commits the claim, nobody can tell whether inference started. Replaying the task could consume allowance twice. Zincc bounds the wait, records an unconfirmed outcome for a lost claimed device, and lets the user decide whether to start another run. A cancellation blocks a late receipt, even if the provider already consumed resources. The device periodically checks whether it still has permission while the provider is working.
+
+**Verified.** The Windows workbench selected Gemini 3.8 Flash through the user's paired Antigravity process. The stored result was `ready`. PostgreSQL tests covered a wrong model, duplicate claim, local-only policy and a receipt arriving after cancellation or a grant-generation change. The OpenCode Free experiment illustrates another boundary: local configuration can be correct and a provider can still return HTTP 429. [Implementation and provider evidence](../modules/phase-nine-builder.md)

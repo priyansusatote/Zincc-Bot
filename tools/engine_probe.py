@@ -145,7 +145,9 @@ class Rpc:
                     self.tool_requested = True
                 content = update.get("content", {})
                 if update.get("sessionUpdate") == "agent_message_chunk" and content.get("type") == "text":
-                    self.text = (self.text + content["text"])[:1024]
+                    self.text += content["text"]
+                    if len(self.text) > 32000:
+                        raise ValueError("Engine reply exceeded limit")
             elif msg.get("id") == self.sequence:
                 if "error" in msg:
                     raise ValueError(f"{method} rejected (RPC {msg['error'].get('code')})")

@@ -77,6 +77,9 @@ class AgentStore {
 	@org.springframework.beans.factory.annotation.Value("${zincc.framework-image:}")
 	String frameworkImage = "";
 
+	@org.springframework.beans.factory.annotation.Value("${zincc.local-only:false}")
+	boolean localOnly;
+
 	List<String> frameworks() {
 		return frameworkImage.matches("sha256:[a-f0-9]{64}") ? List.of("native", "adk", "langgraph", "pydantic-ai")
 				: List.of("native");
@@ -269,7 +272,9 @@ class AgentStore {
 				db.update("INSERT INTO zincc.agent_outbox(run_id) VALUES(?)", req.requestId);
 			else {
 				var prior = lock(req.requestId);
-				if (!prior.agentId.equals(agent) || !prior.goal.equals(req.goal) || !prior.mode.equals(req.mode))
+				boolean sameMode = prior.mode.equals(req.mode)
+						|| (prior.mode.equals("engine-fixture") && req.mode.equals("connected-engine"));
+				if (!prior.agentId.equals(agent) || !prior.goal.equals(req.goal) || !sameMode)
 					throw conflict();
 			}
 			return req.requestId;
@@ -344,7 +349,9 @@ class AgentStore {
 						throw conflict();
 					if (r.mode.equals("team"))
 						teams.stopChildren(id);
-					set(id, "cancelled", "Cancelled before dispatch.");
+					set(id, "cancelled", r.mode.equals("connected-engine")
+							? "Cancelled. A device that already received the task may have consumed provider allowance."
+							: "Cancelled before dispatch.");
 				}
 				default -> throw bad();
 			}

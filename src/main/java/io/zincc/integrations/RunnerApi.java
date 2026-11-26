@@ -24,8 +24,14 @@ class RunnerApi {
 
 	private final SessionPrincipal principals;
 
+	private final DeviceEngines engines;
+
+	@org.springframework.beans.factory.annotation.Value("${zincc.local-only:false}")
+	boolean localOnly;
+
 	RunnerApi(IntegrationStore store, SessionPrincipal principals) {
 		this.store = store;
+		this.engines = new DeviceEngines(store.db);
 		this.principals = principals;
 	}
 
@@ -81,6 +87,9 @@ class RunnerApi {
 						throw conflict("Device unavailable");
 					boolean revoke = action.equals("revoke");
 					store.db.update(
+							"UPDATE zincc.engine_connection SET generation=generation+1,active=active AND NOT ? WHERE device=?",
+							revoke, device);
+					store.db.update(
 							"UPDATE zincc.runner SET state=?,token_hash=CASE WHEN ? THEN NULL ELSE token_hash END WHERE id=?",
 							revoke ? "revoked" : "paused", revoke, device);
 					store.db.update(
@@ -127,10 +136,18 @@ class RunnerApi {
 	}
 
 	record Pulse(UUID workspace, UUID owner, UUID device, String action, boolean folder, boolean browser, UUID job,
-			Integer result) {
+			Integer result, DeviceEngines.Catalog catalog, DeviceEngines.Event event) {
+		Pulse(UUID workspace, UUID owner, UUID device, String action, boolean folder, boolean browser, UUID job,
+				Integer result) {
+			this(workspace, owner, device, action, folder, browser, job, result, null, null);
+		}
 	}
 
-	record Reply(String state, String credential, UUID job, String kind) {
+	record Reply(String state, String credential, UUID job, String kind, String model, String instructions,
+			String goal) {
+		Reply(String state, String credential, UUID job, String kind) {
+			this(state, credential, job, kind, null, null, null);
+		}
 	}
 
 	@PostMapping("/api/device/exchange")
@@ -148,6 +165,9 @@ class RunnerApi {
 			if ("pair".equals(p.action)) {
 				if (!"pairing".equals(state) || !Boolean.TRUE.equals(r.get("pair_valid")))
 					throw unauthorized();
+				if (localOnly && p.catalog() != null)
+					throw conflict("Local-only policy is active");
+				engines.register(p);
 				String token = key();
 				store.db.update(
 						"UPDATE zincc.runner SET state='active',seen=now(),folder=?,browser=?,token_hash=? WHERE id=?",
@@ -160,6 +180,11 @@ class RunnerApi {
 				return new Reply(state, null, null, null);
 			expire(p.device);
 			store.db.update("UPDATE zincc.runner SET seen=now() WHERE id=?", p.device);
+			if (p.action != null && p.action.startsWith("engine-")) {
+				if (localOnly)
+					throw conflict("Local-only policy is active");
+				return engines.exchange(p);
+			}
 			if ("poll".equals(p.action)) {
 				var jobs = store.db.queryForList(
 						"""

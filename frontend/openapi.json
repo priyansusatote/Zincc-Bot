@@ -3360,7 +3360,11 @@
           "id",
           "label",
           "active",
-          "generation"
+          "generation",
+          "provider",
+          "device",
+          "models",
+          "online"
         ],
         "properties": {
           "id": {
@@ -3375,6 +3379,23 @@
           },
           "generation": {
             "type": "integer"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "device": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "online": {
+            "type": "boolean"
           }
         }
       },

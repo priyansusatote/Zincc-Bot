@@ -1,3 +1,5 @@
+import { runOffered } from "./engine-job.mjs";
+import { openPlan } from "./chatgpt-plan.mjs";
 import { opendir, realpath, stat } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
@@ -93,6 +95,9 @@ async function main() {
 		options: {
 			server: { type: "string", default: "http://127.0.0.1:8080" },
 			folder: { type: "string" },
+			engine: { type: "string" },
+			profile: { type: "string", default: "personal" },
+			binary: { type: "string" },
 			browser: { type: "boolean", default: false },
 			channel: {
 				type: "string",
@@ -114,8 +119,25 @@ async function main() {
 		)
 	)
 		throw new Error("Use a server HTTPS origin or loopback HTTP");
-	if (!values.browser && !values.folder)
-		throw new Error("Select --folder or --browser");
+	let engine;
+	if (values.engine) {
+		if (
+			values.browser ||
+			values.folder ||
+			!["127.0.0.1", "localhost", "[::1]"].includes(url.hostname)
+		)
+			throw Error("Use a dedicated local engine runner on loopback");
+		if (/^(1|true)$/i.test(process.env.ZINCC_LOCAL_ONLY ?? ""))
+			throw Error("Local-only policy is active");
+		if (values.engine === "chatgpt-plan")
+			engine = await openPlan(values.profile);
+		else if (["opencode-free", "antigravity"].includes(values.engine)) {
+			const { openCli } = await import("./cli-engine.mjs");
+			engine = await openCli(values.engine, values.binary);
+		} else throw Error("Unsupported engine");
+	}
+	if (!values.browser && !values.folder && !engine)
+		throw new Error("Select --folder, --browser or --engine");
 	const folder = values.folder ? await realpath(resolve(values.folder)) : null;
 	const folderIdentity = folder ? await stat(folder, { bigint: true }) : null;
 	if (folderIdentity && !folderIdentity.isDirectory())
@@ -156,41 +178,67 @@ async function main() {
 			throw new Error("Device request declined (" + res.status + ")");
 		return res.json();
 	};
-	const pair = await exchange("pair", {
-		folder: Boolean(folder),
-		browser: values.browser,
-	});
-	token = pair.credential;
-	let paused = false;
-	let running;
-	tty.on("line", (line) => {
-		switch (line.trim().toLowerCase()) {
-			case "pause":
-				paused = true;
-				running?.abort();
-				console.log("Paused locally.");
-				break;
-			case "resume":
-				paused = false;
-				console.log("Resumed locally.");
-				break;
-			case "quit":
-				shutdown.abort();
-				break;
-		}
-	});
-	tty.on("SIGINT", () => shutdown.abort());
-	tty.resume();
-	console.log(
-		"Paired. Queue a job in Customer runners. Type pause, resume or quit.",
-	);
 	try {
+		const pair = await exchange("pair", {
+			...(engine
+				? {
+						catalog: {
+							provider: engine.provider,
+							label: values.profile,
+							models: engine.models,
+						},
+					}
+				: {}),
+			folder: Boolean(folder),
+			browser: values.browser,
+		});
+		token = pair.credential;
+		let paused = false;
+		let running;
+		tty.on("line", (line) => {
+			switch (line.trim().toLowerCase()) {
+				case "pause":
+					paused = true;
+					running?.abort();
+					console.log("Paused locally.");
+					break;
+				case "resume":
+					paused = false;
+					console.log("Resumed locally.");
+					break;
+				case "quit":
+					shutdown.abort();
+					break;
+			}
+		});
+		tty.on("SIGINT", () => shutdown.abort());
+		tty.resume();
+		console.log(
+			engine
+				? "Paired. Select this account under Agents and runs. Type pause, resume or quit."
+				: "Paired. Queue a job in Customer runners. Type pause, resume or quit.",
+		);
 		while (!shutdown.signal.aborted) {
 			if (paused) {
 				await sleep(500, undefined, { signal: shutdown.signal });
 				continue;
 			}
-			const assignment = await exchange("poll");
+			const assignment = await exchange(engine ? "engine-poll" : "poll");
+			if (engine && assignment.state === "offered" && !paused) {
+				running = new AbortController();
+				try {
+					await runOffered(
+						engine,
+						assignment,
+						exchange,
+						AbortSignal.any([shutdown.signal, running.signal]),
+					);
+				} catch {
+					console.error("Engine delivery interrupted. Check the run receipt.");
+				} finally {
+					running = undefined;
+				}
+			}
 			if (assignment.state === "leased") {
 				if (paused) {
 					await exchange("failed", { job: assignment.job });
@@ -246,6 +294,7 @@ async function main() {
 			await sleep(2000, undefined, { signal: shutdown.signal });
 		}
 	} finally {
+		engine?.close?.();
 		tty.close();
 	}
 }

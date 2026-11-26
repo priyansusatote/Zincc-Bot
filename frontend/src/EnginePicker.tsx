@@ -4,6 +4,12 @@ import { directory } from "./conversation-client";
 import type { components } from "./generated/api";
 
 const root = "/api/workspaces/{workspaceId}/agents";
+const billing: Record<string, string> = {
+	fixture: "Local fixture · no subscription usage",
+	"opencode-free": "OpenCode Free · free CLI route",
+	antigravity: "Antigravity · personal plan",
+	"chatgpt-plan": "ChatGPT · personal plan",
+};
 export function EnginePicker({
 	workspace,
 	agent,
@@ -23,6 +29,7 @@ export function EnginePicker({
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const attempt = useRef("");
+	const account = view?.accounts.find((a) => a.id === connection);
 	const path = { workspaceId: workspace, id: agent };
 	const headers = { [session.csrfHeader]: session.csrfToken };
 	async function load() {
@@ -58,8 +65,8 @@ export function EnginePicker({
 		>
 			<summary>Connected engines</summary>
 			<p>
-				Offline fixture · this Zincc server · no subscription usage · no
-				external tools
+				Pair a device to use its provider account, or connect a local fixture
+				for offline tests. Engine runs accept text and have no external tools.
 			</p>
 			{view && (
 				<>
@@ -88,7 +95,8 @@ export function EnginePicker({
 					</button>
 					{view.accounts.map((a) => (
 						<p key={a.id}>
-							{a.label} · {a.active ? "connected" : "revoked"}{" "}
+							{a.label} · {billing[a.provider] ?? a.provider} ·{" "}
+							{a.active ? (a.online ? "online" : "offline") : "revoked"}{" "}
 							{a.active && (
 								<button
 									disabled={busy}
@@ -134,7 +142,13 @@ export function EnginePicker({
 						Engine account
 						<select
 							value={connection}
-							onChange={(e) => setConnection(e.target.value)}
+							onChange={(e) => {
+								setConnection(e.target.value);
+								setModel(
+									view.accounts.find((a) => a.id === e.target.value)
+										?.models[0] ?? "",
+								);
+							}}
 						>
 							<option value="">Choose account</option>
 							{view.accounts
@@ -149,14 +163,19 @@ export function EnginePicker({
 					<label>
 						Engine model
 						<select value={model} onChange={(e) => setModel(e.target.value)}>
-							{view.models.map((m) => (
+							{(account?.models ?? []).map((m) => (
 								<option key={m}>{m}</option>
 							))}
 						</select>
 					</label>
 					<button
 						type="button"
-						disabled={busy || !connection}
+						disabled={
+							busy ||
+							!account?.active ||
+							!account.online ||
+							!account.models.includes(model)
+						}
 						onClick={() =>
 							void act(() =>
 								client.PUT(`${root}/{id}/engines/selection`, {
@@ -191,7 +210,7 @@ export function EnginePicker({
 						{thread ? "Inherit agent default" : "Clear default"}
 					</button>
 					<label>
-						Text to check
+						Task for the selected engine
 						<textarea
 							value={goal}
 							maxLength={2000}
@@ -203,7 +222,14 @@ export function EnginePicker({
 					</label>
 					<button
 						type="button"
-						disabled={busy || !selected || !goal.trim()}
+						disabled={
+							busy ||
+							!selected ||
+							!goal.trim() ||
+							!view.accounts.some(
+								(a) => a.id === selected.connection && a.active && a.online,
+							)
+						}
 						onClick={() =>
 							void act(async () => {
 								attempt.current ||= crypto.randomUUID();

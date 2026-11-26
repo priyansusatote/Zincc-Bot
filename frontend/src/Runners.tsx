@@ -83,6 +83,14 @@ function Panel({ workspace, session }: Props) {
 				<code>node frontend/runner/local.mjs --browser</code>. To share a
 				top-level file count, add <code>--folder "your folder"</code>.
 			</p>
+			<p>
+				For ChatGPT plan access, run{" "}
+				<code>node frontend/runner/local.mjs --engine chatgpt-plan</code> on
+				this PC. For OpenCode Free or Antigravity, use{" "}
+				<code>--engine opencode-free</code> or <code>--engine antigravity</code>{" "}
+				and supply <code>--binary</code> with the installed CLI path. After
+				pairing, select the account in Agents and runs.
+			</p>
 			<button type="button" disabled={busy} onClick={() => void act()}>
 				Create pairing code
 			</button>

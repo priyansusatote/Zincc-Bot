@@ -75,7 +75,57 @@ class RunnerLeaseTest {
 			api.command(null, ws, id, new RunnerApi.Command("revoke"));
 			assertThatThrownBy(() -> api.exchange(token, poll)).hasMessageContaining("401");
 			assertThat(api.list(null, ws).jobs()).hasSize(3);
+			verifyEngineDelivery(api, admin, ws, who);
 		}
+	}
+
+	private void verifyEngineDelivery(RunnerApi api, JdbcTemplate admin, UUID ws, UUID owner) {
+		var code = api.invite(null, ws).getBody().code().split("\\.");
+		var device = UUID.fromString(code[2]);
+		var catalog = new DeviceEngines.Catalog("chatgpt-plan", "Test plan", List.of("test-model"));
+		var pair = new RunnerApi.Pulse(ws, owner, device, "pair", false, false, null, null, catalog, null);
+		api.localOnly = true;
+		assertThatThrownBy(() -> api.exchange("Bearer " + code[3], pair)).hasMessageContaining("409");
+		api.localOnly = false;
+		var token = "Bearer " + api.exchange("Bearer " + code[3], pair).getBody().credential();
+		var agent = UUID.randomUUID();
+		var run = UUID.randomUUID();
+		admin.update("INSERT INTO zincc.agent VALUES(?,?,?,null,1)", agent, ws, owner);
+		admin.update(
+				"INSERT INTO zincc.agent_version(agent_id,version,name,instructions,route,can_read,can_write) VALUES(?,1,'test','Use plain text','local',false,false)",
+				agent);
+		admin.update(
+				"INSERT INTO zincc.agent_run(id,workspace_id,actor_id,agent_id,version,goal,mode,state) VALUES(?,?,?,?,1,'private task','engine-fixture','running')",
+				run, ws, owner, agent);
+		admin.update(
+				"INSERT INTO zincc.engine_receipt(run_id,connection_id,generation,model) VALUES(?,?,1,'test-model')",
+				run, device);
+		var poll = new RunnerApi.Pulse(ws, owner, device, "engine-poll", false, false, null, null);
+		var offer = api.exchange(token, poll).getBody();
+		assertThat(offer.model()).isEqualTo("test-model");
+		assertThat(offer.goal()).isNull();
+		var wrong = new RunnerApi.Pulse(ws, owner, device, "engine-claim", false, false, run, null, null,
+				new DeviceEngines.Event("different", null, null));
+		assertThatThrownBy(() -> api.exchange(token, wrong)).hasMessageContaining("409");
+		var claim = new RunnerApi.Pulse(ws, owner, device, "engine-claim", false, false, run, null, null,
+				new DeviceEngines.Event("test-model", null, null));
+		var payload = api.exchange(token, claim).getBody();
+		assertThat(payload.goal()).isEqualTo("private task");
+		assertThat(payload.instructions()).isEqualTo("Use plain text");
+		assertThatThrownBy(() -> api.exchange(token, claim)).hasMessageContaining("409");
+		assertThat(api.exchange(token, poll).getBody().state()).isEqualTo("idle");
+		var complete = new RunnerApi.Pulse(ws, owner, device, "engine-complete", false, false, run, null, null,
+				new DeviceEngines.Event("test-model", "result", null));
+		admin.update("UPDATE zincc.engine_connection SET generation=2 WHERE id=?", device);
+		assertThatThrownBy(() -> api.exchange(token, complete)).hasMessageContaining("409");
+		admin.update("UPDATE zincc.engine_connection SET generation=1 WHERE id=?", device);
+		admin.update("UPDATE zincc.agent_run SET state='cancelled' WHERE id=?", run);
+		assertThatThrownBy(() -> api.exchange(token, complete)).hasMessageContaining("409");
+		admin.update("UPDATE zincc.agent_run SET state='running' WHERE id=?", run);
+		assertThat(api.exchange(token, complete).getBody().state()).isEqualTo("completed");
+		assertThatThrownBy(() -> api.exchange(token, complete)).hasMessageContaining("409");
+		assertThat(admin.queryForObject("SELECT outcome FROM zincc.agent_run WHERE id=?", String.class, run))
+			.isEqualTo("result");
 	}
 
 }

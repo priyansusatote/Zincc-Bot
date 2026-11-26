@@ -5,7 +5,7 @@ import java.util.UUID;
 import static io.zincc.agents.AgentStore.*;
 
 /**
- * A device-independent conformance engine with a private, revocable fixture connection.
+ * Member-owned connections, frozen run selections and completion for the local fixture.
  */
 final class ConnectedEngines {
 
@@ -17,7 +17,8 @@ final class ConnectedEngines {
 		this.store = store;
 	}
 
-	record Account(UUID id, String label, boolean active, int generation) {
+	record Account(UUID id, String label, boolean active, int generation, String provider, UUID device,
+			List<String> models, boolean online) {
 	}
 
 	record Choice(UUID connection, String model, UUID thread) {
@@ -35,9 +36,12 @@ final class ConnectedEngines {
 	Picker picker(Scope s, UUID agent) {
 		return store.authorized(s, () -> {
 			visible("agent", agent);
-			var accounts = store.db.query(
-					"SELECT id,label,active,generation FROM zincc.engine_connection ORDER BY label",
-					(r, n) -> new Account(r.getObject(1, UUID.class), r.getString(2), r.getBoolean(3), r.getInt(4)));
+			var accounts = store.db.query("""
+					SELECT c.id,c.label,c.active,c.generation,c.provider,c.device,c.catalog,
+					    (c.device IS NULL OR (d.state='active' AND d.seen>now()-interval '25 seconds')) AS online
+					FROM zincc.engine_connection c LEFT JOIN zincc.runner d ON d.id=c.device ORDER BY c.label
+					""", (r, n) -> new Account(r.getObject(1, UUID.class), r.getString(2), r.getBoolean(3), r.getInt(4),
+					r.getString(5), r.getObject(6, UUID.class), r.getString(7).lines().toList(), r.getBoolean(8)));
 			var choices = store.db.query(
 					"SELECT connection_id,model,thread_id FROM zincc.engine_choice WHERE agent_id=? ORDER BY thread_id NULLS FIRST",
 					(r, n) -> new Choice(r.getObject(1, UUID.class), r.getString(2), r.getObject(3, UUID.class)),
@@ -58,7 +62,7 @@ final class ConnectedEngines {
 				() -> store.db.update(
 						"""
 								INSERT INTO zincc.engine_connection(id,workspace_id,actor_id,label) VALUES(?,?,?,?)
-								ON CONFLICT(workspace_id,actor_id,label) DO UPDATE SET active=true,generation=engine_connection.generation+1 WHERE NOT engine_connection.active
+								ON CONFLICT(workspace_id,actor_id,label) DO UPDATE SET active=true,generation=engine_connection.generation+1 WHERE NOT engine_connection.active AND engine_connection.device IS NULL
 								""",
 						UUID.randomUUID(), s.workspace(), s.actor(), label.strip()));
 	}
@@ -80,11 +84,11 @@ final class ConnectedEngines {
 						agent, choice.thread);
 				return true;
 			}
-			if (!MODELS.contains(choice.model == null ? "" : choice.model))
+			if (!text(choice.model, 160))
 				throw bad();
-			if (store.db
-				.queryForList("SELECT id FROM zincc.engine_connection WHERE id=? AND active FOR SHARE", UUID.class,
-						choice.connection)
+			if (store.db.queryForList(
+					"SELECT id FROM zincc.engine_connection WHERE id=? AND active AND ? = ANY(string_to_array(catalog,chr(10))) FOR SHARE",
+					UUID.class, choice.connection, choice.model)
 				.isEmpty())
 				throw missing();
 			store.db.update(
@@ -110,7 +114,7 @@ final class ConnectedEngines {
 		return store.authorized(s, () -> {
 			if (cmd.thread != null)
 				visible("conversation", cmd.thread);
-			var id = store.startInternal(s, agent, new Start(cmd.requestId, cmd.goal, "engine-fixture"));
+			var id = store.startInternal(s, agent, new Start(cmd.requestId, cmd.goal, "connected-engine"));
 			var prior = store.db.queryForList(
 					"SELECT run_id FROM zincc.engine_receipt WHERE run_id=? AND thread_id IS NOT DISTINCT FROM ?",
 					UUID.class, id, cmd.thread);
@@ -123,13 +127,19 @@ final class ConnectedEngines {
 			// falls back.
 			var rows = store.db.queryForList(
 					"""
-							SELECT c.connection_id,c.model,e.active,e.generation FROM zincc.engine_choice c JOIN zincc.engine_connection e ON e.id=c.connection_id
+							SELECT c.connection_id,c.model,e.active,e.generation,e.device,
+							    (e.device IS NULL OR EXISTS(SELECT 1 FROM zincc.runner d WHERE d.id=e.device
+							        AND d.state='active' AND d.seen>clock_timestamp()-interval '25 seconds')) AS online
+							FROM zincc.engine_choice c JOIN zincc.engine_connection e ON e.id=c.connection_id
 							WHERE c.agent_id=? AND (c.thread_id IS NULL OR c.thread_id=?) ORDER BY c.thread_id NULLS LAST LIMIT 1 FOR SHARE OF c,e
 							""",
 					agent, cmd.thread);
-			if (rows.isEmpty() || !Boolean.TRUE.equals(rows.getFirst().get("active")))
+			if (rows.isEmpty() || !Boolean.TRUE.equals(rows.getFirst().get("active"))
+					|| !Boolean.TRUE.equals(rows.getFirst().get("online")))
 				throw conflict();
 			var row = rows.getFirst();
+			if (store.localOnly && row.get("device") != null)
+				throw conflict();
 			store.db.update(
 					"INSERT INTO zincc.engine_receipt(run_id,connection_id,generation,model,thread_id) VALUES(?,?,?,?,?)",
 					id, row.get("connection_id"), row.get("generation"), row.get("model"), cmd.thread);
@@ -140,14 +150,30 @@ final class ConnectedEngines {
 	String advance(Run r, boolean allowed) {
 		var rows = store.db.queryForList(
 				"""
-						SELECT e.model,e.acknowledged FROM zincc.engine_receipt e JOIN zincc.engine_connection c ON c.id=e.connection_id
-						WHERE e.run_id=? AND c.active AND c.generation=e.generation FOR SHARE OF c
+						SELECT e.model,e.acknowledged,c.device,
+						                      (e.claimed_at IS NOT NULL AND e.claimed_at<clock_timestamp()-interval '100 seconds') AS lost,
+						                      (r.created_at<clock_timestamp()-interval '2 minutes') AS stale,
+						                      EXISTS(SELECT 1 FROM zincc.runner d WHERE d.id=c.device AND d.state='active') AS paired
+						                  FROM zincc.engine_receipt e JOIN zincc.engine_connection c ON c.id=e.connection_id
+						JOIN zincc.agent_run r ON r.id=e.run_id WHERE e.run_id=? AND c.active AND c.generation=e.generation FOR SHARE OF c
 						""",
 				r.id());
 		if (!allowed || rows.isEmpty())
 			return store.set(r.id(), "failed", "Engine grant expired or revoked.");
 		var row = rows.getFirst();
 		var model = (String) row.get("model");
+		if (row.get("device") != null) {
+			if (store.localOnly)
+				return store.set(r.id(), "failed", "Cloud engine disabled by local-only policy.");
+			if (Boolean.TRUE.equals(row.get("lost")) || !Boolean.TRUE.equals(row.get("paired")))
+				return store.set(r.id(), row.get("acknowledged") == null ? "failed" : "unknown",
+						"Paired device disconnected. Check provider activity before submitting again.");
+			if (row.get("acknowledged") == null && Boolean.TRUE.equals(row.get("stale")))
+				return store.set(r.id(), "failed", "Device did not accept the task before expiry.");
+			if (r.state().equals("queued"))
+				store.set(r.id(), "running", "Waiting for the selected device and model.");
+			return "joining";
+		}
 		if (!MODELS.contains(model))
 			return store.set(r.id(), "failed", "Unsupported engine model.");
 		if (row.get("acknowledged") == null) {
