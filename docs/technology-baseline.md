@@ -1,5 +1,7 @@
 # Technology baseline and adoption gates
 
+P9 installed Google ADK 2.15.1, LangGraph 1.2.24, PydanticAI Slim 2.74.0 and AG-UI Protocol 1.0.0. The Linux/amd64 wheel hashes were resolved with uv 0.13.10 against the P4 Python 3.12 base. The tested local Docker image ID is `sha256:0eadf1bcc3b549d1fe71f845237100470dca53d50e7ae72418fb048b935062b9`. Rebuilt images must be registered by their own ID. [Locked dependencies](../worker/frameworks/requirements.lock) · [Framework evidence](modules/phase-nine-builder.md)
+
 P5 reuses the existing JDK, Spring, PostgreSQL, frontend locks and P4 container image. The fixed stdio tool and client implement the MCP `2025-06-18` lifecycle and tools subset. Local database, protocol and browser qualification is recorded in the [integration guide](modules/phase-five-integrations.md).
 
 P4 qualified the document worker on Linux/amd64 with Python 3.12 on base image `python@sha256:935c3c5b12357a7e10caa9c1e6ca5692344d97cf229832ef584be2cec9fc03df`. The qualified local image ID was `sha256:9d1ffb9cc19dc390d27d3c8adbd4f3cb95037b9c932d785452e8662eb62d43f1`. Python wheels pin pdfplumber 0.11.11, ONNX Runtime 1.32.0, tokenizers 0.23.3 and every transitive hash. Tesseract 5.3.0 uses the Debian Bookworm English pack. MiniLM is pinned by model commit and quantization flavor. [Wheel lock](../worker/knowledge/requirements.lock) · [OS package snapshot](../worker/knowledge/os-packages.lock) · [Build](../worker/knowledge/Dockerfile)

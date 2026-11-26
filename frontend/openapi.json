@@ -419,6 +419,52 @@
             }
           }
         }
+      },
+      "get": {
+        "operationId": "agentVersionHistory",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owner-visible versions in descending order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentVersion"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/workspaces/{workspaceId}/agents/connection": {
@@ -1719,6 +1765,288 @@
           }
         }
       }
+    },
+    "/api/workspaces/{workspaceId}/conversations/{id}/ag-ui": {
+      "get": {
+        "operationId": "agUiReplay",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Last-Event-ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded AG-UI text lifecycle SSE, with projection-specific replay cursor",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource unavailable"
+          },
+          "409": {
+            "description": "Invalid cursor"
+          },
+          "410": {
+            "description": "Cursor expired; fetch snapshot"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/agents/{id}/engines": {
+      "get": {
+        "operationId": "enginePicker",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnginePicker"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/agents/engines/fixture": {
+      "post": {
+        "operationId": "connectFixture",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "label"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/agents/engines/{connection}": {
+      "delete": {
+        "operationId": "revokeEngine",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "connection",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/agents/{id}/engines/selection": {
+      "put": {
+        "operationId": "selectEngine",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EngineChoice"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/agents/{id}/engine-runs": {
+      "post": {
+        "operationId": "startEngine",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspaceId",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "requestId",
+                  "goal",
+                  "thread"
+                ],
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "goal": {
+                    "type": "string"
+                  },
+                  "thread": {
+                    "type": "string",
+                    "format": "uuid",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2070,6 +2398,9 @@
           },
           "expectedVersion": {
             "type": "integer"
+          },
+          "framework": {
+            "type": "string"
           }
         }
       },
@@ -2116,6 +2447,9 @@
           },
           "mine": {
             "type": "boolean"
+          },
+          "framework": {
+            "type": "string"
           }
         }
       },
@@ -2252,6 +2586,12 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TeamMember"
+            }
+          },
+          "frameworks": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           }
         }
@@ -3013,6 +3353,125 @@
           "sourceGoal",
           "revision"
         ]
+      },
+      "EngineAccount": {
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "active",
+          "generation"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "label": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "generation": {
+            "type": "integer"
+          }
+        }
+      },
+      "EngineChoice": {
+        "type": "object",
+        "required": [
+          "connection",
+          "model",
+          "thread"
+        ],
+        "properties": {
+          "connection": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "model": {
+            "type": "string",
+            "nullable": true
+          },
+          "thread": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "EngineReceipt": {
+        "type": "object",
+        "required": [
+          "run",
+          "connection",
+          "model",
+          "acknowledged",
+          "generation",
+          "thread"
+        ],
+        "properties": {
+          "run": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "connection": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string"
+          },
+          "acknowledged": {
+            "type": "string",
+            "nullable": true
+          },
+          "generation": {
+            "type": "integer"
+          },
+          "thread": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          }
+        }
+      },
+      "EnginePicker": {
+        "type": "object",
+        "required": [
+          "accounts",
+          "models",
+          "choices",
+          "receipts"
+        ],
+        "properties": {
+          "accounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EngineAccount"
+            }
+          },
+          "models": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "choices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EngineChoice"
+            }
+          },
+          "receipts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EngineReceipt"
+            }
+          }
+        }
       }
     }
   }

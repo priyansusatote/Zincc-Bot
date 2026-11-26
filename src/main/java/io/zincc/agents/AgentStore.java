@@ -31,14 +31,18 @@ class AgentStore {
 	}
 
 	record Definition(String name, String instructions, String route, boolean canRead, boolean canWrite,
-			UUID delegateId, Integer expectedVersion) {
+			UUID delegateId, Integer expectedVersion, String framework) {
+		Definition(String name, String instructions, String route, boolean canRead, boolean canWrite, UUID delegateId,
+				Integer expectedVersion) {
+			this(name, instructions, route, canRead, canWrite, delegateId, expectedVersion, null);
+		}
 	}
 
 	record Start(UUID requestId, String goal, String mode) {
 	}
 
 	record Agent(UUID id, int version, String name, String instructions, String route, boolean canRead,
-			boolean canWrite, UUID delegateId, boolean mine) {
+			boolean canWrite, UUID delegateId, boolean mine, String framework) {
 	}
 
 	record Run(UUID id, UUID agentId, int version, String goal, String mode, String state, int steps,
@@ -50,7 +54,7 @@ class AgentStore {
 	}
 
 	record View(List<Agent> agents, List<Run> runs, Connection connection, boolean available, String provider,
-			List<String> routes, List<AgentTeams.Member> teamMembers) {
+			List<String> routes, List<AgentTeams.Member> teamMembers, List<String> frameworks) {
 	}
 
 	record Access(Agent version, Agent latest, Connection connection) {
@@ -62,11 +66,21 @@ class AgentStore {
 
 	final AgentMemory memory = new AgentMemory(this);
 
+	final ConnectedEngines engines = new ConnectedEngines(this);
+
 	private final TransactionTemplate tx;
 
 	private final TasksConnector connector;
 
 	private final ModelGateway models;
+
+	@org.springframework.beans.factory.annotation.Value("${zincc.framework-image:}")
+	String frameworkImage = "";
+
+	List<String> frameworks() {
+		return frameworkImage.matches("sha256:[a-f0-9]{64}") ? List.of("native", "adk", "langgraph", "pydantic-ai")
+				: List.of("native");
+	}
 
 	AgentStore(DataSource data, TasksConnector connector, ModelGateway models) {
 		this.db = new JdbcTemplate(data);
@@ -118,14 +132,15 @@ class AgentStore {
 	}
 
 	private static final String AGENTS = """
-			SELECT a.id,v.version,v.name,v.instructions,v.route,v.can_read,v.can_write,v.delegate_id,a.owner_id=zincc.actor() AS mine
+			SELECT a.id,v.version,v.name,v.instructions,v.route,v.can_read,v.can_write,v.delegate_id,a.owner_id=zincc.actor() AS mine,v.framework
 			FROM zincc.agent a JOIN zincc.agent_version v ON v.agent_id=a.id
 			""";
 
 	private List<Agent> agents(String condition, Object... args) {
 		return db.query(AGENTS + condition,
 				(r, n) -> new Agent(r.getObject(1, UUID.class), r.getInt(2), r.getString(3), r.getString(4),
-						r.getString(5), r.getBoolean(6), r.getBoolean(7), r.getObject(8, UUID.class), r.getBoolean(9)),
+						r.getString(5), r.getBoolean(6), r.getBoolean(7), r.getObject(8, UUID.class), r.getBoolean(9),
+						r.getString(10)),
 				args);
 	}
 
@@ -157,9 +172,20 @@ class AgentStore {
 	}
 
 	View view(Scope s) {
-		return authorized(s, () -> new View(agents(" WHERE a.version=v.version ORDER BY v.name,a.id"),
-				runs(" ORDER BY r.created_at DESC LIMIT 50"), connection(), connector.configured(s),
-				connector.reference(), models.routes().stream().map(ModelGateway.Route::id).toList(), teams.recent()));
+		return authorized(s,
+				() -> new View(agents(" WHERE a.version=v.version ORDER BY v.name,a.id"),
+						runs(" ORDER BY r.created_at DESC LIMIT 50"), connection(), connector.configured(s),
+						connector.reference(), models.routes().stream().map(ModelGateway.Route::id).toList(),
+						teams.recent(), frameworks()));
+	}
+
+	List<Agent> history(Scope s, UUID id, int before) {
+		if (before < 1)
+			throw bad();
+		return authorized(s,
+				() -> agents(
+						" WHERE a.id=? AND a.owner_id=zincc.actor() AND v.version<? ORDER BY v.version DESC LIMIT 20",
+						id, before));
 	}
 
 	void connect(Scope s, boolean active) {
@@ -190,6 +216,18 @@ class AgentStore {
 		return authorized(s, () -> {
 			lockDefinition(id, true);
 			int v = d.expectedVersion + 1;
+			String framework = d.framework;
+			if (framework == null) {
+				framework = v == 1 ? "native"
+						: agents(" WHERE a.id=? AND a.owner_id=zincc.actor() AND a.version=v.version AND v.version=?",
+								id, d.expectedVersion)
+							.stream()
+							.findFirst()
+							.orElseThrow(AgentStore::conflict)
+							.framework();
+			}
+			if (!frameworks().contains(framework))
+				throw bad();
 			if (d.delegateId != null && !Boolean.TRUE
 				.equals(db.queryForObject("SELECT zincc.can_delegate_to(?)", Boolean.class, d.delegateId)))
 				throw bad();
@@ -202,8 +240,8 @@ class AgentStore {
 			if (rows != 1)
 				throw conflict();
 			db.update(
-					"INSERT INTO zincc.agent_version(agent_id,version,name,instructions,route,can_read,can_write,delegate_id) VALUES(?,?,?,?,?,?,?,?)",
-					id, v, d.name, d.instructions, d.route, d.canRead, d.canWrite, d.delegateId);
+					"INSERT INTO zincc.agent_version(agent_id,version,name,instructions,route,can_read,can_write,delegate_id,framework) VALUES(?,?,?,?,?,?,?,?,?)",
+					id, v, d.name, d.instructions, d.route, d.canRead, d.canWrite, d.delegateId, framework);
 			return v;
 		});
 	}

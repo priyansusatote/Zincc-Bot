@@ -1,5 +1,7 @@
 # Zincc
 
+In **Agents and runs**, choose a framework, compare agent versions, restore an earlier definition or run a private local engine fixture. [P9 walkthrough and provider qualification](docs/modules/phase-nine-builder.md)
+
 The local workbench supports parallel agent reviews, local text checks, editable private memory and source-linked recall. Open **Agents and runs** to try them. [P7 walkthrough and evaluation](docs/modules/phase-seven-agents.md).
 
 To try Numes with your own inference key, enable the `numes-free` profile and choose **numes-glm-flash-free** or **numes-ultra-free** in the model picker. [Model setup](docs/modules/model-gateway.md#numes-free-routes)

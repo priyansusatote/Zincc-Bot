@@ -1,5 +1,9 @@
 # Zincc status
 
+## Phase 9 in progress, 26 November 2026
+
+The whole P9 batch is authorized. P8 follows P10. The local workbench delivers the three bounded framework adapters, authenticated AG-UI text replay, version comparison and restoration, and the private engine-picker fixture. Real provider account connections are at different stages of qualification. The one approved OpenCode free inference attempt did not confirm completion. [Task and provider evidence](modules/phase-nine-builder.md)
+
 ## Phase 7 local workbench and evaluation
 
 **Numes follow-up, 24 November.** Both optional free routes completed signed-in chat. Nemotron Ultra completed a structured single-agent run and a two-reviewer team with a verified stored merge. GLM Flash's team failed. Across 18 tool-discovery trials per route, Ultra completed four correctly and GLM Flash one. Seventeen trials ended with HTTP 503. Direct remains the active strategy. [Results](phases/p7-evaluation.md#numes-free-models) · [Learning note](learning-notes/041-numes-route-qualification.md)

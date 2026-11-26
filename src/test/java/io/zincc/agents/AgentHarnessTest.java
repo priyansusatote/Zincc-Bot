@@ -93,6 +93,83 @@ class AgentHarnessTest {
 	}
 
 	@Test
+	void engineChoiceFreezesBeforeDispatchAndRevocationStopsTheRun() {
+		var engines = store.engines;
+		var label = "local-" + agent;
+		engines.connect(s, label);
+		var account = engines.picker(s, agent)
+			.accounts()
+			.stream()
+			.filter(a -> a.label().equals(label))
+			.findFirst()
+			.orElseThrow();
+		var thread = UUID.randomUUID();
+		admin.update("INSERT INTO zincc.conversation(id,workspace_id,owner_id,title) VALUES(?,?,?,'Fixture')", thread,
+				workspace, owner);
+		engines.choose(s, agent, new ConnectedEngines.Choice(account.id(), "fixture/word-count", null));
+		engines.choose(s, agent, new ConnectedEngines.Choice(account.id(), "fixture/checklist", thread));
+		var cmd = new ConnectedEngines.StartEngine(UUID.randomUUID(), "- [ ] sample", thread);
+		var id = engines.start(s, agent, cmd);
+		engines.choose(s, agent, new ConnectedEngines.Choice(null, null, thread));
+		assertThat(engines.start(s, agent, cmd)).isEqualTo(id);
+		assertThat(tick(id)).isEqualTo("running");
+		assertThat(tick(id)).isEqualTo("completed");
+		assertThat(run(id).outcome()).isEqualTo("Unchecked items: 1");
+		var retry = engines.start(s, agent,
+				new ConnectedEngines.StartEngine(UUID.randomUUID(), "three sample words", thread));
+		assertThat(tick(retry)).isEqualTo("running");
+		engines.revoke(s, account.id());
+		engines.connect(s, label);
+		assertThat(tick(retry)).isEqualTo("failed");
+		assertThat(engines.picker(s, agent).receipts()).filteredOn(r -> r.run().equals(id))
+			.singleElement()
+			.satisfies(r -> assertThat(r.acknowledged()).isEqualTo("fixture/checklist"));
+		assertThatThrownBy(() -> engines.picker(new Scope(workspace, other), agent)).hasMessageContaining("404");
+	}
+
+	@Test
+	void ownerCanRestoreHistoryWithoutRewritingAPinnedRun() {
+		var run = start("model");
+		store.save(s, agent, new Definition("Changed", "New instructions", "model", false, false, null, 1));
+		assertThat(store.history(new Scope(workspace, other), agent, 3)).isEmpty();
+		var old = store.history(s, agent, 2).getFirst();
+		assertThat(old.framework()).isEqualTo("native");
+		store.save(s, agent, new Definition(old.name(), old.instructions(), old.route(), old.canRead(), old.canWrite(),
+				old.delegateId(), 2, old.framework()));
+		assertThat(store.history(s, agent, 4)).extracting(Agent::version).containsExactly(3, 2, 1);
+		assertThat(run(run).version()).isEqualTo(1);
+		assertThatThrownBy(() -> store.save(s, agent, definition(2, false, null))).hasMessageContaining("409");
+	}
+
+	@Test
+	void olderClientsPreserveFrameworkWhenEditingDefinitions() {
+		store.frameworkImage = "sha256:" + "0".repeat(64);
+		store.save(s, agent, new Definition("Custom", "Check text", "model", false, false, null, 1, "langgraph"));
+		store.save(s, agent, definition(2, false, null));
+		assertThat(store.history(s, agent, 4).getFirst().framework()).isEqualTo("langgraph");
+	}
+
+	@org.junit.jupiter.params.ParameterizedTest
+	@org.junit.jupiter.params.provider.ValueSource(strings = { "adk", "langgraph", "pydantic-ai" })
+	@org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable(named = "ZINCC_FRAMEWORK_TEST_IMAGE",
+			matches = "sha256:[a-f0-9]{64}")
+	void isolatedFrameworkProposalWaitsForApprovalAndSurvivesWorkerReplacement(String framework) {
+		store.frameworkImage = System.getenv("ZINCC_FRAMEWORK_TEST_IMAGE");
+		store.save(s, agent,
+				new Definition("Framework test", "Plan one step", "model", true, true, null, 1, framework));
+		var response = new ModelGateway.Result(models.routes().getFirst(),
+				"{\"action\":\"create\",\"value\":\"Buy apples\"}", null, "stop");
+		when(models.text(eq("model"), anyString())).thenReturn(Mono.just(response));
+		var id = start("model");
+		assertThat(tick(id)).isEqualTo("waiting");
+		engine = new AgentEngine(store, tasks, models, json);
+		assertThat(tick(id)).isEqualTo("waiting");
+		store.decision(s, id, "cancel", null);
+		assertThat(tick(id)).isEqualTo("cancelled");
+		verify(models, times(1)).text(eq("model"), anyString());
+	}
+
+	@Test
 	void versionsAndOutboxRemainScopedAndDuplicateStartsDoNotRerun() {
 		UUID id = start("create");
 		assertThat(store.start(s, agent, new Start(id, "Buy apples", "create"))).isEqualTo(id);

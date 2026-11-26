@@ -1,6 +1,6 @@
 # ADR 0009: Separate model connections from connected agent engines
 
-Status: **Proposed**. Date: 16 November 2026. User requested existing AI subscription/CLI use as an addition while reviewing the plan; application implementation remains unapproved.
+Status: **Adopted for the P9 local connection contract and fixture.** Proposed 16 November 2026. Provider-specific release decisions require separate evidence. [Current implementation](../modules/phase-nine-builder.md)
 
 ## Problem
 

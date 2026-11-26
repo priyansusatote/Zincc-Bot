@@ -1,5 +1,7 @@
 # Zincc project plan
 
+**Current execution order.** On 25 November the owner moved P8 after P10 and authorized the whole P9 batch. P11 remains the final interface polish. [P9 implementation and open qualification](modules/phase-nine-builder.md)
+
 Initial planning snapshot on **14 November 2026**, reviewed on **16 November**, approved on **18 November**. P1.1 delivered the local Spring Boot foundation. See the [current implementation status](status.md). Dated revisions below preserve the planning history.
 
 Scope clarification, 14 November: the user explicitly wants the previously deferred client, desktop, meeting, avatar, commerce, and marketplace capabilities included in the full product. See [action scope and named connectors](product-scope-and-connectors.md). Later phases are delivery stages, not removed scope. Implementation still awaits approval.

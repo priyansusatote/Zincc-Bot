@@ -78,11 +78,18 @@ class SessionSecurity {
 				.requestMatchers(HttpMethod.DELETE, "/api/workspaces/{workspaceId}/knowledge/{id}")
 				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/agents",
+						"/api/workspaces/{workspaceId}/agents/{id}/versions",
+						"/api/workspaces/{workspaceId}/agents/{id}/engines",
 						"/api/workspaces/{workspaceId}/agents/memory")
 				.authenticated()
-				.requestMatchers(HttpMethod.DELETE, "/api/workspaces/{workspaceId}/agents/memory/{id}")
+				.requestMatchers(HttpMethod.PUT, "/api/workspaces/{workspaceId}/agents/{id}/engines/selection")
+				.authenticated()
+				.requestMatchers(HttpMethod.DELETE, "/api/workspaces/{workspaceId}/agents/memory/{id}",
+						"/api/workspaces/{workspaceId}/agents/engines/{connection}")
 				.authenticated()
 				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/agents/{id}/versions",
+						"/api/workspaces/{workspaceId}/agents/engines/fixture",
+						"/api/workspaces/{workspaceId}/agents/{id}/engine-runs",
 						"/api/workspaces/{workspaceId}/agents/{id}/team", "/api/workspaces/{workspaceId}/agents/memory",
 						"/api/workspaces/{workspaceId}/agents/{id}/runs",
 						"/api/workspaces/{workspaceId}/agents/connection",
@@ -95,6 +102,7 @@ class SessionSecurity {
 				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/conversations",
 						"/api/workspaces/{workspaceId}/conversations/{id}",
+						"/api/workspaces/{workspaceId}/conversations/{id}/ag-ui",
 						"/api/workspaces/{workspaceId}/conversations/{id}/events")
 				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/session", "/api/workspaces", "/api/workspaces/{workspaceId}")

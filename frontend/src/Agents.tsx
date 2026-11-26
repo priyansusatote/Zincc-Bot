@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AgentMemory } from "./AgentMemory";
+import { VersionHistory } from "./VersionHistory";
+import { EnginePicker } from "./EnginePicker";
 import { client, check, type Session } from "./client";
 import type { components } from "./generated/api";
 const base = "/api/workspaces/{workspaceId}/agents" as const;
@@ -129,6 +131,23 @@ function Panel({ workspace, session, refresh }: Props) {
 					))}
 				</select>
 			</label>
+			{agent && (
+				<EnginePicker
+					key={agent.id}
+					workspace={workspace}
+					agent={agent.id}
+					session={session}
+				/>
+			)}
+			{agent?.mine && (
+				<VersionHistory
+					key={`${agent.id}:${agent.version}`}
+					agent={agent}
+					workspace={workspace}
+					headers={headers}
+					reload={load}
+				/>
+			)}
 			{(!agent || agent.mine) && (
 				<details key={agent?.id ?? "new"} open={!agent}>
 					<summary>{agent ? "Edit definition" : "Agent definition"}</summary>
@@ -147,6 +166,7 @@ function Panel({ workspace, session, refresh }: Props) {
 										name: field("name"),
 										instructions: field("instructions"),
 										route: field("route"),
+										framework: field("framework") || "native",
 										canRead: data.has("read"),
 										canWrite: data.has("write"),
 										delegateId: field("delegate") || null,
@@ -166,6 +186,17 @@ function Panel({ workspace, session, refresh }: Props) {
 								maxLength={80}
 								required
 							/>
+						</label>
+						<label>
+							Planning framework
+							<select
+								name="framework"
+								defaultValue={agent?.framework ?? "native"}
+							>
+								{(view.frameworks ?? ["native"]).map((f) => (
+									<option key={f}>{f}</option>
+								))}
+							</select>
 						</label>
 						<label>
 							Instructions

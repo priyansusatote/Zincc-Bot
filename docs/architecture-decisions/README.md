@@ -12,7 +12,7 @@ The table tracks adoption by component. Initial research was completed on 14 Nov
 | [0006](0006-client-and-delivery.md) | React workbench, staged capability delivery, later polish | Web shell adopted in P1.4 |
 | [0007](0007-code-generated-scenes.md) | Editable scenes with isolated interactive and video runtimes | Proposed |
 | [0008](0008-delegated-authority-and-data-sharing.md) | Explicit delegated authority and audience-bound sharing | Proposed |
-| [0009](0009-connected-ai-engines.md) | Separate model connections from official connected agent engines and their account lifecycles | Proposed |
+| [0009](0009-connected-ai-engines.md) | Separate model connections from connected engines and their account lifecycles | Adopted for local P9 contract |
 | [0010](0010-workspace-access.md) | Transaction-local workspace membership reads under a restricted PostgreSQL role | Adopted in P1.2 |
 | [0011](0011-browser-identity.md) | OIDC browser sessions with live workspace authorization | Adopted in P1.3 |
 | [0012](0012-conversation-replay.md) | Atomic turn projection and replay within a private conversation | Adopted in P2.2 |
@@ -21,5 +21,6 @@ The table tracks adoption by component. Initial research was completed on 14 Nov
 | [0015](0015-private-document-pipeline.md) | Fixed local document worker, private retrieval and deterministic dashboard provenance | Adopted in P4 |
 | [0016](0016-private-integrations.md) | Private connector feeds, pinned skill grants and durable read-only triggers | Adopted in P5 |
 | [0017](0017-team-runs-and-private-memory.md) | Bounded reviewer teams, versioned private recall and offline promotion | Adopted in P7 |
+| [0018](0018-framework-planning-boundary.md) | Isolate framework planning and retain one action owner | Adopted in P9 |
 
 Future ADRs must state context/problem, decision, alternatives, trade-offs, consequences, and verification. A library name alone is not a design decision.

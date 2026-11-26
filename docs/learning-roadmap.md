@@ -1,5 +1,11 @@
 # Zincc engineering learning roadmap
 
+| P9 topic | Coverage | Evidence |
+| --- | --- | --- |
+| Framework isolation, checkpoints and AG-UI replay | Implemented and tested with three SDKs and controlled inference | [Planning turns](learning-notes/042-framework-planning.md) |
+| Immutable revisions and optimistic concurrency | Implemented, database and browser verified | [Definition history](learning-notes/043-versioned-builder.md) |
+| Engine identity, consent, allowance and model acknowledgement | Private fixture implemented; provider protocols and free inference experimentally evaluated | [Engine qualification](learning-notes/044-private-engine-connections.md) |
+
 | P7 topic | Coverage | Evidence |
 | --- | --- | --- |
 | Delegation, fan-out and cancellation | Implemented, concurrent database and worker tests | [Team runs](learning-notes/037-team-runs.md) |

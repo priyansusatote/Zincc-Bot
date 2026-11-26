@@ -1,0 +1,4 @@
+google-adk==2.15.1
+langgraph==1.2.24
+pydantic-ai-slim==2.74.0
+ag-ui-protocol==1.0.0

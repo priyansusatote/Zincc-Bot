@@ -1,6 +1,6 @@
 # Existing AI plans and connected agent engines
 
-Updated **18 November 2026**. Connected engines and the model picker are planned Phase 9 features. They complement the [native harness and framework adapters](agent-runtime.md). [Original research](../research/2026-11-16-duskbot-review.md) · [Architecture decision proposal](../architecture-decisions/0009-connected-ai-engines.md)
+The [P9 implementation guide](phase-nine-builder.md) records the working private fixture picker, device-local clients and provider-specific gaps. The design below describes the complete target. [Original research](../research/2026-11-16-duskbot-review.md) · [Connection decision](../architecture-decisions/0009-connected-ai-engines.md)
 
 ## Product promise
 
@@ -85,4 +85,4 @@ Teaching topics: OAuth/OIDC versus API authentication; model versus agent-engine
 
 P9.5 defines the common engine/account contract and offline fixture. P9.6 qualifies the direct ChatGPT plan route, P9.7 Codex, P9.8 Claude Code and P9.9 Grok Build, each as a separately authorized task. P3 policy/ledger and relevant P6 execution controls are prerequisites; consumer desktop packaging depends on P13. A local test adapter can precede the polished desktop app, but cannot claim supported end-user installation until packaging and OS tests pass.
 
-The provider choices are initial targets, not a closed catalogue. No implementation, provider authentication, live test or dependency installation has happened.
+The provider choices are initial targets. Additional engines require the same capability and account qualification.

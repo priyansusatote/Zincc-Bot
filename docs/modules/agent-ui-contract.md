@@ -1,6 +1,8 @@
 # Agent-to-interface contract and AG-UI
 
-Date: **16 November 2026**. Proposed; no SDK installed. Related: [runtime](agent-runtime.md), [review evidence](../research/2026-11-16-architecture-follow-up.md).
+**Implementation, November 2026.** The P9 text-lifecycle subset runs through the authenticated conversation replay endpoint. It has distinct cursors and an SDK conformance test. Other proposed event families below remain planned. [P9 guide](phase-nine-builder.md)
+
+The following design dates from **16 November 2026**. The P9 guide above records the implemented subset. [Runtime](agent-runtime.md) · [Original review](../research/2026-11-16-architecture-follow-up.md)
 
 ## Decision
 

@@ -29,6 +29,12 @@ public final class SandboxBroker {
 				"exec(__import__('base64').b64decode('" + Base64.getEncoder().encodeToString(script) + "'))"));
 	}
 
+	public static Handle framework(String image, String framework) throws IOException {
+		if (!Set.of("adk", "langgraph", "pydantic-ai").contains(framework))
+			throw new IllegalArgumentException("Unknown framework");
+		return launch(image, false, List.of(framework));
+	}
+
 	static List<String> command(String image, String name, boolean small, List<String> program) {
 		if (!image.matches("sha256:[a-f0-9]{64}"))
 			throw new IllegalArgumentException("Pinned image required");

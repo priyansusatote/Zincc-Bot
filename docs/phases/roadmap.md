@@ -10,7 +10,7 @@ The [learning coverage matrix and lab backlog](../learning-roadmap.md) are part 
 
 The order below builds a usable vertical slice early, then adds stronger capabilities. Broad individual/team/local support is architectural; each edition's operational maturity grows through the phases. Time estimates require observed implementation velocity and budget; this is a dependency roadmap, not a promised calendar.
 
-**Scope revision, 14 November:** the user includes formerly deferred capabilities in the full product. P13–P16 below are added as expansion epics. The intended sequence is now **P1–P10 → P13–P16 → final P11 polish → full P12 release qualification**. Phase IDs remain stable references, not numerical execution order. Test/security/operations work continues throughout. Expansion epics must be split into small individually authorized tasks before implementation.
+**Scope revision, 14 November:** the user includes formerly deferred capabilities in the full product. P13–P16 below are added as expansion epics. The original sequence was revised on 25 November. The current order is **P1–P7 → P9 → P10 → P8 → P13–P16 → final P11 polish → P12 release qualification**. Phase IDs remain stable references, not numerical execution order. Test/security/operations work continues throughout. Expansion epics must be split into small individually authorized tasks before implementation.
 
 **Dependency review, 16 November:** the sequence is dependency-driven within those phases. Add P3.0, P3.4a and P4.0 below. Pull relevant P6 isolation qualification forward before enabling any hostile multi-tenant parser/code/plugin workload; P5 executable customer packages cannot ship before that gate. Early component evaluation and operational checks belong to their introducing task. Final P12 repeats/deepens them. See [the review](../PLAN-REVIEW.md) and [operations](../modules/deployment-and-operations.md).
 
@@ -128,6 +128,8 @@ Gate: each added agent/cache/memory policy demonstrates benefit against the base
 
 ## P8 — Live conversation that performs actions
 
+**Scheduling decision, 25 November.** The owner authorized the whole P9 batch and deferred P8. The current order is P9 → P10 → P8 → P13–P16 → final P11 polish → P12 qualification. Voice can then reuse the completed builder and artifact interfaces, and P11 can polish the working voice experience.
+
 | ID | Scoped task | Acceptance / learning focus |
 | --- | --- | --- |
 | P8.1 | Voice transport and turn handling | Tested STT/TTS latency, barge-in, reconnect, text fallback; teach streaming media versus control plane |
@@ -137,6 +139,8 @@ Gate: each added agent/cache/memory policy demonstrates benefit against the base
 Gate: the user's “check email/Slack while talking” journey works with honest freshness and failure reporting. Camera/meeting/avatar support follows in P14 and is included in the full requested scope.
 
 ## P9 — Customer framework adapters and builder
+
+[Implementation, local walkthrough and per-provider qualification](../modules/phase-nine-builder.md).
 
 | ID | Scoped task | Acceptance / learning focus |
 | --- | --- | --- |
@@ -154,7 +158,7 @@ Gate: the user's “check email/Slack while talking” journey works with honest
 | P9.11 | Antigravity engine qualification | Use official CLI/ACP sign-in and verify account-specific discovery, supported controls, deployment eligibility and execution on the selected runner |
 | P9.12 | Kimi Code engine qualification | Verify official login/ACP and distinguish membership from API billing; a rejected or unapplied explicit model change must stop dispatch |
 
-P9.5–P9.9 are the user's additive proposed scope from 16 November, not implementation approval. See [connected AI engines](../modules/connected-ai-engines.md). Desktop distribution depends on P13; each provider/OS/edition is qualified separately. Other engines may be added through the same contract. LoopForge-inspired reusable-workflow and rework UX refinements remain [recommendations for review](../research/2026-11-16-loopforge-review.md).
+The owner authorized P9.1–P9.12 including P9.5a on 25 November. Each provider/OS/edition needs separate evidence. Desktop distribution depends on P13. [Connected AI engines](../modules/connected-ai-engines.md)
 
 Gate: a customer can run one automation on each supported framework with documented differences. AG-UI/A2A are added only for concrete interoperability needs.
 

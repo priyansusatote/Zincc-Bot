@@ -101,6 +101,20 @@ class ConversationApi {
 			.body(frames.toString());
 	}
 
+	@GetMapping(value = "/{id}/ag-ui", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	ResponseEntity<String> agUi(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@PathVariable UUID id, @RequestParam(defaultValue = "0") long after,
+			@RequestHeader(name = "Last-Event-ID", required = false) Long last) {
+		long cursor = last == null ? after : last;
+		if (cursor < 0)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+		var events = store.replay(scope(user, workspace), id, AgUiReplay.afterSequence(cursor));
+		return ResponseEntity.ok()
+			.cacheControl(CacheControl.noStore())
+			.contentType(new MediaType(MediaType.TEXT_EVENT_STREAM, StandardCharsets.UTF_8))
+			.body(AgUiReplay.frames(id, events, cursor, json));
+	}
+
 	@PostMapping("/{id}/turns")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	void send(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace, @PathVariable UUID id,

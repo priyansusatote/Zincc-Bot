@@ -61,6 +61,8 @@ class AgentEngine implements AgentWorkflow.Steps {
 			return new Stage(r, a, state, 0);
 		if (r.mode().equals("team"))
 			return new Stage(r, a, store.teams.join(s, r, expired, a), 0);
+		if (r.mode().equals("engine-fixture"))
+			return new Stage(r, a, store.engines.advance(r, !expired && a != null), 0);
 		if (List.of("word-count", "checklist").contains(r.mode())) {
 			if (parent == null || !List.of("queued", "running").contains(parent.state())
 					|| store.access(s, parent) == null || a == null || expired)
@@ -157,7 +159,9 @@ class AgentEngine implements AgentWorkflow.Steps {
 				Goal: %s
 				Previous observation: %s
 				""".formatted(a.instructions(), TaskTool.describe(stage.access), r.goal(), r.observation());
-		var output = models.text(a.route(), prompt).block().text();
+		java.util.function.Supplier<String> infer = () -> models.text(a.route(), prompt).block().text();
+		var output = a.framework().equals("native") ? infer.get()
+				: FrameworkPlanner.plan(store.frameworkImage, a.framework(), prompt, infer, json);
 		var obj = json.readTree(output);
 		if (!obj.isObject() || obj.size() != 2 || !obj.path("action").isString() || !obj.path("value").isString())
 			throw new IllegalArgumentException();

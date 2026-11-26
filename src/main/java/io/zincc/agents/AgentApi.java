@@ -44,7 +44,46 @@ class AgentApi {
 		return Map.of("version", store.save(scope(user, workspace), id, definition));
 	}
 
+	@GetMapping("/{id}/versions")
+	java.util.List<Agent> history(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@PathVariable UUID id, @RequestParam(defaultValue = "2147483647") int before) {
+		return store.history(scope(user, workspace), id, before);
+	}
+
 	record Connect(boolean active) {
+	}
+
+	record FixtureAccount(String label) {
+	}
+
+	@GetMapping("/{id}/engines")
+	ConnectedEngines.Picker engines(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@PathVariable UUID id) {
+		return store.engines.picker(scope(user, workspace), id);
+	}
+
+	@PostMapping("/engines/fixture")
+	void connectEngine(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@RequestBody FixtureAccount account) {
+		store.engines.connect(scope(user, workspace), account.label);
+	}
+
+	@DeleteMapping("/engines/{connection}")
+	void revokeEngine(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@PathVariable UUID connection) {
+		store.engines.revoke(scope(user, workspace), connection);
+	}
+
+	@PutMapping("/{id}/engines/selection")
+	void selectEngine(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace, @PathVariable UUID id,
+			@RequestBody ConnectedEngines.Choice choice) {
+		store.engines.choose(scope(user, workspace), id, choice);
+	}
+
+	@PostMapping("/{id}/engine-runs")
+	Map<String, UUID> startEngine(@AuthenticationPrincipal OidcUser user, @PathVariable UUID workspace,
+			@PathVariable UUID id, @RequestBody ConnectedEngines.StartEngine cmd) {
+		return Map.of("id", store.engines.start(scope(user, workspace), id, cmd));
 	}
 
 	@PostMapping("/connection")
