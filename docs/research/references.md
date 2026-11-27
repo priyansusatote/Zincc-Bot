@@ -28,6 +28,8 @@ Review depth is stated per entry. Repository documentation is not a full source 
 
 **18 November follow-up.** The [OpenMausBot model picker review](2026-11-18-openmaus-model-picker.md) traces conversation defaults, account discovery and selected-model confirmation. It adds OpenCode, Antigravity and Kimi Code qualification targets to Phase 9.
 
+**27 November follow-up.** The [OpenMausBot workbench review](2026-11-27-openmaus-workbench.md) compares model switching and allowance display, cross-agent attention and desktop access requests with the delivered P9 workbench.
+
 ## 1. CopilotKit/OpenBot — repeated links consolidated
 
 Inspected [README](https://raw.githubusercontent.com/CopilotKit/OpenBot/main/README.md), [docs index](https://raw.githubusercontent.com/CopilotKit/OpenBot/main/docs/README.md), [architecture](https://raw.githubusercontent.com/CopilotKit/OpenBot/main/docs/architecture.md), [approval design](https://raw.githubusercontent.com/CopilotKit/OpenBot/main/docs/approvals.md), and [MIT license](https://raw.githubusercontent.com/CopilotKit/OpenBot/main/LICENSE).
