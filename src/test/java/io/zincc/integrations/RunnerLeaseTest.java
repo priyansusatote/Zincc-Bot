@@ -115,7 +115,7 @@ class RunnerLeaseTest {
 		assertThatThrownBy(() -> api.exchange(token, claim)).hasMessageContaining("409");
 		assertThat(api.exchange(token, poll).getBody().state()).isEqualTo("idle");
 		var complete = new RunnerApi.Pulse(ws, owner, device, "engine-complete", false, false, run, null, null,
-				new DeviceEngines.Event("test-model", "result", null));
+				new DeviceEngines.Event("test-model", "result", null, new DeviceEngines.Allowance(87.5, 300)));
 		admin.update("UPDATE zincc.engine_connection SET generation=2 WHERE id=?", device);
 		assertThatThrownBy(() -> api.exchange(token, complete)).hasMessageContaining("409");
 		admin.update("UPDATE zincc.engine_connection SET generation=1 WHERE id=?", device);
@@ -123,6 +123,10 @@ class RunnerLeaseTest {
 		assertThatThrownBy(() -> api.exchange(token, complete)).hasMessageContaining("409");
 		admin.update("UPDATE zincc.agent_run SET state='running' WHERE id=?", run);
 		assertThat(api.exchange(token, complete).getBody().state()).isEqualTo("completed");
+		assertThat(admin.queryForObject(
+				"SELECT primary_remaining FROM zincc.engine_connection WHERE id=? AND primary_window_minutes=300 AND allowance_observed_at IS NOT NULL",
+				Double.class, device))
+			.isEqualTo(87.5);
 		assertThatThrownBy(() -> api.exchange(token, complete)).hasMessageContaining("409");
 		assertThat(admin.queryForObject("SELECT outcome FROM zincc.agent_run WHERE id=?", String.class, run))
 			.isEqualTo("result");

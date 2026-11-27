@@ -48,23 +48,34 @@ export async function runOffered(engine, assignment, exchange, signal) {
 	try {
 		active.throwIfAborted();
 		let answer;
+		let allowance;
 		try {
 			answer = await engine.run(
 				model,
 				claimed.instructions,
 				claimed.goal,
 				active,
+				(reading) => {
+					allowance = reading;
+				},
 			);
 		} catch (error) {
 			if (!active.aborted)
 				await exchange("engine-failed", {
 					job,
-					event: { model, failure: error.category ?? "unconfirmed" },
+					event: {
+						model,
+						failure: error.category ?? "unconfirmed",
+						...(allowance && { allowance }),
+					},
 				});
 			return;
 		}
 		active.throwIfAborted();
-		await exchange("engine-complete", { job, event: { model, answer } });
+		await exchange("engine-complete", {
+			job,
+			event: { model, answer, ...(allowance && { allowance }) },
+		});
 	} finally {
 		stop.abort();
 		await heartbeat;

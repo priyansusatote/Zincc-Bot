@@ -65,7 +65,7 @@ final class AgentTeams {
 
 	List<Member> recent() {
 		return list(
-				" WHERE m.parent_id IN (SELECT id FROM zincc.agent_run WHERE mode='team' ORDER BY created_at DESC LIMIT 50) ORDER BY m.parent_id,m.slot");
+				" WHERE m.parent_id IN (SELECT id FROM zincc.agent_run WHERE mode='team' AND state='waiting' UNION SELECT id FROM (SELECT id FROM zincc.agent_run WHERE mode='team' ORDER BY created_at DESC,id LIMIT 50) recent) ORDER BY m.parent_id,m.slot");
 	}
 
 	private List<Member> list(String filter, Object... args) {

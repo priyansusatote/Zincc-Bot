@@ -44,7 +44,17 @@ export function EnginePicker({
 		setBusy(true);
 		setError("");
 		try {
-			if (fn) check((await fn()).response);
+			if (fn) {
+				const { response } = await fn();
+				if (response.status === 409) {
+					await load();
+					setError(
+						"The request conflicted with the current state. Review the refreshed selection and receipt before retrying.",
+					);
+					return;
+				}
+				check(response);
+			}
 			await load();
 		} catch {
 			setError(
@@ -57,6 +67,7 @@ export function EnginePicker({
 	const selected =
 		view?.choices.find((c) => thread && c.thread === thread) ??
 		view?.choices.find((c) => !c.thread);
+	const effective = view?.accounts.find((a) => a.id === selected?.connection);
 	return (
 		<details
 			onToggle={(e) => {
@@ -132,11 +143,30 @@ export function EnginePicker({
 							))}
 						</select>
 					</label>
+					<p aria-live="polite">
+						Next engine run · {effective?.label ?? "No account selected"}{" "}
+						{selected?.model} ·{" "}
+						{selected?.thread ? "Conversation override" : "Agent default"}
+						{effective &&
+							(!effective.active
+								? " · revoked"
+								: !effective.online
+									? " · offline"
+									: "")}
+					</p>
+					{effective?.remainingPercent != null &&
+						effective.windowMinutes &&
+						effective.observedAt && (
+							<p>
+								Last reported allowance ·{" "}
+								{effective.remainingPercent.toLocaleString()}% remaining in the{" "}
+								{effective.windowMinutes}-minute primary window · received{" "}
+								{new Date(effective.observedAt).toLocaleString()}
+							</p>
+						)}
 					<p>
-						Effective selection ·{" "}
-						{view.accounts.find((a) => a.id === selected?.connection)?.label ??
-							"None"}{" "}
-						{selected?.model}
+						Changes apply to future engine runs. Accepted runs keep their
+						original account and model.
 					</p>
 					<label>
 						Engine account
@@ -186,7 +216,7 @@ export function EnginePicker({
 							)
 						}
 					>
-						Save selection
+						Save for next run
 					</button>
 					<button
 						type="button"
@@ -232,6 +262,8 @@ export function EnginePicker({
 						}
 						onClick={() =>
 							void act(async () => {
+								if (!effective || !selected?.model)
+									throw Error("Choose a connected model.");
 								attempt.current ||= crypto.randomUUID();
 								const r = await client.POST(`${root}/{id}/engine-runs`, {
 									params: { path },
@@ -240,6 +272,11 @@ export function EnginePicker({
 										requestId: attempt.current,
 										goal,
 										thread: thread || null,
+										expected: {
+											connection: effective.id,
+											model: selected.model,
+											generation: effective.generation,
+										},
 									},
 								});
 								if (r.response.ok) {

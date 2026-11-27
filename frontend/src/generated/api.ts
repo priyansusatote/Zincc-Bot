@@ -943,6 +943,7 @@ export interface components {
             browser: boolean;
         };
         RunnerJob: {
+            failureReason?: string | null;
             /** Format: uuid */
             id: string;
             /** Format: uuid */
@@ -989,6 +990,10 @@ export interface components {
             device: string | null;
             models: string[];
             online: boolean;
+            remainingPercent?: number | null;
+            windowMinutes?: number | null;
+            /** Format: date-time */
+            observedAt?: string | null;
         };
         EngineChoice: {
             /** Format: uuid */
@@ -2323,6 +2328,12 @@ export interface operations {
                     goal: string;
                     /** Format: uuid */
                     thread: string | null;
+                    expected?: {
+                        /** Format: uuid */
+                        connection: string;
+                        model: string;
+                        generation: number;
+                    };
                 };
             };
         };

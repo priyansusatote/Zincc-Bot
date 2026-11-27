@@ -241,7 +241,10 @@ async function main() {
 			}
 			if (assignment.state === "leased") {
 				if (paused) {
-					await exchange("failed", { job: assignment.job });
+					await exchange("failed", {
+						job: assignment.job,
+						failureReason: "local-pause",
+					});
 					continue;
 				}
 				const task = new AbortController();
@@ -270,20 +273,36 @@ async function main() {
 								(await realpath(folder)) === folder
 							);
 						};
-						if (!(await unchanged())) throw new Error("Folder grant changed");
+						if (!(await unchanged()))
+							throw Object.assign(new Error("Folder grant changed"), {
+								code: "FOLDER_CHANGED",
+							});
 						result = await inventory(folder, signal);
-						if (!(await unchanged())) throw new Error("Folder grant changed");
+						if (!(await unchanged()))
+							throw Object.assign(new Error("Folder grant changed"), {
+								code: "FOLDER_CHANGED",
+							});
 					} else if (assignment.kind === "browser" && values.browser) {
 						result = await reviewBrowser(signal, values.channel);
 					} else throw new Error("Local grant unavailable");
 					signal.throwIfAborted();
 					await exchange("complete", { job, result });
-				} catch {
+				} catch (error) {
 					if (!shutdown.signal.aborted && (paused || !signal.aborted)) {
 						console.error(
 							"Job ended locally. Check the folder grant or browser availability.",
 						);
-						await exchange("failed", { job });
+						const failureReason = paused
+							? "local-pause"
+							: ["EACCES", "EPERM"].includes(error?.code)
+								? "access-denied"
+								: assignment.kind === "inventory" &&
+										["ENOENT", "FOLDER_CHANGED", "ENOTDIR"].includes(
+											error?.code,
+										)
+									? "folder-changed"
+									: undefined;
+						await exchange("failed", { job, failureReason });
 					}
 				} finally {
 					task.abort();

@@ -205,6 +205,15 @@ async function signIn(host, previous) {
 	return { client, subject, access: token.access_token };
 }
 
+export function primaryAllowance(headers) {
+	const used = headers.get("x-codex-primary-used-percent");
+	const window = headers.get("x-codex-primary-window-minutes");
+	if (!/^\d+(\.\d+)?$/.test(used ?? "") || !/^\d+$/.test(window ?? "")) return;
+	const minutes = Number(window);
+	if (Number(used) > 100 || minutes < 1 || minutes > 525600) return;
+	return { remaining: 100 - Number(used), minutes };
+}
+
 export function catalog(data) {
 	if (!Array.isArray(data.models)) throw Error("Invalid account catalog");
 	return data.models
@@ -298,7 +307,7 @@ export async function openPlan(profileName) {
 		return {
 			provider: "chatgpt-plan",
 			models,
-			async run(model, instructions, input, signal) {
+			async run(model, instructions, input, signal, reportAllowance) {
 				if (!models.includes(model))
 					throw Error("Selected model is unavailable on this account");
 				const response = await fetch(resource + "/responses", {
@@ -317,6 +326,8 @@ export async function openPlan(profileName) {
 						stream: true,
 					}),
 				});
+				const allowance = primaryAllowance(response.headers);
+				if (allowance) reportAllowance?.(allowance);
 				if (!response.ok) {
 					const category = {
 						401: "authorization",

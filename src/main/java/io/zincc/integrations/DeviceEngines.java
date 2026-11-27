@@ -14,7 +14,13 @@ final class DeviceEngines {
 	record Catalog(String provider, String label, List<String> models) {
 	}
 
-	record Event(String model, String answer, String failure) {
+	record Allowance(double remaining, int minutes) {
+	}
+
+	record Event(String model, String answer, String failure, Allowance allowance) {
+		Event(String model, String answer, String failure) {
+			this(model, answer, failure, null);
+		}
 	}
 
 	private final JdbcTemplate db;
@@ -99,6 +105,15 @@ final class DeviceEngines {
 		}
 		else
 			throw bad("Invalid engine event");
+		var meter = p.event().allowance();
+		if (meter != null && meter.remaining() >= 0 && meter.remaining() <= 100 && meter.minutes() >= 1
+				&& meter.minutes() <= 525600)
+			db.update(
+					"""
+							UPDATE zincc.engine_connection SET primary_remaining=?,primary_window_minutes=?,allowance_observed_at=clock_timestamp()
+							WHERE device=? AND provider='chatgpt-plan'
+							""",
+					meter.remaining(), meter.minutes(), p.device());
 		db.update("UPDATE zincc.agent_run SET state=?,outcome=? WHERE id=?", state, outcome, p.job());
 		return new RunnerApi.Reply(state, null, p.job(), null);
 	}

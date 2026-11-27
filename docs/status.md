@@ -1,5 +1,11 @@
 # Zincc status
 
+## Workbench improvements, 27 November 2026
+
+The authorized OpenMausBot follow-up covers engine selection and allowance display, a cross-agent decision inbox, and recovery guidance for supported device jobs. [Operator walkthrough](modules/phase-nine-builder.md#decisions-and-device-recovery) · [Component note](learning-notes/046-workbench-decisions.md)
+
+Completed. Java verification passed 107 tests with 10 skipped. All 12 Edge workbench tests and 13 runner tests passed. Contract generation, type checking, lint and production bundling passed. The allowance display used synthetic provider observations.
+
 ## Phase 9 in progress, 26 November 2026
 
 The paired engine workbench now delivers private text tasks to a member’s Windows runner. A live Antigravity run selected Gemini 3.8 Flash and completed with a stored result. OpenCode Free returned HTTP 429. Direct ChatGPT live verification awaits a completed provider consent callback. [Paired delivery](learning-notes/045-paired-engine-delivery.md) · [Reference decisions](research/2026-11-26-opencode-appubot.md)

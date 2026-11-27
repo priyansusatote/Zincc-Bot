@@ -87,8 +87,30 @@ function Panel({ workspace, session, refresh }: Props) {
 	const GoalField = mode === "team" ? "textarea" : "input";
 	const path = { workspaceId: workspace };
 	const headers = { [session.csrfHeader]: session.csrfToken };
+	const pending = view.runs.filter(
+		(r) => r.state === "waiting" || (r.state === "unknown" && r.digest),
+	);
 	return (
 		<section aria-label="Agent workspace">
+			<section aria-label="Needs you">
+				<h3>Needs you · {pending.length}</h3>
+				{pending.length === 0 && <p>No decisions waiting.</p>}
+				<ul>
+					{pending.map((r) => (
+						<li key={r.id}>
+							<a href={`#run-${r.id}`}>
+								{view.agents.find((a) => a.id === r.agentId)?.name ?? "Agent"} ·{" "}
+								{r.mode === "team"
+									? "Choose reviews"
+									: r.state === "unknown"
+										? "Check delivery"
+										: "Review task creation"}{" "}
+								· {r.title || r.goal}
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
 			<p>
 				{view.provider === "sandbox-tasks"
 					? "Local task sandbox"
@@ -376,7 +398,12 @@ function Panel({ workspace, session, refresh }: Props) {
 				/>
 			)}
 			{view.runs.map((r) => (
-				<article key={r.id} className="exchange">
+				<article
+					key={r.id}
+					id={`run-${r.id}`}
+					tabIndex={-1}
+					className="exchange"
+				>
 					<h3>{r.goal}</h3>
 					<p>
 						v{r.version} · {r.state} · {r.steps} steps
@@ -459,7 +486,9 @@ function Panel({ workspace, session, refresh }: Props) {
 							? ["cancel"]
 							: ["approve", "cancel"]
 						: r.state === "unknown"
-							? ["reconcile"]
+							? r.digest
+								? ["reconcile"]
+								: []
 							: ["queued", "running", "approved"].includes(r.state)
 								? ["cancel"]
 								: []

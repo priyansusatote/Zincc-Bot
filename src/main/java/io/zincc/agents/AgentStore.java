@@ -175,11 +175,11 @@ class AgentStore {
 	}
 
 	View view(Scope s) {
-		return authorized(s,
-				() -> new View(agents(" WHERE a.version=v.version ORDER BY v.name,a.id"),
-						runs(" ORDER BY r.created_at DESC LIMIT 50"), connection(), connector.configured(s),
-						connector.reference(), models.routes().stream().map(ModelGateway.Route::id).toList(),
-						teams.recent(), frameworks()));
+		return authorized(s, () -> new View(agents(" WHERE a.version=v.version ORDER BY v.name,a.id"), runs("""
+				WHERE r.state='waiting' OR (r.state='unknown' AND a.digest IS NOT NULL)
+				OR r.id IN (SELECT id FROM zincc.agent_run ORDER BY created_at DESC,id LIMIT 50)
+				ORDER BY r.created_at DESC,r.id"""), connection(), connector.configured(s), connector.reference(),
+				models.routes().stream().map(ModelGateway.Route::id).toList(), teams.recent(), frameworks()));
 	}
 
 	List<Agent> history(Scope s, UUID id, int before) {

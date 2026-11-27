@@ -19,6 +19,14 @@ The external interface uses the authenticated workspace API. `GET …/agents/{id
 
 ## Try an engine connection
 
+### Decisions and device recovery
+
+In **Agents and runs**, **Needs you** lists pending task approvals, team review choices and uncertain task writes that can be reconciled. Select an entry to jump to the original run. Decisions disappear on the next successful panel refresh after they resolve.
+
+In **Connected engines**, select the agent default or a conversation and check **Next engine run**. Save a model for future runs or return the conversation to its inherited default. A conflicting change in another tab causes a refresh before you can submit against the new selection. A ChatGPT plan response can supply a primary usage window. The workbench shows the most recently recorded percentage and time for the selected account. Refresh connections and receipts to see newly received measurements. The value describes that observation and can change between requests. [Provider header semantics](https://github.com/openai/codex/blob/main/codex-rs/codex-api/src/rate_limits.rs)
+
+In **Customer runners**, check the device's last heartbeat and grants, then read the job receipt. A local pause, an OS denial, or a replaced folder can require different action. Re-pairing creates a new device identity. The existing folder count and offline browser review are the supported desktop jobs.
+
 Select an agent, open **Connected engines** and connect a **local fixture**. Save a word-count or checklist selection as the agent default or as a private conversation override. Run a short piece of text. **Refresh connections and receipts** shows the model acknowledgement and grant generation. The run list shows the result. The fixture executes locally, has zero subscription usage and receives no external tools.
 
 An accepted run freezes the model, account, grant generation and optional conversation. Its next activity checks the grant again before consuming the goal. Reconnecting increments the generation. A revoked pin stops the run even when another default exists. Saved choices belong to the executing member. The fixture picker and its conversation overrides apply to engine runs launched here. Ordinary chat retains its model gateway picker.

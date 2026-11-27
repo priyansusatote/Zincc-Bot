@@ -18,13 +18,20 @@ final class ConnectedEngines {
 	}
 
 	record Account(UUID id, String label, boolean active, int generation, String provider, UUID device,
-			List<String> models, boolean online) {
+			List<String> models, boolean online, Double remainingPercent, Integer windowMinutes,
+			java.time.Instant observedAt) {
 	}
 
 	record Choice(UUID connection, String model, UUID thread) {
 	}
 
-	record StartEngine(UUID requestId, String goal, UUID thread) {
+	record Expected(UUID connection, String model, int generation) {
+	}
+
+	record StartEngine(UUID requestId, String goal, UUID thread, Expected expected) {
+		StartEngine(UUID requestId, String goal, UUID thread) {
+			this(requestId, goal, thread, null);
+		}
 	}
 
 	record Receipt(UUID run, UUID connection, String model, String acknowledged, int generation, UUID thread) {
@@ -38,10 +45,14 @@ final class ConnectedEngines {
 			visible("agent", agent);
 			var accounts = store.db.query("""
 					SELECT c.id,c.label,c.active,c.generation,c.provider,c.device,c.catalog,
-					    (c.device IS NULL OR (d.state='active' AND d.seen>now()-interval '25 seconds')) AS online
+					    (c.device IS NULL OR (d.state='active' AND d.seen>now()-interval '25 seconds')) AS online,
+					    c.primary_remaining,c.primary_window_minutes,c.allowance_observed_at
 					FROM zincc.engine_connection c LEFT JOIN zincc.runner d ON d.id=c.device ORDER BY c.label
-					""", (r, n) -> new Account(r.getObject(1, UUID.class), r.getString(2), r.getBoolean(3), r.getInt(4),
-					r.getString(5), r.getObject(6, UUID.class), r.getString(7).lines().toList(), r.getBoolean(8)));
+					""",
+					(r, n) -> new Account(r.getObject(1, UUID.class), r.getString(2), r.getBoolean(3), r.getInt(4),
+							r.getString(5), r.getObject(6, UUID.class), r.getString(7).lines().toList(),
+							r.getBoolean(8), r.getObject(9, Double.class), r.getObject(10, Integer.class),
+							r.getTimestamp(11) == null ? null : r.getTimestamp(11).toInstant()));
 			var choices = store.db.query(
 					"SELECT connection_id,model,thread_id FROM zincc.engine_choice WHERE agent_id=? ORDER BY thread_id NULLS FIRST",
 					(r, n) -> new Choice(r.getObject(1, UUID.class), r.getString(2), r.getObject(3, UUID.class)),
@@ -138,6 +149,9 @@ final class ConnectedEngines {
 					|| !Boolean.TRUE.equals(rows.getFirst().get("online")))
 				throw conflict();
 			var row = rows.getFirst();
+			if (cmd.expected != null && !cmd.expected.equals(new Expected((UUID) row.get("connection_id"),
+					(String) row.get("model"), (int) row.get("generation"))))
+				throw conflict();
 			if (store.localOnly && row.get("device") != null)
 				throw conflict();
 			store.db.update(

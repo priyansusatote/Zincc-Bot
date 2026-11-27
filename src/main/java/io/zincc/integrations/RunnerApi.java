@@ -50,7 +50,7 @@ class RunnerApi {
 				ORDER BY pair_until DESC LIMIT 100"""), store.db.queryForList("""
 				SELECT id,device,kind,CASE WHEN (state='leased' AND lease_until<=now()) OR
 				(state='queued' AND created<=now()-interval '1 minute') THEN 'expired' ELSE state END AS state,result
-				FROM zincc.runner_job ORDER BY created DESC LIMIT 50""")));
+				,failure_reason AS "failureReason" FROM zincc.runner_job ORDER BY created DESC LIMIT 50""")));
 	}
 
 	record Pair(String code) {
@@ -136,7 +136,12 @@ class RunnerApi {
 	}
 
 	record Pulse(UUID workspace, UUID owner, UUID device, String action, boolean folder, boolean browser, UUID job,
-			Integer result, DeviceEngines.Catalog catalog, DeviceEngines.Event event) {
+			Integer result, DeviceEngines.Catalog catalog, DeviceEngines.Event event, String failureReason) {
+		Pulse(UUID workspace, UUID owner, UUID device, String action, boolean folder, boolean browser, UUID job,
+				Integer result, DeviceEngines.Catalog catalog, DeviceEngines.Event event) {
+			this(workspace, owner, device, action, folder, browser, job, result, catalog, event, null);
+		}
+
 		Pulse(UUID workspace, UUID owner, UUID device, String action, boolean folder, boolean browser, UUID job,
 				Integer result) {
 			this(workspace, owner, device, action, folder, browser, job, result, null, null);
@@ -203,11 +208,13 @@ class RunnerApi {
 				throw bad("Invalid receipt");
 			int updated = store.db.update(
 					"""
-							UPDATE zincc.runner_job SET state=?,result=?,lease_until=least(deadline,clock_timestamp()+interval '25 seconds')
+							UPDATE zincc.runner_job SET state=?,result=?,failure_reason=?,lease_until=least(deadline,clock_timestamp()+interval '25 seconds')
 							WHERE id=? AND device=? AND state='leased' AND lease_until>clock_timestamp() AND deadline>clock_timestamp()
 							AND (kind<>'browser' OR ?<>'complete' OR ? BETWEEN 0 AND 2)""",
-					renew ? "leased" : p.action, "complete".equals(p.action) ? p.result : null, p.job, p.device,
-					p.action, p.result);
+					renew ? "leased" : p.action, "complete".equals(p.action) ? p.result : null,
+					"failed".equals(p.action) && Set.of("folder-changed", "access-denied", "local-pause")
+						.contains(Objects.toString(p.failureReason, "")) ? p.failureReason : null,
+					p.job, p.device, p.action, p.result);
 			if (updated != 1)
 				throw conflict("Lease ended");
 			return new Reply(renew ? "leased" : p.action, null, p.job, null);

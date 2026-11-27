@@ -6,8 +6,20 @@ import {
 	registration,
 	identity,
 	catalog,
+	primaryAllowance,
 	completedText,
 } from "./chatgpt-plan.mjs";
+
+test("only a reported primary window contributes an allowance snapshot", () => {
+	const h = new Headers({ "x-codex-primary-window-minutes": "300" });
+	assert.equal(primaryAllowance(h), undefined);
+	h.set("x-codex-primary-used-percent", "12.5");
+	assert.deepEqual(primaryAllowance(h), { remaining: 87.5, minutes: 300 });
+	h.set("x-codex-primary-used-percent", "100");
+	assert.equal(primaryAllowance(h).remaining, 0);
+	h.set("x-codex-primary-used-percent", "105");
+	assert.equal(primaryAllowance(h), undefined);
+});
 
 test("registration binds host, PKCE, callback state and returning client", () => {
 	const a = registration("http://127.0.0.1:3001/auth/callback", "host");

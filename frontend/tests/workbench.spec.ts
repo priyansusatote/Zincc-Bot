@@ -85,6 +85,9 @@ test("agent approval binds the displayed task; an uncertain write offers only re
 	});
 	await page.goto("/workbench/");
 	await page.getByText("Agents and runs", { exact: true }).click();
+	const inbox = page.getByRole("region", { name: "Needs you" });
+	await inbox.getByRole("link", { name: /Review task creation/ }).click();
+	await expect(page).toHaveURL(new RegExp(`#run-${runId}$`));
 	await expect(
 		page.getByText("Task title: Review proposal · List: personal"),
 	).toBeVisible();
@@ -94,6 +97,121 @@ test("agent approval binds the displayed task; an uncertain write offers only re
 	).toHaveCount(0);
 	await page.getByRole("button", { name: "Recheck provider receipt" }).click();
 	await expect(page.getByText("Provider receipt: task-1")).toBeVisible();
+	await expect(inbox.getByRole("link")).toHaveCount(0);
+});
+
+test("engine run uses the displayed override and runner recovery explains the device grant", async ({
+	page,
+}) => {
+	await ready(page, [first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	const agent = "10000000-0000-4000-8000-000000000024";
+	const device = "10000000-0000-4000-8000-000000000025";
+	const thread = "10000000-0000-4000-8000-000000000026";
+	await page.route(`${base}/conversations`, (r) =>
+		r.fulfill({
+			json: {
+				agentsEnabled: true,
+				threads: [{ id: thread, title: "Weekly review" }],
+				routes: [],
+			},
+		}),
+	);
+	await page.route(`${base}/conversations/${thread}`, (r) =>
+		r.fulfill({ json: { id: thread, title: "Weekly review", turns: [] } }),
+	);
+	await page.route(`${base}/runners`, (r) =>
+		r.fulfill({
+			json: {
+				devices: [
+					{
+						id: device,
+						state: "active",
+						online: false,
+						folder: true,
+						browser: false,
+					},
+				],
+				jobs: [
+					{
+						id: "old-job",
+						device,
+						kind: "inventory",
+						state: "failed",
+						failureReason: "folder-changed",
+					},
+				],
+			},
+		}),
+	);
+	await page.route(`${base}/agents`, (r) =>
+		r.fulfill({
+			json: {
+				agents: [{ id: agent, name: "Reviewer", version: 1 }],
+				routes: [],
+				connection: { active: true },
+				runs: [],
+			},
+		}),
+	);
+	await page.route(`${base}/agents/${agent}/engines`, (r) =>
+		r.fulfill({
+			json: {
+				accounts: [
+					{
+						id: device,
+						label: "Work plan",
+						provider: "chatgpt-plan",
+						active: true,
+						online: true,
+						generation: 3,
+						models: ["fast", "deep"],
+						remainingPercent: 0,
+						windowMinutes: 300,
+						observedAt: "2026-11-27T01:00:00Z",
+					},
+				],
+				choices: [
+					{ thread: null, connection: device, model: "fast" },
+					{ thread, connection: device, model: "deep" },
+				],
+				receipts: [],
+			},
+		}),
+	);
+	await page.route(`${base}/agents/${agent}/engine-runs`, (r) => {
+		expect(r.request().postDataJSON().expected).toEqual({
+			connection: device,
+			model: "deep",
+			generation: 3,
+		});
+		return r.fulfill({ status: 409 });
+	});
+	await page.goto("/workbench/");
+	await page.getByText("Customer runners", { exact: true }).click();
+	await expect(page.getByText(/No recent heartbeat/)).toBeVisible();
+	await expect(page.getByText(/The granted folder moved/)).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Count files" }),
+	).toBeDisabled();
+	await page.getByText("Agents and runs", { exact: true }).click();
+	await page
+		.getByRole("combobox", { name: "Agent", exact: true })
+		.selectOption(agent);
+	await page.getByText("Connected engines", { exact: true }).click();
+	await expect(
+		page.getByText(/Next engine run · Work plan fast · Agent default/),
+	).toBeVisible();
+	await expect(page.getByText(/0% remaining in the 300-minute/)).toBeVisible();
+	await page.getByLabel("Applies to").selectOption(thread);
+	await expect(
+		page.getByText(/Next engine run · Work plan deep · Conversation override/),
+	).toBeVisible();
+	await page.getByLabel("Task for the selected engine").fill("Review");
+	await page.getByRole("button", { name: "Run selected engine" }).click();
+	await expect(
+		page.getByText(/Review the refreshed selection and receipt/),
+	).toBeVisible();
 });
 
 test("workbench resolves presets and shows public source coverage", async ({
@@ -476,7 +594,9 @@ test("submitting a team keeps the multiline brief and the selected local methods
 	);
 	await page.goto("/workbench/");
 	await page.getByText("Agents and runs", { exact: true }).click();
-	await page.getByRole("combobox", { name: "Agent", exact: true }).selectOption(agents[0].id);
+	await page
+		.getByRole("combobox", { name: "Agent", exact: true })
+		.selectOption(agents[0].id);
 	await page.getByLabel("Run mode").selectOption("team");
 	await page.getByRole("checkbox", { name: "Editor", exact: true }).check();
 	await page.getByRole("checkbox", { name: "Analyst", exact: true }).check();

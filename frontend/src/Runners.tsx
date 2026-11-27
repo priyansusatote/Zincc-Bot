@@ -5,6 +5,55 @@ type View = components["schemas"]["RunnerView"];
 type Action = "inventory" | "browser" | "pause" | "resume" | "revoke";
 const base = "/api/workspaces/{workspaceId}/runners" as const;
 type Props = { workspace: string; session: Session };
+function deviceGuidance(device: View["devices"][number]) {
+	switch (device.state) {
+		case "pairing":
+			return "Enter the pairing code in the foreground runner on this device.";
+		case "expired":
+			return "The pairing code expired. Create a new code on this page.";
+		case "revoked":
+			return "Access was revoked. Pair again to grant access for a new task.";
+		case "paused":
+			return "Resume here when ready. Previously cancelled jobs require a new request.";
+		case "active":
+			if (!device.online)
+				return "No recent heartbeat. If the local runner is paused, type resume there. If it has closed, create a new code and pair it again.";
+			if (!device.folder && !device.browser)
+				return "This device has no folder or browser grant. To run a desktop job, pair a separate runner with the required grant.";
+			return "For additional capabilities, start a new pairing with the required local grant.";
+	}
+}
+
+function jobGuidance(job: View["jobs"][number]) {
+	if (job.state === "failed") {
+		switch (job.failureReason) {
+			case "access-denied":
+				return "The operating system denied access. Review local permissions before requesting another job.";
+			case "folder-changed":
+				return "The granted folder moved or changed. Pair again with the intended folder.";
+			case "local-pause":
+				return "Paused on the device. Type resume in the runner before requesting another job.";
+		}
+	}
+	switch (job.state) {
+		case "queued":
+			return "Waiting for the paired runner to collect this job.";
+		case "leased":
+			return job.kind === "browser"
+				? "Open the review window on this device and return control when ready."
+				: "The runner is counting files in the granted folder.";
+		case "expired":
+			return "The job timed out. Check the runner connection before starting a new job.";
+		case "cancelled":
+			return "This job ended. Review the device grant before requesting another job.";
+		case "failed":
+			return job.kind === "browser"
+				? "Check the local runner and its browser installation, then request a new review."
+				: "Check the local runner and that its granted folder still exists at the original path.";
+		default:
+			return "";
+	}
+}
 export function Runners(props: Props) {
 	const [open, setOpen] = useState(false);
 	return (
@@ -108,6 +157,13 @@ function Panel({ workspace, session }: Props) {
 					<strong>Runner {d.id.slice(0, 8)}</strong> · {d.state}
 					{d.state === "active" && (d.online ? " · online" : " · offline")}{" "}
 					{d.state === "active" && (
+						<span>
+							· Folder count {d.folder ? "granted" : "unavailable"} · Browser
+							review {d.browser ? "granted" : "unavailable"}.{" "}
+						</span>
+					)}
+					{deviceGuidance(d)}{" "}
+					{d.state === "active" && (
 						<>
 							{d.folder && (
 								<button
@@ -160,7 +216,8 @@ function Panel({ workspace, session }: Props) {
 			{view?.jobs.map((j) => (
 				<p key={j.id}>
 					Runner {j.device.slice(0, 8)} ·{" "}
-					{j.kind === "browser" ? "Priority review" : "File count"} · {j.state}
+					{j.kind === "browser" ? "Priority review" : "File count"} · {j.state}{" "}
+					{jobGuidance(j)}
 					{j.state === "complete" &&
 						typeof j.result === "number" &&
 						(j.kind === "browser"

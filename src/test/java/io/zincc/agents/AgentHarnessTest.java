@@ -93,6 +93,20 @@ class AgentHarnessTest {
 	}
 
 	@Test
+	void pendingDecisionSurvivesFiftyNewerRunsAndStaysPrivate() {
+		var waiting = start("create");
+		tick(waiting);
+		admin.update("""
+				INSERT INTO zincc.agent_run(id,workspace_id,actor_id,agent_id,version,goal,mode,state)
+				SELECT gen_random_uuid(),?,?,?,1,'Later task','list','completed' FROM generate_series(1,51)
+				""", workspace, owner, agent);
+		assertThat(store.view(s).runs()).extracting(Run::id).contains(waiting);
+		assertThat(store.view(new Scope(workspace, other)).runs()).extracting(Run::id).doesNotContain(waiting);
+		store.decision(s, waiting, "cancel", null);
+		assertThat(store.view(s).runs()).extracting(Run::id).doesNotContain(waiting);
+	}
+
+	@Test
 	void engineChoiceFreezesBeforeDispatchAndRevocationStopsTheRun() {
 		var engines = store.engines;
 		var label = "local-" + agent;
@@ -112,6 +126,9 @@ class AgentHarnessTest {
 		var id = engines.start(s, agent, cmd);
 		engines.choose(s, agent, new ConnectedEngines.Choice(null, null, thread));
 		assertThat(engines.start(s, agent, cmd)).isEqualTo(id);
+		var stale = new ConnectedEngines.StartEngine(UUID.randomUUID(), "changed in another tab", thread,
+				new ConnectedEngines.Expected(account.id(), "fixture/checklist", account.generation()));
+		assertThatThrownBy(() -> engines.start(s, agent, stale)).hasMessageContaining("409");
 		assertThat(tick(id)).isEqualTo("running");
 		assertThat(tick(id)).isEqualTo("completed");
 		assertThat(run(id).outcome()).isEqualTo("Unchecked items: 1");

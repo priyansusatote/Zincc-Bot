@@ -13,7 +13,7 @@ export default defineConfig({
 		viewport: { width: 1280, height: 800 },
 	},
 	webServer: {
-		command: `pnpm preview --port ${port} --strictPort`,
+		command: `node node_modules/vite/bin/vite.js preview --port ${port} --strictPort`,
 		url: `${origin}/workbench/`,
 		reuseExistingServer: false,
 	},

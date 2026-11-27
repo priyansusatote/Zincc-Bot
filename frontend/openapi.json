@@ -2040,6 +2040,15 @@
                     "type": "string",
                     "format": "uuid",
                     "nullable": true
+                  },
+                  "expected": {
+                    "type": "object",
+                    "required": ["connection", "model", "generation"],
+                    "properties": {
+                      "connection": { "type": "string", "format": "uuid" },
+                      "model": { "type": "string" },
+                      "generation": { "type": "integer" }
+                    }
                   }
                 }
               }
@@ -3239,6 +3248,10 @@
           "result"
         ],
         "properties": {
+          "failureReason": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -3396,6 +3409,19 @@
           },
           "online": {
             "type": "boolean"
+          },
+          "remainingPercent": {
+            "type": "number",
+            "nullable": true
+          },
+          "windowMinutes": {
+            "type": "integer",
+            "nullable": true
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         }
       },
