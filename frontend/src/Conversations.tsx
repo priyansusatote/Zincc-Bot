@@ -1,4 +1,21 @@
+import { ZinccEmblem } from "./ZinccEmblem";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	ArrowUp,
+	ArrowUpRight,
+	Bot,
+	BookOpen,
+	ChevronDown,
+	Compass,
+	FileText,
+	Layers,
+	Menu,
+	MessageSquare,
+	Monitor,
+	Plus,
+	Workflow,
+	X,
+} from "lucide-react";
 import { ApiError, type Session } from "./client";
 import { Research } from "./Research";
 import { Knowledge } from "./Knowledge";
@@ -24,10 +41,47 @@ const interruption: Record<string, string> = {
 	INVALID_OUTPUT: "The model returned an incomplete or invalid response.",
 };
 type Props = { workspace: string; session: Session; refresh: () => void };
+const destinations = [
+	{ id: "chat", label: "Chat", title: "Conversations", icon: MessageSquare },
+	{
+		id: "agents",
+		label: "Agents and runs",
+		title: "Agent workspace",
+		icon: Bot,
+	},
+	{
+		id: "research",
+		label: "Public web research",
+		title: "Research",
+		icon: Compass,
+	},
+	{
+		id: "knowledge",
+		label: "Documents & dashboards",
+		title: "Document library",
+		icon: BookOpen,
+	},
+	{
+		id: "integrations",
+		label: "Connections and routines",
+		title: "Automation",
+		icon: Workflow,
+	},
+	{ id: "runners", label: "Customer runners", title: "Devices", icon: Monitor },
+] as const;
+type Destination = (typeof destinations)[number]["id"];
 export function Conversations(props: Props) {
 	const { workspace, refresh } = props;
 	const [index, setIndex] = useState<Directory>();
 	const [id, setId] = useState("");
+	const [active, setActive] = useState<Destination>("chat");
+	const [menu, setMenu] = useState(false);
+	const menuButton = useRef<HTMLButtonElement>(null);
+	function navigate(destination: Destination) {
+		setActive(destination);
+		setMenu(false);
+		if (menu) menuButton.current?.focus();
+	}
 	const [failed, setFailed] = useState(false);
 	const [attempt, setAttempt] = useState(0);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: retry loads the same directory.
@@ -64,54 +118,152 @@ export function Conversations(props: Props) {
 			</p>
 		);
 	if (!index || !id) return <p role="status">Loading conversations…</p>;
+	const enabled = {
+		chat: true,
+		agents: index.agentsEnabled,
+		runners: index.agentsEnabled,
+		integrations: index.agentsEnabled,
+		research: index.publicResearch,
+		knowledge: index.knowledgeEnabled,
+	};
+	const current = destinations.find((d) => d.id === active) ?? destinations[0];
+	const thread = index.threads.find((item) => item.id === id);
 	return (
-		<section className="conversation">
-			{index.knowledgeEnabled && (
-				<Knowledge workspace={workspace} session={props.session} />
-			)}
-			{index.agentsEnabled && <Runners key={workspace} {...props} />}
-			{index.agentsEnabled && <Agents key={workspace} {...props} />}
-			{index.agentsEnabled && (
-				<Integrations workspace={workspace} session={props.session} />
-			)}
-			{index.publicResearch && (
-				<Research
-					{...props}
-					source={index.researchSource ?? "English Wikipedia"}
-				/>
-			)}
-			<div className="thread-tools">
-				<label>
-					Conversation{" "}
-					<select value={id} onChange={(e) => setId(e.target.value)}>
-						{!index.threads.some((t) => t.id === id) && (
-							<option value={id}>New conversation</option>
-						)}
-						{index.threads.map((t) => (
-							<option key={t.id} value={t.id}>
-								{t.title}
-							</option>
-						))}
-					</select>
-				</label>
+		<div className="workstation">
+			<button
+				className="mobile-menu"
+				type="button"
+				aria-expanded={menu}
+				aria-controls="workspace-sidebar"
+				ref={menuButton}
+				onClick={() => setMenu(!menu)}
+			>
+				{menu ? <X /> : <Menu />} Workspace menu
+			</button>
+			<aside
+				id="workspace-sidebar"
+				className={menu ? "rail expanded" : "rail"}
+				onKeyDown={(e) => {
+					if (e.key === "Escape") {
+						setMenu(false);
+						menuButton.current?.focus();
+					}
+				}}
+			>
 				<button
+					className="new-chat"
 					type="button"
-					className="secondary"
-					onClick={() => setId(crypto.randomUUID())}
+					onClick={() => {
+						setId(crypto.randomUUID());
+						navigate("chat");
+					}}
 				>
-					New conversation
+					<Plus size={17} /> New conversation
 				</button>
-			</div>
-			<Thread
-				key={id}
-				{...props}
-				id={id}
-				routes={index.routes}
-				presets={index.presets ?? {}}
-				saved={saved}
-				existing={index.threads.some((t) => t.id === id)}
-			/>
-		</section>
+				<nav aria-label="Workspace tools">
+					<h2>Workspace</h2>
+					{destinations
+						.filter((d) => enabled[d.id])
+						.map((d) => (
+							<button
+								type="button"
+								key={d.id}
+								aria-current={active === d.id ? "page" : undefined}
+								onClick={() => navigate(d.id)}
+							>
+								<d.icon size={17} />
+								{d.label}
+							</button>
+						))}
+				</nav>
+				<div className="history">
+					<h2>Recent conversations</h2>
+					{index.threads.length === 0 && (
+						<small>Your conversations will appear here.</small>
+					)}
+					{index.threads.map((t) => (
+						<button
+							key={t.id}
+							type="button"
+							title={t.title}
+							aria-current={
+								id === t.id && active === "chat" ? "true" : undefined
+							}
+							onClick={() => {
+								setId(t.id);
+								navigate("chat");
+							}}
+						>
+							<MessageSquare size={14} />
+							<span>{t.title}</span>
+						</button>
+					))}
+				</div>
+			</aside>
+			<section className="stage" aria-label={current.title}>
+				<div className="stage-bar">
+					<current.icon size={16} />
+					<span>{current.title}</span>
+					{active === "chat" && (
+						<>
+							<span className="slash">/</span>
+							<strong>{thread?.title ?? "New thread"}</strong>
+						</>
+					)}
+				</div>
+				<div className="chat-page" hidden={active !== "chat"}>
+					<Thread
+						key={id}
+						{...props}
+						id={id}
+						routes={index.routes}
+						presets={index.presets ?? {}}
+						saved={saved}
+						existing={!!thread}
+						shortcuts={
+							<div className="shortcuts">
+								{enabled.agents && (
+									<button type="button" onClick={() => navigate("agents")}>
+										<Bot />
+										Run an agent
+										<ArrowUpRight />
+									</button>
+								)}
+								{enabled.research && (
+									<button type="button" onClick={() => navigate("research")}>
+										<Compass />
+										Research a topic
+										<ArrowUpRight />
+									</button>
+								)}
+								{enabled.knowledge && (
+									<button type="button" onClick={() => navigate("knowledge")}>
+										<FileText />
+										Explore a PDF
+										<ArrowUpRight />
+									</button>
+								)}
+							</div>
+						}
+					/>
+				</div>
+				{active !== "chat" && (
+					<div className="tool-view">
+						<h2>{current.title}</h2>
+						{active === "agents" && <Agents {...props} />}
+						{active === "runners" && <Runners {...props} />}
+						{active === "knowledge" && <Knowledge {...props} />}
+						{active === "integrations" && <Integrations {...props} />}
+						{active === "research" && (
+							<Research
+								{...props}
+								source={index.researchSource ?? "English Wikipedia"}
+							/>
+						)}
+					</div>
+				)}
+			</section>
+		</div>
 	);
 }
 
@@ -125,12 +277,14 @@ function Thread({
 	presets,
 	saved,
 	existing,
+	shortcuts,
 }: Props & {
 	id: string;
 	routes: string[];
 	presets: Record<string, string>;
 	saved: (id: string, title: string) => void;
 	existing: boolean;
+	shortcuts: React.ReactNode;
 }) {
 	const [view, setView] = useState<Snapshot>(empty);
 	const [ready, setReady] = useState(!existing);
@@ -236,81 +390,130 @@ function Thread({
 			if (alive.current) setSending(false);
 		}
 	}
+	const fresh = !existing && !view.turns.length;
+	const transcript = useRef<HTMLDivElement>(null);
+	const followEnd = useRef(true);
+	useEffect(() => {
+		const el = transcript.current;
+		if (el && followEnd.current && view.revision > 0)
+			el.scrollTop = el.scrollHeight;
+	}, [view.revision]);
 	return (
-		<>
-			{view.turns.map((t) => (
-				<article key={t.id} className="exchange">
-					<h3>You</h3>
-					<p>{t.question}</p>
-					<h3>{t.route}</h3>
-					{t.answer && <p>{t.answer}</p>}
-					{t.state !== "completed" && (
-						<small>
-							{t.state === "running"
-								? "Responding…"
-								: (interruption[t.failure ?? ""] ?? "Response interrupted")}
-						</small>
-					)}
-				</article>
-			))}
-			{link && <p role="status">{link}</p>}
-			{error && <p role="alert">{error}</p>}
-			{routes.length === 0 ? (
-				<p>Configure a model route to send a message.</p>
+		<div className={fresh ? "thread empty" : "thread"}>
+			{fresh ? (
+				<div className="welcome">
+					<ZinccEmblem />
+					<h2>What are we working on?</h2>
+				</div>
 			) : (
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						void send();
+				<div
+					className="transcript"
+					ref={transcript}
+					onScroll={(e) => {
+						const el = e.currentTarget;
+						followEnd.current =
+							el.scrollHeight - el.scrollTop - el.clientHeight < 90;
 					}}
 				>
-					<label>
-						Model route{" "}
-						<select
-							value={route}
-							disabled={sending || !!retry}
-							onChange={(e) => setRoute(e.target.value)}
-						>
-							<option value="">Choose a route</option>
-							{Object.entries(presets).map(([name, model]) => (
-								<option key={name} value={`@${name}`}>
-									{name} · {model}
-								</option>
-							))}
-							{routes.map((r) => (
-								<option key={r}>{r}</option>
-							))}
-						</select>
-					</label>
-					<small>
-						The selected model receives your message and recent completed turns.
-					</small>
-					<label>
-						Message
+					{view.turns.map((t) => (
+						<article key={t.id} className="turn">
+							<div className="user-message">
+								<h3 className="sr-only">You</h3>
+								<p>{t.question}</p>
+							</div>
+							<h3 className="speaker">
+								<span className="mini-mark">Z</span> Zincc{" "}
+								<small>{t.route}</small>
+							</h3>
+							{t.answer && <p>{t.answer}</p>}
+							{t.state !== "completed" && (
+								<small>
+									{t.state === "running"
+										? "Responding…"
+										: (interruption[t.failure ?? ""] ?? "Response interrupted")}
+								</small>
+							)}
+						</article>
+					))}
+				</div>
+			)}
+			<div className="compose-area">
+				{link && <p role="status">{link}</p>}
+				{error && <p role="alert">{error}</p>}
+				{routes.length === 0 ? (
+					<p className="no-route">Configure a model route to send a message.</p>
+				) : (
+					<form
+						className="composer"
+						onSubmit={(e) => {
+							e.preventDefault();
+							void send();
+						}}
+					>
+						<label className="sr-only" htmlFor="chat-message">
+							Message
+						</label>
 						<textarea
+							id="chat-message"
+							placeholder="Message Zincc…"
 							value={question}
 							maxLength={8000}
 							rows={3}
 							disabled={sending || !!retry}
 							onChange={(e) => setQuestion(e.target.value)}
 						/>
-					</label>
-					<button
-						type="submit"
-						className="primary"
-						disabled={
-							!ready ||
-							sending ||
-							(!retry &&
-								(view.turns.at(-1)?.state === "running" ||
-									!question.trim() ||
-									!route))
-						}
-					>
-						{sending ? "Sending…" : retry ? "Retry message" : "Send message"}
-					</button>
-				</form>
-			)}
-		</>
+						<div className="compose-tools">
+							<label className="model-control">
+								<Layers size={15} />
+								<span className="sr-only">Model route</span>
+								<select
+									value={route}
+									disabled={sending || !!retry}
+									onChange={(e) => setRoute(e.target.value)}
+								>
+									<option value="">Choose a model</option>
+									{Object.entries(presets).map(([name, model]) => (
+										<option key={name} value={`@${name}`}>
+											{name} · {model}
+										</option>
+									))}
+									{routes.map((r) => (
+										<option key={r}>{r}</option>
+									))}
+								</select>
+								<ChevronDown size={13} />
+							</label>
+							<button
+								className="send"
+								type="submit"
+								aria-label={
+									sending
+										? "Sending…"
+										: retry
+											? "Retry message"
+											: "Send message"
+								}
+								disabled={
+									!ready ||
+									sending ||
+									(!retry &&
+										(view.turns.at(-1)?.state === "running" ||
+											!question.trim() ||
+											!route))
+								}
+							>
+								{retry ? "Retry" : <ArrowUp size={19} />}
+							</button>
+						</div>
+					</form>
+				)}
+				{fresh && shortcuts}
+				{route && (
+					<small className="route-note">
+						The selected model receives your message and recent completed turns.
+					</small>
+				)}
+			</div>
+		</div>
 	);
 }

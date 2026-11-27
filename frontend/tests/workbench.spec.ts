@@ -36,6 +36,67 @@ async function ready(page: Page, workspaces: Membership[] = [first, second]) {
 	}
 }
 
+test("workspace navigation keeps the chat draft and fits a phone", async ({
+	page,
+}, info) => {
+	await ready(page, [first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	const threads = ["Morning briefing", "Quarterly report", "Design review"].map(
+		(title, i) => ({ id: `10000000-0000-4000-8000-00000000001${i}`, title }),
+	);
+	await page.route(`${base}/conversations`, (r) =>
+		r.fulfill({
+			json: {
+				threads,
+				routes: ["local"],
+				presets: {},
+				agentsEnabled: true,
+				publicResearch: true,
+				knowledgeEnabled: true,
+			},
+		}),
+	);
+	await page.route(`${base}/conversations/${threads[0].id}`, (r) =>
+		r.fulfill({ json: { revision: 0, turns: [] } }),
+	);
+	await page.goto("/workbench/");
+	await page
+		.getByRole("button", { name: "New conversation", exact: true })
+		.click();
+	await expect(
+		page.getByRole("heading", { name: "What are we working on?" }),
+	).toBeVisible();
+	await page.emulateMedia({ colorScheme: "dark" });
+	await page.evaluate(() => document.fonts.ready);
+	await page.screenshot({ path: info.outputPath("desktop.png") });
+	await page
+		.getByLabel("Message", { exact: true })
+		.fill("Compare both reports");
+	await page.getByRole("button", { name: "Research a topic" }).click();
+	await expect(page.getByLabel("Search English Wikipedia")).toBeVisible();
+	await page.getByRole("button", { name: "Chat", exact: true }).click();
+	await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
+		"Compare both reports",
+	);
+	await page.setViewportSize({ width: 390, height: 844 });
+	await page.getByRole("button", { name: "Workspace menu" }).click();
+	await page.getByRole("button", { name: "Public web research" }).click();
+	await expect(page.getByLabel("Search English Wikipedia")).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Workspace menu" }),
+	).toHaveAttribute("aria-expanded", "false");
+	await page.getByRole("button", { name: "Workspace menu" }).click();
+	await page
+		.getByRole("button", { name: "New conversation", exact: true })
+		.click();
+	expect(
+		await page.evaluate(
+			() => document.documentElement.scrollWidth <= innerWidth,
+		),
+	).toBeTruthy();
+	await page.screenshot({ path: info.outputPath("mobile.png") });
+});
+
 test("agent approval binds the displayed task; an uncertain write offers only reconciliation", async ({
 	page,
 }) => {
@@ -195,9 +256,7 @@ test("engine run uses the displayed override and runner recovery explains the de
 		page.getByRole("button", { name: "Count files" }),
 	).toBeDisabled();
 	await page.getByText("Agents and runs", { exact: true }).click();
-	await page
-		.getByRole("combobox", { name: "Agent", exact: true })
-		.selectOption(agent);
+	await page.getByRole("button", { name: /^Reviewer .*v1/ }).click();
 	await page.getByText("Connected engines", { exact: true }).click();
 	await expect(
 		page.getByText(/Next engine run · Work plan fast · Agent default/),
@@ -594,9 +653,7 @@ test("submitting a team keeps the multiline brief and the selected local methods
 	);
 	await page.goto("/workbench/");
 	await page.getByText("Agents and runs", { exact: true }).click();
-	await page
-		.getByRole("combobox", { name: "Agent", exact: true })
-		.selectOption(agents[0].id);
+	await page.getByRole("button", { name: /^Lead .*v1/ }).click();
 	await page.getByLabel("Run mode").selectOption("team");
 	await page.getByRole("checkbox", { name: "Editor", exact: true }).check();
 	await page.getByRole("checkbox", { name: "Analyst", exact: true }).check();

@@ -11,19 +11,7 @@ const names: Record<string, string> = {
 	briefing: "Source briefing",
 	report: "Dashboard refresh",
 };
-export function Integrations(props: Props) {
-	const [open, setOpen] = useState(false);
-	return (
-		<details
-			className="conversation"
-			onToggle={(e) => setOpen(e.currentTarget.open)}
-		>
-			<summary>Connections and routines</summary>
-			{open && <Panel {...props} />}
-		</details>
-	);
-}
-function Panel({ workspace, session }: Props) {
+export function Integrations({ workspace, session }: Props) {
 	const [view, setView] = useState<View>();
 	const [provider, setProvider] = useState("gmail");
 	const [sample, setSample] = useState(true);

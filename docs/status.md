@@ -1,5 +1,11 @@
 # Zincc status
 
+## Workbench redesign, 27 November 2026
+
+The conversation composer, workspace navigation, agent roster and mobile menu now run in the existing client. Feature availability still comes from the workspace API. [Workbench guide](modules/workbench.md) · [Component note](learning-notes/047-workbench-navigation.md)
+
+Completed. Thirteen Edge tests passed against fixture APIs. Contract, TypeScript, lint and production packaging checks passed. The local Spring service reported healthy and served the new bundle at `/workbench/`.
+
 ## Workbench improvements, 27 November 2026
 
 The authorized OpenMausBot follow-up covers engine selection and allowance display, a cross-agent decision inbox, and recovery guidance for supported device jobs. [Operator walkthrough](modules/phase-nine-builder.md#decisions-and-device-recovery) · [Component note](learning-notes/046-workbench-decisions.md)

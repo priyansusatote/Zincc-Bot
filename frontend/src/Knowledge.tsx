@@ -27,20 +27,7 @@ function requestError(error: unknown) {
 	}
 }
 
-export function Knowledge(props: Auth) {
-	const [open, setOpen] = useState(false);
-	return (
-		<details
-			className="conversation"
-			onToggle={(event) => setOpen(event.currentTarget.open)}
-		>
-			<summary>Documents and dashboards</summary>
-			{open && <Library {...props} />}
-		</details>
-	);
-}
-
-function Library({ workspace, session }: Auth) {
+export function Knowledge({ workspace, session }: Auth) {
 	const [documents, setDocuments] = useState<Doc[]>([]);
 	const [selected, setSelected] = useState("");
 	const [busy, setBusy] = useState(false);

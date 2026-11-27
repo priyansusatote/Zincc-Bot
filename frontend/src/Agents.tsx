@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Bot, Plus } from "lucide-react";
 import { AgentMemory } from "./AgentMemory";
 import { VersionHistory } from "./VersionHistory";
 import { EnginePicker } from "./EnginePicker";
@@ -7,21 +8,10 @@ import type { components } from "./generated/api";
 const base = "/api/workspaces/{workspaceId}/agents" as const;
 type View = components["schemas"]["AgentView"];
 type Props = { workspace: string; session: Session; refresh: () => void };
-export function Agents(props: Props) {
-	const [open, setOpen] = useState(false);
-	return (
-		<details
-			className="conversation"
-			onToggle={(e) => setOpen(e.currentTarget.open)}
-		>
-			<summary>Agents and runs</summary>
-			{open && <Panel {...props} />}
-		</details>
-	);
-}
-function Panel({ workspace, session, refresh }: Props) {
+export function Agents({ workspace, session, refresh }: Props) {
 	const [view, setView] = useState<View>();
 	const [id, select] = useState("");
+	const [creating, setCreating] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [mode, setMode] = useState("model");
@@ -92,7 +82,46 @@ function Panel({ workspace, session, refresh }: Props) {
 	);
 	return (
 		<section aria-label="Agent workspace">
-			<section aria-label="Needs you">
+			<div className="roster-head">
+				<h3>Your agents</h3>
+				<button
+					type="button"
+					onClick={() => {
+						select("");
+						setCreating(true);
+						setReviewers([]);
+						attempt.current = "";
+					}}
+				>
+					<Plus size={15} /> New agent
+				</button>
+			</div>
+			<div className="agent-roster">
+				{view.agents.map((a) => (
+					<button
+						type="button"
+						key={a.id}
+						aria-pressed={a.id === id}
+						onClick={() => {
+							select(a.id);
+							setCreating(false);
+							setReviewers([]);
+							attempt.current = "";
+						}}
+					>
+						<span className="agent-icon">
+							<Bot size={20} />
+						</span>
+						<span className="agent-caption">
+							<strong>{a.name}</strong>
+							<small>
+								{a.route || "Agent"} · v{a.version}
+							</small>
+						</span>
+					</button>
+				))}
+			</div>
+			<section className="decision-tray" aria-label="Needs you">
 				<h3>Needs you · {pending.length}</h3>
 				{pending.length === 0 && <p>No decisions waiting.</p>}
 				<ul>
@@ -135,24 +164,7 @@ function Panel({ workspace, session, refresh }: Props) {
 					? "Revoke task connection"
 					: "Connect task list"}
 			</button>
-			<label>
-				Agent
-				<select
-					value={id}
-					onChange={(e) => {
-						select(e.target.value);
-						setReviewers([]);
-						attempt.current = "";
-					}}
-				>
-					<option value="">New agent</option>
-					{view.agents.map((a) => (
-						<option key={a.id} value={a.id}>
-							{a.name} · v{a.version}
-						</option>
-					))}
-				</select>
-			</label>
+
 			{agent && (
 				<EnginePicker
 					key={agent.id}
@@ -170,7 +182,7 @@ function Panel({ workspace, session, refresh }: Props) {
 					reload={load}
 				/>
 			)}
-			{(!agent || agent.mine) && (
+			{((!agent && (creating || view.agents.length === 0)) || agent?.mine) && (
 				<details key={agent?.id ?? "new"} open={!agent}>
 					<summary>{agent ? "Edit definition" : "Agent definition"}</summary>
 					<form

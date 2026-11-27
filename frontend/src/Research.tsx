@@ -80,8 +80,7 @@ export function Research({
 		}
 	}
 	return (
-		<details className="conversation">
-			<summary>Public web research</summary>
+		<section aria-label="Research sources">
 			<form
 				onSubmit={(e) => {
 					e.preventDefault();
@@ -145,6 +144,6 @@ export function Research({
 					))}
 				</section>
 			)}
-		</details>
+		</section>
 	);
 }

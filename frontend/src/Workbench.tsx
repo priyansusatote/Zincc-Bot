@@ -1,10 +1,10 @@
+import { ZinccEmblem } from "./ZinccEmblem";
 import { useCallback, useEffect, useState } from "react";
 import {
 	ArrowRight,
-	Check,
 	ChevronDown,
 	Layers,
-	LayoutGrid,
+	PanelsTopLeft,
 	LogIn,
 	LogOut,
 	MessageSquare,
@@ -26,22 +26,6 @@ type Home =
 	| { state: "loading" | "signed-out" | "unconfigured" | "error" }
 	| { state: "ready"; session: Session; workspaces: Membership[] };
 
-function PaperStack() {
-	return (
-		<div className="paper-field" aria-hidden="true">
-			<div className="folio back" />
-			<div className="folio middle" />
-			<div className="folio front">
-				<div className="folio-symbol">
-					<MessageSquare size={19} />
-				</div>
-				<i />
-				<i />
-			</div>
-		</div>
-	);
-}
-
 function Panel({
 	title,
 	text,
@@ -53,7 +37,9 @@ function Panel({
 }) {
 	return (
 		<section className="panel">
-			<PaperStack />
+			<span className="panel-icon" aria-hidden="true">
+				<MessageSquare size={24} />
+			</span>
 			<div className="panel-copy">
 				<h2>{title}</h2>
 				{text && <p>{text}</p>}
@@ -125,29 +111,7 @@ function Workspace({
 				<Retry onClick={() => setAttempt((n) => n + 1)} />
 			</Panel>
 		);
-	return (
-		<>
-			<div className="section-line">
-				<h2>
-					<MessageSquare size={17} /> Conversations
-				</h2>
-			</div>
-			<Conversations workspace={id} session={session} refresh={refresh} />
-			<dl className="details">
-				<div>
-					<dt>Workspace</dt>
-					<dd>{result.workspaceName}</dd>
-				</div>
-				<div>
-					<dt>Your access</dt>
-					<dd className="role">
-						<Check size={14} />
-						{result.role}
-					</dd>
-				</div>
-			</dl>
-		</>
-	);
+	return <Conversations workspace={id} session={session} refresh={refresh} />;
 }
 
 export function Workbench() {
@@ -241,51 +205,14 @@ export function Workbench() {
 			<a className="skip" href="#main">
 				Skip to content
 			</a>
-			<aside>
+			<header className="appbar">
 				<div className="brand">
 					<span className="mark" aria-hidden="true">
 						Z
 					</span>
 					Zincc
 				</div>
-				<nav aria-label="Main navigation">
-					<button
-						type="button"
-						aria-current={!account ? "page" : undefined}
-						onClick={() => setView("workbench")}
-					>
-						<LayoutGrid size={17} />
-						Workbench
-					</button>
-					{ready && (
-						<button
-							type="button"
-							aria-current={account ? "page" : undefined}
-							onClick={() => setView("account")}
-						>
-							<UserRound size={17} />
-							Account
-						</button>
-					)}
-				</nav>
-				{ready && (
-					<div className="identity">
-						<span className="avatar" aria-hidden="true">
-							<UserRound size={17} />
-						</span>
-						<div>
-							<small>Signed in as</small>
-							<strong>{home.session.accountLabel}</strong>
-						</div>
-					</div>
-				)}
-			</aside>
-			<main id="main" tabIndex={-1}>
-				<header>
-					<div className="crumb">
-						<Layers size={17} /> <span>Zincc</span> <b>/</b>{" "}
-						{account ? "Account" : "Workbench"}
-					</div>
+				<div className="workspace-meta">
 					{ready && home.workspaces.length > 0 && (
 						<label className="select">
 							<Layers size={15} />
@@ -306,23 +233,45 @@ export function Workbench() {
 							<ChevronDown size={14} />
 						</label>
 					)}
-				</header>
-				<div className="content">
-					<h1>
+					{current && <span className="role">{current.role}</span>}
+				</div>
+				{ready && (
+					<button
+						type="button"
+						className="account-link"
+						onClick={() => setView(account ? "workbench" : "account")}
+						aria-label={account ? "Workbench" : "Account"}
+					>
+						{account ? <PanelsTopLeft size={17} /> : <UserRound size={17} />}
+						{account ? "Workbench" : home.session.accountLabel}
+					</button>
+				)}
+			</header>
+			<main id="main" tabIndex={-1}>
+				<div
+					className={ready && current && !account ? "content" : "access-screen"}
+				>
+					<h1
+						className={
+							(ready && current && !account) || home.state === "signed-out"
+								? "sr-only"
+								: undefined
+						}
+					>
 						{account ? "Your account" : (current?.workspaceName ?? "Workbench")}
 					</h1>
 					{home.state === "loading" && (
 						<p role="status">Loading your workbench…</p>
 					)}
 					{home.state === "signed-out" && (
-						<Panel
-							title="Sign in to your workspace"
-							text="Use your connected account to open your Zincc workbench."
-						>
+						<section className="sign-in">
+							<ZinccEmblem />
+							<h2>Sign in to your workspace</h2>
+							<p>Open your conversations, agents and routines.</p>
 							<a className="primary" href={loginUrl}>
 								Sign in <ArrowRight size={16} />
 							</a>
-						</Panel>
+						</section>
 					)}
 					{home.state === "unconfigured" && (
 						<Panel

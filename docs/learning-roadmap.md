@@ -1,5 +1,7 @@
 # Zincc engineering learning roadmap
 
+Workbench UI state ownership and accessible navigation are implemented and browser-tested. [Component note](learning-notes/047-workbench-navigation.md)
+
 | P9 topic | Coverage | Evidence |
 | --- | --- | --- |
 | Start preconditions, decision projections and device recovery | Implemented for engine runs, member-scoped approvals and paired desktop jobs | [Workbench decisions](learning-notes/046-workbench-decisions.md) |

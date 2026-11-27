@@ -1,5 +1,7 @@
 # Zincc architecture
 
+The web client scopes navigation to the authorized workspace. Switching tools preserves the current thread and its replay cursor. Each selected tool owns its polling lifecycle. [Workbench state and verification](docs/learning-notes/047-workbench-navigation.md)
+
 The engine workbench sends the displayed model, connection and grant generation as a start precondition. Spring verifies that tuple while freezing the run receipt. The attention inbox reads the existing member-scoped run and action records, including outstanding decisions older than the recent history window. Device recovery advice comes from bounded receipt codes and runner presence. [Execution and verification](docs/learning-notes/046-workbench-decisions.md)
 
 P9 framework workers run one SDK planning turn inside the existing Docker broker. Spring supplies inference and owns tool dispatch. The agent revision pins its framework. Private engine selections and generation-bound run receipts use PostgreSQL row security. A paired runner sees the selected model before it can claim a task. The claim is single-use, and a late completion must still match the run, device and active grant. [P9 boundary](docs/architecture-decisions/0018-framework-planning-boundary.md) · [Provider qualification](docs/modules/phase-nine-builder.md)

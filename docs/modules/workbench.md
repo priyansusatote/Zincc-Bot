@@ -1,14 +1,12 @@
 # Web workbench
 
-The signed-in workbench offers **Documents and dashboards** when the `knowledge` profile is active. Apply Flyway V7 and configure the pinned worker image for this profile. [Document setup](private-knowledge.md).
+Use **New conversation** to start a thread, select its model in the composer, and find saved conversations in the sidebar. Switching between a tool and the current chat preserves its pending draft. Changing workspace or signing out closes that workspace's views.
 
-The signed-in workbench also offers an **Agents and runs** panel when the `agents` profile is active. Apply Flyway V6 for this profile. [Agent setup](phase-three-agents.md).
+**Agents and runs** shows the agent roster, outstanding decisions and run receipts. Select an agent to work with its definition, engine and runs. Research, documents, routines and customer devices have separate destinations, visible when enabled for the workspace. On a phone, open **Workspace menu** to reach those destinations. The account button is in the top bar. The palette follows the device appearance setting.
 
-The workbench has two views. **Workbench** shows the current workspace, membership role, and conversation area. **Account** shows the signed-in identity and provides switch-account and sign-out actions. The conversation area supports sending messages and recovering history. [Conversation setup and limits](conversations.md). The light/dark shell follows the device theme.
+![Zincc conversation workspace with sample history](../design/workbench-desktop.png)
 
-![Workbench with a sample account and workspace](../design/workbench-p14.png)
-
-The screenshot uses fixture membership data. An actual user's workspace list comes from PostgreSQL.
+The screenshot uses synthetic workspace and conversation data. [Phone view](../design/workbench-phone.png) · [Learning note](../learning-notes/047-workbench-navigation.md)
 
 ## Run the packaged application
 

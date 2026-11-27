@@ -54,19 +54,7 @@ function jobGuidance(job: View["jobs"][number]) {
 			return "";
 	}
 }
-export function Runners(props: Props) {
-	const [open, setOpen] = useState(false);
-	return (
-		<details
-			className="conversation"
-			onToggle={(e) => setOpen(e.currentTarget.open)}
-		>
-			<summary>Customer runners</summary>
-			{open && <Panel {...props} />}
-		</details>
-	);
-}
-function Panel({ workspace, session }: Props) {
+export function Runners({ workspace, session }: Props) {
 	const [view, setView] = useState<View>();
 	const [code, setCode] = useState("");
 	const [error, setError] = useState("");

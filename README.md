@@ -1,5 +1,7 @@
 # Zincc
 
+Open the [local workbench](http://127.0.0.1:8080/workbench/) for chat, recent conversations and dedicated agent, research and automation views. [Screens and navigation](docs/modules/workbench.md)
+
 Open **Agents and runs → Needs you** for outstanding decisions across your agents. **Connected engines** shows which account and model the next engine run will use. **Customer runners** explains the device grants and recovery steps for folder counts and browser reviews. [Workbench instructions](docs/modules/phase-nine-builder.md#decisions-and-device-recovery)
 
 In **Agents and runs**, choose a framework, compare agent versions, restore an earlier definition or run a task on your paired computer. A Windows Antigravity session completed a live Gemini Flash task through the workbench. [P9 walkthrough and provider qualification](docs/modules/phase-nine-builder.md)
