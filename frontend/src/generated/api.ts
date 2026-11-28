@@ -645,6 +645,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/workspaces/{workspaceId}/integrations/chat-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["chatSources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/workspaces/{workspaceId}/integrations/chat-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["readChatSource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1018,6 +1050,33 @@ export interface components {
             models: string[];
             choices: components["schemas"]["EngineChoice"][];
             receipts: components["schemas"]["EngineReceipt"][];
+        };
+        ChatSource: {
+            /** Format: uuid */
+            id: string;
+            provider: string;
+            label: string;
+            fixture: boolean;
+            ready: boolean;
+            /** Format: date-time */
+            syncedAt: string | null;
+        };
+        ChatSourceDirectory: {
+            sources: components["schemas"]["ChatSource"][];
+            routes: string[];
+        };
+        ChatRead: {
+            /** @enum {string} */
+            action: "read_recent" | "unsupported";
+            provider: string;
+            label: string;
+            fixture: boolean;
+            /** Format: date-time */
+            syncedAt: string | null;
+            items: {
+                stamp: string;
+                summary: string;
+            }[];
         };
     };
     responses: never;
@@ -2348,6 +2407,59 @@ export interface operations {
                         /** Format: uuid */
                         id: string;
                     };
+                };
+            };
+        };
+    };
+    chatSources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatSourceDirectory"];
+                };
+            };
+        };
+    };
+    readChatSource: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspaceId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    feed: string;
+                    route: string;
+                    question: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChatRead"];
                 };
             };
         };

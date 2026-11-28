@@ -225,6 +225,8 @@ The local failure drill experimentally evaluated replay across process and servi
 
 ## 9. Evidence of learning and completion
 
+Tool selection, grant enforcement across a slow model call and privacy of tool results are implemented and locally tested in [Connected-app chat](learning-notes/048-chat-connected-apps.md).
+
 For every component, the learning note identifies the covered topics from this matrix and link to implemented code or experiment evidence. Preserve five states: planned, studied, implemented, experimentally evaluated, and production-adopted. None implies the others.
 
 Require an execution trace, relevant tests, failure exercise, trade-off/ADR, small exercise, and interview questions. For stochastic AI evaluations, record model/version, prompts, data split, sampling settings, repeat count and uncertainty; seeds do not guarantee identical provider behavior. Validate judge quality on human-labeled examples. Agent outcome evaluation must not insist that every valid solution has one exact tool sequence.

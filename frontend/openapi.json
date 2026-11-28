@@ -2043,12 +2043,106 @@
                   },
                   "expected": {
                     "type": "object",
-                    "required": ["connection", "model", "generation"],
+                    "required": [
+                      "connection",
+                      "model",
+                      "generation"
+                    ],
                     "properties": {
-                      "connection": { "type": "string", "format": "uuid" },
-                      "model": { "type": "string" },
-                      "generation": { "type": "integer" }
+                      "connection": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "model": {
+                        "type": "string"
+                      },
+                      "generation": {
+                        "type": "integer"
+                      }
                     }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/chat-sources": {
+      "get": {
+        "operationId": "chatSources",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatSourceDirectory"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/workspaces/{workspaceId}/integrations/chat-read": {
+      "post": {
+        "operationId": "readChatSource",
+        "parameters": [
+          {
+            "name": "workspaceId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatRead"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "feed",
+                  "route",
+                  "question"
+                ],
+                "properties": {
+                  "feed": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "route": {
+                    "type": "string"
+                  },
+                  "question": {
+                    "type": "string"
                   }
                 }
               }
@@ -3516,6 +3610,113 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/EngineReceipt"
+            }
+          }
+        }
+      },
+      "ChatSource": {
+        "type": "object",
+        "required": [
+          "id",
+          "provider",
+          "label",
+          "fixture",
+          "ready",
+          "syncedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fixture": {
+            "type": "boolean"
+          },
+          "ready": {
+            "type": "boolean"
+          },
+          "syncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "ChatSourceDirectory": {
+        "type": "object",
+        "required": [
+          "sources",
+          "routes"
+        ],
+        "properties": {
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatSource"
+            }
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ChatRead": {
+        "type": "object",
+        "required": [
+          "action",
+          "provider",
+          "label",
+          "fixture",
+          "syncedAt",
+          "items"
+        ],
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "read_recent",
+              "unsupported"
+            ]
+          },
+          "provider": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fixture": {
+            "type": "boolean"
+          },
+          "syncedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "stamp",
+                "summary"
+              ],
+              "properties": {
+                "stamp": {
+                  "type": "string"
+                },
+                "summary": {
+                  "type": "string"
+                }
+              }
             }
           }
         }

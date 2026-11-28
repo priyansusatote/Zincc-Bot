@@ -159,6 +159,16 @@ class BrowserSessionTest {
 			var session = json.readTree(get(browser, "/api/session").body());
 			assertThat(session.path("provisioned").asBoolean()).isFalse();
 			String mine = "/api/workspaces/" + this.workspace;
+			// The agents profile is off here. An authenticated request reaches the
+			// absent handler (404), while a POST without CSRF is rejected first.
+			assertThat(get(browser, mine + "/integrations/chat-sources").statusCode()).isEqualTo(404);
+			var chatRead = request(mine + "/integrations/chat-read").header("Content-Type", "application/json")
+				.POST(HttpRequest.BodyPublishers.ofString("{}"));
+			assertThat(browser.send(chatRead.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
+				.isEqualTo(403);
+			chatRead.header(session.path("csrfHeader").asString(), session.path("csrfToken").asString());
+			assertThat(browser.send(chatRead.build(), HttpResponse.BodyHandlers.discarding()).statusCode())
+				.isEqualTo(404);
 			var researchRequest = request(mine + "/research").header("Content-Type", "application/json")
 				.POST(HttpRequest.BodyPublishers.ofString("{\"query\":\"\",\"fresh\":false}"));
 			assertThat(browser.send(researchRequest.build(), HttpResponse.BodyHandlers.discarding()).statusCode())

@@ -1,5 +1,7 @@
 # Zincc architecture
 
+Chat can read one explicitly selected connector feed. Two short PostgreSQL transactions check its visibility and freshness on either side of model inference. A fixed dispatcher interprets the permitted action, retrieves the items and returns them directly to the browser. The model and the conversation store receive no retrieved items. [Action boundary and trade-offs](docs/architecture-decisions/0019-chat-source-reads.md)
+
 The web client scopes navigation to the authorized workspace. Switching tools preserves the current thread and its replay cursor. Each selected tool owns its polling lifecycle. [Workbench state and verification](docs/learning-notes/047-workbench-navigation.md)
 
 The engine workbench sends the displayed model, connection and grant generation as a start precondition. Spring verifies that tuple while freezing the run receipt. The attention inbox reads the existing member-scoped run and action records, including outstanding decisions older than the recent history window. Device recovery advice comes from bounded receipt codes and runner presence. [Execution and verification](docs/learning-notes/046-workbench-decisions.md)
@@ -16,7 +18,7 @@ The [engineering learning roadmap](docs/learning-roadmap.md), added 15 November,
 
 ## 1. Boundaries
 
-The optional Numes profile contributes additional model routes to the existing Spring gateway. The local-only admission filter runs on both configured route lists before client construction. Offline experiments identify a route by its serving provider and model. [Gateway configuration](docs/modules/model-gateway.md#numes-free-routes)
+Optional Numes and TokenRouter profiles contribute routes to the Spring gateway. Local-only admission applies to all route collections before client construction. Offline experiments identify a route by its serving provider and model. [Gateway configuration](docs/modules/model-gateway.md)
 
 P5 adds `io.zincc.integrations` for resource-scoped account sync, versioned skill grants, an MCP stdio client and private read-only routines. Connection checkpoints and scheduled causes are durable PostgreSQL records. Reports reuse the P4 calculation path. [Decision and limits](docs/architecture-decisions/0016-private-integrations.md)
 

@@ -14,7 +14,7 @@ const names: Record<string, string> = {
 export function Integrations({ workspace, session }: Props) {
 	const [view, setView] = useState<View>();
 	const [provider, setProvider] = useState("gmail");
-	const [sample, setSample] = useState(true);
+	const [sample, setSample] = useState(false);
 	const [skillKey, selectSkill] = useState("briefing-1");
 	const [trigger, setTrigger] = useState("daily");
 	const [error, setError] = useState("");

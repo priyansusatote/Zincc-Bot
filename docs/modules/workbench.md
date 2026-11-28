@@ -10,6 +10,14 @@ The screenshot uses synthetic workspace and conversation data. [Phone view](../d
 
 ## Run the packaged application
 
+See the [signed-in capability audit](../research/2026-11-27-live-capability-audit.md) for the coverage of each destination.
+
+### Read a connected account
+
+In **Chat → Connected apps**, select a Gmail inbox, primary Google Calendar or Slack channel. Choose a planner, type “List the latest items from this account” and select **Run app request**. Check the account label, sample indicator and last sync time above the results. A successful empty read means the synced account contains no entries to show.
+
+Choose **Manage connections** to authorize a real account. A sample requires selecting **Use sample account**. If a feed needs a sync, use **Sync now** in its connection row, then return and refresh the account list. The model receives the request you type and the provider type. The returned subjects, event titles or channel summaries remain in this view until you change the selection, leave it or run another request. Full-text search, reply drafting and sending require additional tools.
+
 Use Node 26.13.1, pnpm 12.21.0 and the [project JDK](../../README.md). From the repository root on Windows:
 
 ```powershell

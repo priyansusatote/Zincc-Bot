@@ -54,9 +54,11 @@ class SessionSecurity {
 						"/api/workspaces/{workspaceId}/runners/{device}")
 				.authenticated()
 				.requestMatchers(HttpMethod.GET, "/api/workspaces/{workspaceId}/runners", "/api/integrations/callback",
-						"/api/workspaces/{workspaceId}/integrations")
+						"/api/workspaces/{workspaceId}/integrations",
+						"/api/workspaces/{workspaceId}/integrations/chat-sources")
 				.authenticated()
 				.requestMatchers(HttpMethod.POST, "/api/workspaces/{workspaceId}/integrations/connections",
+						"/api/workspaces/{workspaceId}/integrations/chat-read",
 						"/api/workspaces/{workspaceId}/integrations/connections/{id}",
 						"/api/workspaces/{workspaceId}/integrations/skills",
 						"/api/workspaces/{workspaceId}/integrations/routines",

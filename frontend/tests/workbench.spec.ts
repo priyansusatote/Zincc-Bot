@@ -97,6 +97,80 @@ test("workspace navigation keeps the chat draft and fits a phone", async ({
 	await page.screenshot({ path: info.outputPath("mobile.png") });
 });
 
+test("chat reads only the selected app and keeps private results out of ordinary chat", async ({
+	page,
+}) => {
+	await ready(page, [first]);
+	const base = `**/api/workspaces/${first.workspaceId}`;
+	const feed = "40000000-0000-4000-8000-000000000003";
+	await page.route(`${base}/conversations`, (r) =>
+		r.fulfill({ json: { threads: [], routes: ["desk"], agentsEnabled: true } }),
+	);
+	await page.route(`${base}/integrations/chat-sources`, (r) =>
+		r.fulfill({
+			json: {
+				sources: [
+					{
+						id: feed,
+						provider: "gmail",
+						label: "Personal inbox",
+						fixture: true,
+						ready: true,
+						syncedAt: "2026-11-27T12:00:00Z",
+					},
+				],
+				routes: ["desk"],
+			},
+		}),
+	);
+	let attempts = 0;
+	await page.route(`${base}/integrations/chat-read`, async (r) => {
+		expect(await r.request().headerValue(session.csrfHeader)).toBe(
+			session.csrfToken,
+		);
+		expect(r.request().postDataJSON()).toEqual({
+			feed,
+			route: "desk",
+			question: "List my latest subjects",
+		});
+		attempts++;
+		if (attempts > 1) return r.fulfill({ status: 409 });
+		return r.fulfill({
+			json: {
+				action: "read_recent",
+				provider: "gmail",
+				fixture: true,
+				label: "Personal inbox",
+				syncedAt: "2026-11-27T12:00:00Z",
+				items: [{ stamp: "1", summary: "Synthetic subject" }],
+			},
+		});
+	});
+	await page.goto("/workbench/");
+	await page
+		.getByLabel("Message", { exact: true })
+		.fill("List my latest subjects");
+	await page
+		.getByRole("button", { name: "Connected apps", exact: true })
+		.click();
+	await expect(
+		page.getByRole("button", { name: "Run app request" }),
+	).toBeDisabled();
+	await page.getByLabel("App account").selectOption(feed);
+	await page.getByLabel("Planner model").selectOption("desk");
+	await page.getByRole("button", { name: "Run app request" }).click();
+	await expect(page.getByRole("region", { name: "App result" })).toContainText(
+		"Synthetic subject",
+	);
+	await page.getByRole("button", { name: "Run app request" }).click();
+	await expect(page.getByRole("alert")).toContainText("Refresh the account");
+	await expect(page.getByText("Synthetic subject")).toHaveCount(0);
+	await page.getByRole("button", { name: "Back to chat" }).click();
+	await expect(page.getByLabel("Message", { exact: true })).toHaveValue(
+		"List my latest subjects",
+	);
+});
+
 test("agent approval binds the displayed task; an uncertain write offers only reconciliation", async ({
 	page,
 }) => {

@@ -33,6 +33,7 @@ try {
 			.first();
 	async function account(p, label) {
 		if ((await row(label).count()) === 0) {
+			await panel.getByRole("checkbox", { name: "Use sample account" }).check();
 			await panel
 				.getByLabel(/^Provider/)
 				.and(page.getByRole("combobox"))

@@ -1,6 +1,6 @@
 # Action product scope and connector catalogue
 
-Updated: **16 November 2026**. Status: **reviewed proposal; awaiting plan approval; no application implementation**. See [the final review](PLAN-REVIEW.md).
+Plan approved on 18 November 2026. The catalogue records the full product target. The [signed-in workbench audit](research/2026-11-27-live-capability-audit.md) records available operations and provider qualification as of 27 November.
 
 ## User clarification
 
@@ -12,7 +12,7 @@ The supplied [Perplexity Teammates page](https://www.perplexity.ai/en-GB/hub/pro
 
 ## Multiple agents
 
-**User-defined work is the core product.** The examples in learning notes and the workflow packs below are illustrative acceptance journeys and optional templates, not a whitelist of jobs. Users can describe a new task, create an agent from scratch, attach qualified tools/skills/MCP integrations and knowledge, and choose its trigger and execution environment. Unsupported capabilities must be identified and enabled through a qualified integration rather than simulated with a confident answer. No agents are implemented yet.
+**User-defined work is the core product.** The examples in learning notes and the workflow packs below are illustrative acceptance journeys and optional templates, not a whitelist of jobs. Users can describe a new task, create an agent from scratch, attach qualified tools/skills/MCP integrations and knowledge, and choose its trigger and execution environment. Unsupported capabilities must be identified and enabled through a qualified integration rather than simulated with a confident answer. The running builder saves versioned agent definitions. Its task tools, reviewer teams and paired engine runs have the specific capabilities in the [builder guide](modules/phase-nine-builder.md).
 
 **Additional proposed AI connection option:** use an eligible existing AI plan or signed-in engine such as Codex, Claude Code or Grok Build, as well as API/local routes. See [connected AI engines](modules/connected-ai-engines.md) for provider-specific availability, account ownership and billing boundaries.
 
@@ -44,7 +44,7 @@ All rows are in requested product scope. None means arbitrary operations will wo
 
 ## Named connector targets
 
-This is the finite **proposed connector catalogue for this plan revision**, not a claim that every operation is currently supported by every provider. Availability, OAuth review, commercial agreements, pricing, region, scopes, and API terms must be checked for each connector. No service is connected or implemented now.
+This is the finite **proposed connector catalogue for this plan revision**, not a claim that every operation is currently supported by every provider. Availability, OAuth review, commercial agreements, pricing, region, scopes, and API terms must be checked for each connector. Gmail, Calendar and Slack have bounded read adapters, and Google Tasks has a separate task-list grant. See the [integration guide](modules/phase-five-integrations.md) for the actual operations and required consent.
 
 Build one connector at a time through a common contract. Prefer a supported API or qualified MCP implementation. Browser automation is a separate tested path, not a universal replacement for unavailable API access.
 
@@ -106,7 +106,7 @@ Remote MCP, sandboxed local MCP, OpenAPI/HTTP tools, signed webhooks, RSS/Atom f
 
 ## Connector acceptance contract
 
-Catalogue status is **planned → experimental → qualified → deprecated/blocked**, with a reason and tested version. All current entries are planned. A user's disconnected/expired/insufficient-scope account is a separate availability state. Qualified read support does not imply qualified writes. Provider-access blockers must remain visible and cannot be counted as delivered integrations.
+Catalogue status is **planned → experimental → qualified → deprecated/blocked**, with a reason and tested version. Use the implementation evidence linked above to qualify individual operations. Remaining catalogue entries are targets. A user's disconnected/expired/insufficient-scope account is a separate availability state. Qualified read support does not imply qualified writes. Provider-access blockers must remain visible and cannot be counted as delivered integrations.
 
 Every enabled connector publishes its exact supported reads/writes and account requirements. Test connection/revocation, permissions, pagination, rate limits, retries, event deduplication, real permitted writes, and outcome verification. Trace provider request IDs and retain safe receipts. Read-only support must be labelled read-only; a mock demonstration must be labelled a mock.
 

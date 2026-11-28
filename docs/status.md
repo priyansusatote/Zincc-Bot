@@ -1,5 +1,11 @@
 # Zincc status
 
+## Connected apps in chat and connector review, 28 November 2026
+
+Completed the signed-in workbench audit and the scoped connected-app read. The packaged workbench listed five explicit model routes and four planning frameworks. A live Edge session sent a synthetic request to the TokenRouter DeepSeek route. Spring accepted its tool choice and Edge displayed three sample items. The Java suite reported 119 tests, 10 skipped and zero failures or errors. All 14 Edge fixture tests passed. The signed-in check caught an omitted Spring Security route matcher. Both endpoints have authenticated matchers and the POST requires CSRF.
+
+Hosted connector expansion remains proposed. The next acceptance journey covers an authorized cross-app briefing and follow-up. [Audit](research/2026-11-27-live-capability-audit.md) · [Composio and Nango evaluation](research/2026-11-28-connector-strategy.md) · [Learning note](learning-notes/048-chat-connected-apps.md)
+
 ## Workbench redesign, 27 November 2026
 
 The conversation composer, workspace navigation, agent roster and mobile menu now run in the existing client. Feature availability still comes from the workspace API. [Workbench guide](modules/workbench.md) · [Component note](learning-notes/047-workbench-navigation.md)

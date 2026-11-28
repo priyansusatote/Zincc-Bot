@@ -1,4 +1,5 @@
 import { ZinccEmblem } from "./ZinccEmblem";
+import { ChatApps } from "./ChatApps";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	ArrowUp,
@@ -220,6 +221,9 @@ export function Conversations(props: Props) {
 						presets={index.presets ?? {}}
 						saved={saved}
 						existing={!!thread}
+						appsEnabled={!!enabled.integrations}
+						active={active === "chat"}
+						manageApps={() => navigate("integrations")}
 						shortcuts={
 							<div className="shortcuts">
 								{enabled.agents && (
@@ -278,6 +282,9 @@ function Thread({
 	saved,
 	existing,
 	shortcuts,
+	appsEnabled,
+	active,
+	manageApps,
 }: Props & {
 	id: string;
 	routes: string[];
@@ -285,7 +292,11 @@ function Thread({
 	saved: (id: string, title: string) => void;
 	existing: boolean;
 	shortcuts: React.ReactNode;
+	appsEnabled: boolean;
+	active: boolean;
+	manageApps: () => void;
 }) {
+	const [usingApps, setUsingApps] = useState(false);
 	const [view, setView] = useState<Snapshot>(empty);
 	const [ready, setReady] = useState(!existing);
 	const [question, setQuestion] = useState("");
@@ -400,7 +411,7 @@ function Thread({
 	}, [view.revision]);
 	return (
 		<div className={fresh ? "thread empty" : "thread"}>
-			{fresh ? (
+			{fresh && usingApps ? null : fresh ? (
 				<div className="welcome">
 					<ZinccEmblem />
 					<h2>What are we working on?</h2>
@@ -440,7 +451,21 @@ function Thread({
 			<div className="compose-area">
 				{link && <p role="status">{link}</p>}
 				{error && <p role="alert">{error}</p>}
-				{routes.length === 0 ? (
+				{usingApps && appsEnabled ? (
+					active && (
+						<ChatApps
+							workspace={workspace}
+							session={session}
+							initialRoute={
+								route.startsWith("@") ? presets[route.slice(1)] : route
+							}
+							question={question}
+							setQuestion={setQuestion}
+							close={() => setUsingApps(false)}
+							connect={manageApps}
+						/>
+					)
+				) : routes.length === 0 ? (
 					<p className="no-route">Configure a model route to send a message.</p>
 				) : (
 					<form
@@ -463,6 +488,16 @@ function Thread({
 							onChange={(e) => setQuestion(e.target.value)}
 						/>
 						<div className="compose-tools">
+							{appsEnabled && (
+								<button
+									type="button"
+									className="apps-toggle"
+									disabled={sending || !!retry}
+									onClick={() => setUsingApps(true)}
+								>
+									Connected apps
+								</button>
+							)}
 							<label className="model-control">
 								<Layers size={15} />
 								<span className="sr-only">Model route</span>
@@ -507,8 +542,8 @@ function Thread({
 						</div>
 					</form>
 				)}
-				{fresh && shortcuts}
-				{route && (
+				{fresh && !usingApps && shortcuts}
+				{route && !usingApps && (
 					<small className="route-note">
 						The selected model receives your message and recent completed turns.
 					</small>

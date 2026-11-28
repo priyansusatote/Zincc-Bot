@@ -65,6 +65,10 @@ For a cloud route, set `provider` to `openai` or `anthropic`, choose a model acc
 
 ## Caller contract
 
+### TokenRouter and concurrent profiles
+
+For the DeepSeek Flash route, supply `TOKENROUTER_API_KEY` in the server environment or the ignored root `.env` and add `tokenrouter-free` to the active Spring profiles. The model picker exposes `tokenrouter-deepseek-free`. This profile uses a named route so enabling it alongside `openrouter-free,numes-free` retains both providers' routes. The pinned provider model is `deepseek/deepseek-v4.1-flash-1017-free`. It advertises text in Zincc. Provider availability and free allowances can change. [TokenRouter model listing](https://www.tokenrouter.com/models/deepseek/deepseek-v4.1-flash-1017-free/)
+
 P2.3 adds ordered preset selection. Set `zincc.models.presets.fast`, `.balanced`, or `.deep` to comma-separated route IDs in operator preference order. The workbench displays the resolved route beside each available preset and stores that ID. Local defaults to eligible offline Ollama routes in registration order. Errors after dispatch end the attempt.
 
 For an inference-local deployment, set `zincc.local-only=true`. Disable cloud features **on the Ollama service** with `OLLAMA_NO_CLOUD=1`, restart it, and verify its offline setting and network restrictions. Then set `zincc.models.ollama-offline=true` in Zincc. Without that declaration, local-only starts with no eligible routes. Local-only also disables public web research. Host the control plane, database and identity service locally for a fully local installation. [Ollama offline configuration](https://docs.ollama.com/faq#how-do-i-disable-ollamas-cloud-features) · [Selection and quality probe](../learning-notes/013-route-selection.md)

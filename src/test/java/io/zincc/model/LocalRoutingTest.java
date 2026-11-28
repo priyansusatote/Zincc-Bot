@@ -15,6 +15,7 @@ class LocalRoutingTest {
 				String preset = row.path("preset").asString();
 				var env = new MockEnvironment().withProperty("OPENROUTER_API_KEY", "fixture")
 					.withProperty("NUMES_API_KEY", "fixture-numes")
+					.withProperty("TOKENROUTER_API_KEY", "fixture-tokenrouter")
 					.withProperty("zincc.local-only", row.path("localOnly").toString())
 					.withProperty("zincc.models.ollama-offline", row.path("offline").toString())
 					.withProperty("zincc.models.presets." + preset, row.path("order").asString());
@@ -29,7 +30,9 @@ class LocalRoutingTest {
 			new ModelConfiguration.Entry("relay", ModelConfiguration.Provider.OLLAMA, "remote:cloud", 32, true, false),
 			new ModelConfiguration.Entry("desk", ModelConfiguration.Provider.OLLAMA, "fixture", 32, false, true)),
 			List.of(new ModelConfiguration.Entry("numes", ModelConfiguration.Provider.NUMES, "fixture:free", 32, false,
-					false)));
+					false)),
+			java.util.Map.of("tokenrouter", new ModelConfiguration.Entry("tokenrouter-free",
+					ModelConfiguration.Provider.TOKENROUTER, "fixture", 32, false, false)));
 
 	@Test
 	void localDeploymentCannotConstructOrSelectCloudEvenWithExplicitId() {
